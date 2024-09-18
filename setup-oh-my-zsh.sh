@@ -1,23 +1,14 @@
 #!/bin/bash
 
-# Update package list
-echo "Updating package list..."
-sudo apt update
-
-# Install dependencies
-sudo apt install -y zsh
+# Ensure you have Zsh installed locally or compiled from source
 
 # Check if zsh is installed
 if ! command -v zsh &> /dev/null; then
-    echo "zsh installation failed or not found in PATH. Exiting."
+    echo "zsh not found in PATH. Please ensure Zsh is installed locally. Exiting."
     exit 1
 else
     echo "zsh is installed."
 fi
-
-# Set zsh as the default shell
-echo "Setting zsh as the default shell..."
-chsh -s $(which zsh)
 
 # Install oh-my-zsh
 echo "Installing oh-my-zsh..."
@@ -42,7 +33,6 @@ fi
 
 # Install zsh plugins
 echo "Installing zsh-autosuggestions..."
-sudo apt install -y autojump
 if git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions; then
     echo "zsh-autosuggestions installed successfully."
 else
@@ -60,5 +50,5 @@ fi
 
 echo "All necessary configurations and dependencies installed successfully."
 
-# Reminder to log out and back in
-echo "Setup complete. Please log out and log back in for the default shell change to take effect."
+# Reminder to restart the shell
+echo "Setup complete. Please restart your terminal session to use zsh."
