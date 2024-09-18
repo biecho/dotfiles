@@ -134,3 +134,4 @@ function rename_files() {
 
 
 
+alias lg=lazygit
