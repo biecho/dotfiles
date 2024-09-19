@@ -445,3 +445,8 @@ tmux_conf_uninstall_plugins_on_reload=true
 #
 # "$@"
 # # /!\ do not remove the previous line
+
+# Dynamically set default shell to Zsh if available, otherwise fallback to Bash
+if-shell -b 'command -v zsh' \
+    'set-option -g default-shell /usr/bin/zsh' \
+    'set-option -g default-shell /usr/bin/bash'
