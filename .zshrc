@@ -7,6 +7,7 @@ fi
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH="$HOME/.local/bin:$PATH"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -77,10 +78,10 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
+#autojump 
 plugins=(
   git 
   docker 
-  autojump 
   zsh-autosuggestions 
   zsh-syntax-highlighting 
   shrink-path
@@ -112,8 +113,6 @@ autoload -Uz compinit
 zstyle ':completion:*' menu select
 fpath+=~/.zfunc
 
-[ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh
-
 function mv_recent_files() {
   find $1 -type f -mmin -3 -exec mv {} $2 \;
 }
@@ -132,6 +131,14 @@ function rename_files() {
   find . -type f -name "*.${source_extension}" -exec rename "s/\.${source_extension}$/.${target_extension}/" {} +
 }
 
-
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    alias c='pbcopy'
+    alias p='pbpaste'
+else
+    alias c='xclip -selection clipboard'
+    alias p='xclip -selection clipboard -o'
+fi
 
 alias lg=lazygit
+[[ -s "/local/home/dimeyer/.local/etc/profile.d/autojump.sh" ]] && source "/local/home/dimeyer/.local/etc/profile.d/autojump.sh"
+export PATH="$HOME/.local/bin:$PATH"

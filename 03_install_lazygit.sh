@@ -14,6 +14,12 @@ if ! command -v tar &> /dev/null; then
 	exit 1
 fi
 
+# Create the local bin directory if it doesn't exist
+if [ ! -d "$HOME/.local/bin" ]; then
+    echo "Creating $HOME/.local/bin"
+    mkdir -p "$HOME/.local/bin"
+fi
+
 # Download the latest release tarball
 echo "Downloading Lazygit from $LAZYGIT_URL"
 curl -Lo lazygit.tar.gz $LAZYGIT_URL
@@ -22,12 +28,18 @@ curl -Lo lazygit.tar.gz $LAZYGIT_URL
 echo "Extracting Lazygit..."
 tar -xf lazygit.tar.gz
 
-# Move the lazygit binary to /usr/local/bin for global access
-echo "Installing Lazygit..."
-sudo mv lazygit /usr/local/bin
+# Move the lazygit binary to the user's local bin for user-level access
+echo "Installing Lazygit to $HOME/.local/bin..."
+mv lazygit $HOME/.local/bin
 
 # Clean up the downloaded tarball
 rm lazygit.tar.gz
+
+# Ensure $HOME/.local/bin is in the user's PATH
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    echo "Adding $HOME/.local/bin to your PATH in .zshrc"
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+fi
 
 # Confirm installation
 if command -v lazygit &> /dev/null; then
@@ -48,8 +60,6 @@ else
     echo "Alias 'lg' already exists in $SHELL_CONFIG"
 fi
 
-# Source the shell configuration file to apply the alias immediately
-source "$SHELL_CONFIG"
-
-echo "Alias 'lg' for 'lazygit' added successfully. You can now use 'lg' to launch Lazygit."
-
+# Display reminder to source the shell configuration file
+echo "Lazygit has been installed and an alias 'lg' is present."
+echo "Please run 'source $SHELL_CONFIG' or restart your terminal to apply the changes."
