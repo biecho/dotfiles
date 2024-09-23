@@ -9,13 +9,13 @@ fi
 # Install exa using cargo
 cargo install exa
 
-# Check if the 'll' alias is already defined in ~/.zshrc
+if ! grep -q 'alias l=' ~/.zshrc; then
+  echo 'Adding alias l to ~/.zshrc to use exa'
+  echo "alias ll='exa -la'" >> ~/.zshrc
+
 if ! grep -q 'alias ll=' ~/.zshrc; then
   echo 'Adding alias ll to ~/.zshrc to use exa'
   echo "alias ll='exa -l'" >> ~/.zshrc
-else
-  echo "Alias ll is already defined. Skipping modification."
-fi
 
 # Notify the user
 echo "exa has been installed! Please restart your terminal to apply the alias changes."
