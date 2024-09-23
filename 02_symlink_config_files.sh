@@ -27,5 +27,14 @@ create_link "$DOTFILES_DIR/.config/tmux/tmux.conf.local" ~/.tmux.conf.local
 # Zsh configuration
 create_link "$DOTFILES_DIR/.zshrc" ~/.zshrc
 
+# Procs configuration
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    create_link "$DOTFILES_DIR/.config/procs/config.toml" ~/.config/procs/config.toml
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    create_link "$DOTFILES_DIR/.config/procs/config.toml" ~/Library/Preferences/com.github.dalance.procs/config.toml
+else
+    echo "Unsupported OS: $OSTYPE"
+fi
+
 echo "All symbolic links have been set up."
 
