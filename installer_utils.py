@@ -24,8 +24,11 @@ if not logger.hasHandlers():
 
 
 # -------------------------------------------------------------------
-# Reusable Utility Functions
+# Constant
 # -------------------------------------------------------------------
+ZSHRC_PATH = Path.home() / ".zshrc"
+LOCAL_BIN = Path.home() / ".local" / "bin"
+
 # -------------------------------------------------------------------
 # Reusable Utility Functions
 # -------------------------------------------------------------------
@@ -148,3 +151,22 @@ def ensure_line_in_file(file_path: Path, search_regex: str, line_to_add: str) ->
             f.write("\n" + line_to_add + "\n")
     else:
         logger.info(f"'{line_to_add.strip()}' is already present in {file_path}. Skipping.")
+
+def ensure_alias_in_zshrc(alias_line: str):
+    """
+    Checks if 'alias_line' is present in ~/.zshrc. If not, appends it.
+    """
+    if not ZSHRC_PATH.exists():
+        logger.info(f"{ZSHRC_PATH} does not exist; creating it.")
+        ZSHRC_PATH.write_text(alias_line + "\n", encoding="utf-8")
+        return
+
+    content = ZSHRC_PATH.read_text(encoding="utf-8")
+    # Regex to see if this alias is already set (e.g. alias l= or alias ll=).
+    # We'll do a simpler substring check for the exact line.
+    if alias_line in content:
+        logger.info(f"'{alias_line}' is already present in {ZSHRC_PATH}, skipping.")
+    else:
+        logger.info(f"Adding '{alias_line}' to {ZSHRC_PATH}")
+        with ZSHRC_PATH.open("a", encoding="utf-8") as f:
+            f.write("\n" + alias_line + "\n")
