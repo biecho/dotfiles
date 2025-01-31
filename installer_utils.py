@@ -100,3 +100,31 @@ def cleanup_tarball(tarball_path: Path) -> None:
             tarball_path.unlink()
         except Exception as e:
             logger.warning(f"Could not remove tarball: {e}")
+
+
+def ensure_dir_in_path(
+        shell_rc_path: Path,
+        directory: Path,
+) -> None:
+    """
+    Ensures that 'directory' is in the PATH within 'shell_rc_path'.
+    If not found, appends:
+        export PATH="<directory>:$PATH"
+
+    :param shell_rc_path: Path to the shell config file (e.g., ~/.zshrc).
+    :param directory: The directory to add to the PATH (e.g., ~/.local/bin).
+    """
+    export_line = f'export PATH="{directory}:$PATH"'
+
+    if not shell_rc_path.exists():
+        logger.info(f"{shell_rc_path} does not exist; creating it and adding {directory} to PATH.")
+        shell_rc_path.write_text(export_line + "\n", encoding="utf-8")
+
+    content = shell_rc_path.read_text(encoding="utf-8")
+
+    if export_line in content or str(directory) in content:
+        logger.info(f"{directory} is already in PATH in {shell_rc_path}; skipping update.")
+    else:
+        logger.info(f"Adding {directory} to PATH in {shell_rc_path}")
+        with shell_rc_path.open("a", encoding="utf-8") as f:
+            f.write("\n" + export_line + "\n")
