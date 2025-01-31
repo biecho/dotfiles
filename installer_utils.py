@@ -1,4 +1,5 @@
 import logging
+import re
 import subprocess
 import sys
 import tarfile
@@ -128,3 +129,22 @@ def ensure_dir_in_path(
         logger.info(f"Adding {directory} to PATH in {shell_rc_path}")
         with shell_rc_path.open("a", encoding="utf-8") as f:
             f.write("\n" + export_line + "\n")
+
+
+def ensure_line_in_file(file_path: Path, search_regex: str, line_to_add: str) -> None:
+    """
+    If 'search_regex' is not found in the file at 'file_path', appends 'line_to_add'.
+    Otherwise, does nothing.
+    """
+    if not file_path.exists():
+        logger.info(f"{file_path} does not exist; creating it.")
+        file_path.write_text(line_to_add + "\n", encoding="utf-8")
+        return
+
+    content = file_path.read_text(encoding="utf-8")
+    if not re.search(search_regex, content):
+        logger.info(f"Adding line to {file_path}: {line_to_add.strip()}")
+        with file_path.open("a", encoding="utf-8") as f:
+            f.write("\n" + line_to_add + "\n")
+    else:
+        logger.info(f"'{line_to_add.strip()}' is already present in {file_path}. Skipping.")
