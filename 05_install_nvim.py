@@ -5,7 +5,7 @@ from pathlib import Path
 
 from installer_utils import (
     logger,
-    download_tarball,
+    download_file,
     extract_tarball,
     create_symlink,
     cleanup_tarball,
@@ -25,7 +25,7 @@ def main():
     local_nvim_dir = home / ".local" / "nvim"
     local_bin_dir = home / ".local" / "bin"
 
-    download_tarball(STABLE_URL, tarball_path)
+    download_file(STABLE_URL, tarball_path)
 
     # Clear old nvim directory if it exists (destructive!)
     if local_nvim_dir.exists():

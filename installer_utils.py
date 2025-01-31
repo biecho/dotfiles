@@ -1,4 +1,5 @@
 import logging
+import subprocess
 import sys
 import tarfile
 import urllib.request
@@ -24,7 +25,24 @@ if not logger.hasHandlers():
 # -------------------------------------------------------------------
 # Reusable Utility Functions
 # -------------------------------------------------------------------
-def download_tarball(url: str, destination: Path) -> None:
+# -------------------------------------------------------------------
+# Reusable Utility Functions
+# -------------------------------------------------------------------
+def run_command(command: str, shell: bool = True, check: bool = True) -> None:
+    """
+    Runs the given command string using subprocess.
+    By default, runs in shell mode (like 'bash -c "command"').
+    Raises a CalledProcessError if 'check' is True and the command fails.
+    """
+    logger.info(f"Running command: {command}")
+    try:
+        subprocess.run(command, shell=shell, check=check)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Command failed with exit code {e.returncode}: {command}")
+        sys.exit(e.returncode)
+
+
+def download_file(url: str, destination: Path) -> None:
     """
     Downloads a file from the given URL to the specified destination using urllib.
     """
