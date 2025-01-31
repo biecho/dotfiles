@@ -22,12 +22,12 @@ console_handler.setFormatter(formatter)
 if not logger.hasHandlers():
     logger.addHandler(console_handler)
 
-
 # -------------------------------------------------------------------
 # Constant
 # -------------------------------------------------------------------
 ZSHRC_PATH = Path.home() / ".zshrc"
 LOCAL_BIN = Path.home() / ".local" / "bin"
+
 
 # -------------------------------------------------------------------
 # Reusable Utility Functions
@@ -152,6 +152,7 @@ def ensure_line_in_file(file_path: Path, search_regex: str, line_to_add: str) ->
     else:
         logger.info(f"'{line_to_add.strip()}' is already present in {file_path}. Skipping.")
 
+
 def ensure_alias_in_zshrc(alias_line: str):
     """
     Checks if 'alias_line' is present in ~/.zshrc. If not, appends it.
@@ -170,3 +171,14 @@ def ensure_alias_in_zshrc(alias_line: str):
         logger.info(f"Adding '{alias_line}' to {ZSHRC_PATH}")
         with ZSHRC_PATH.open("a", encoding="utf-8") as f:
             f.write("\n" + alias_line + "\n")
+
+
+def ensure_dir_exists(directory: Path) -> None:
+    """
+    Ensures that 'directory' exists, creating it if necessary (with logging).
+    """
+    if not directory.exists():
+        logger.info(f"Creating directory {directory}")
+        directory.mkdir(parents=True, exist_ok=True)
+    else:
+        logger.info(f"Directory already exists: {directory}")
