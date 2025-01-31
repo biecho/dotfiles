@@ -159,3 +159,19 @@ alias vi='lvim'
 export PATH="$HOME/.local/bin:$PATH"
 
 export PATH="/local/home/dimeyer/.local/bin:$PATH"
+
+
+# serve_files function: Quickly serve HTML files
+serve_files() {
+    local port=${1:-8000}       # Use the first argument as the port, default to 8000
+    local directory=${2:-$(pwd)} # Use the second argument as the directory, default to current directory
+
+    # Check if the port is already in use
+    if lsof -i :"$port" > /dev/null 2>&1; then
+        echo "Error: Port $port is already in use."
+        return 1
+    fi
+
+    echo "Serving files from $directory on http://localhost:$port"
+    python3 -m http.server "$port" --directory "$directory"
+}
