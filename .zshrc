@@ -155,3 +155,5 @@ alias fkill='ps -ef | fzf --multi | awk "{print \$2}" | xargs kill'  # Fuzzy kil
 alias l='exa -la'
 alias ll='exa -l'
 
+alias vi='nvim'
+export PATH="$HOME/.local/bin:$PATH"
