@@ -1,0 +1,263 @@
+" .ideavimrc is a configuration file for IdeaVim plugin. It uses
+"   the same commands as the original .vimrc configuration.
+" You can find a list of commands here: https://jb.gg/h38q75
+" Find more examples here: https://jb.gg/share-ideavimrc
+
+" Source your .vimrc
+" source ~/.vimrc
+
+""" The Leader Key
+let mapleader=" "
+set tw=75
+
+
+""" Distraction Free Mode
+nnoremap <leader>df :action ToggleDistractionFreeMode<CR>
+
+""" Terminal
+nnoremap <C-t> :action ActivateTerminalToolWindow<CR>
+
+""" Navigation
+nnoremap <leader>sv :action SplitVertically<CR>
+nnoremap <leader>sh :action SplitHorizontally<CR>
+nnoremap <c-m> :action MoveEditorToOppositeTabGroup<CR>
+
+"sethandler <c-j> a:vim
+"sethandler <c-k> a:vim
+"nnoremap <c-h> <c-w>h
+"nnoremap <c-l> <c-w>l
+"nnoremap <c-j> <c-w>j
+"nnoremap <c-k> <c-w>k
+
+nnoremap <TAB> :action NextTab<CR>
+nnoremap <s-TAB> :action PreviousTab<CR>
+
+"nnoremap ;q :action CloseContent<CR>
+"nnoremap ;a :action CloseAllEditors<CR>
+
+""" Editing source code
+set ideajoin
+set idearefactormode=keep
+
+vnoremap < <gv
+vnoremap > >gv
+
+" Navigate to the next method
+nnoremap [[ :action MethodUp<CR>
+" Navigate to the previous method
+nnoremap ]] :action MethodDown<CR>
+nnoremap ]w :action GotoNextError<CR>
+nnoremap [w :action GotoPreviousError<CR>
+
+nnoremap cr :action CollapseRegion<CR>
+nnoremap er :action ExpandRegion<CR>
+nnoremap <leader>cr :action CollapseAllRegions<CR>
+nnoremap <leader>er :action ExpandAllRegions<CR>
+
+nnoremap <leader>ql :action Refactorings.QuickListPopupAction<CR>
+vnoremap <leader>ql :action Refactorings.QuickListPopupAction<CR>
+
+nnoremap <leader>fo :action ReformatCode<CR>
+nnoremap <leader>o :action OptimizeImports<CR>
+
+nnoremap <leader>rf :action RecentFiles<CR>
+nnoremap <leader>rl :action RecentLocations<CR>
+nnoremap <leader>sh :action LocalHistory.ShowHistory<CR>
+
+nnoremap crr :action RenameElement<CR>
+vnoremap crm :action ExtractMethod<CR>
+vnoremap crv :action IntroduceVariable<CR>
+nnoremap crv :action IntroduceVariable<CR>
+nnoremap crc :action IntroduceConstant<CR>
+vnoremap crc :action IntroduceConstant<CR>
+nnoremap crf :action IntroduceField<CR>
+
+""" Searching and Source Code Navigation
+set incsearch
+
+
+nnoremap gi :action GotoImplementation<CR>
+nnoremap gd :action GotoDeclaration<CR>
+nnoremap gp :action GotoSuperMethod<CR>
+nnoremap gt :action GotoTest<CR>
+nnoremap gb :action Back<CR>
+nnoremap gf :action Forward<CR>
+nnoremap ge :action Generate<cr>
+
+nnoremap <leader>ff :action GotoFile<cr>
+nnoremap <leader>fc :action GotoClass<cr>
+nnoremap <leader>fs :action GotoSymbol<cr>
+nnoremap <leader>fa :action GotoAction<CR>
+nnoremap <leader>d :action DebugClass<cr>
+nnoremap <Leader>b :action ToggleLineBreakpoint<cr>
+nnoremap <Leader>e :action EvaluateExpression<cr>
+
+nnoremap <Leader>ao gq<cr>
+"""lvim.keys.normal_mode["<leader>ao"] = ":%!fold -w 75 -s %<CR>"
+
+
+nnoremap <leader>s :action FileStructurePopup<CR>
+"nnoremap <leader>u :action ShowUsages<CR>
+nnoremap <leader>h :action CallHierarchy<cr>
+
+nnoremap <leader>tr :action RerunTests<cr>
+nnoremap <leader>tfr :action RerunFailedTests<cr>
+
+nnoremap <leader>cap :action CopyAbsolutePath<cr>
+
+
+""" Git plugin  --------------------------------
+"Git.Add                                            <M-A-A> <C-G>
+"Git.Branches                                       <C-G>
+nnoremap <leader>gib :action Git.Branches<cr>
+"Git.CheckoutRevision
+"Git.CompareWithBranch
+nnoremap <leader>cb :action Git.CompareWithBranch<cr>
+"Git.ContextMenu
+"Git.CreateNewBranch
+"Git.CreateNewTag
+"Git.Edit.Global.Message
+"Git.Fetch
+"Git.Init
+"Git.Log
+"Git.Log.ContextMenu
+"Git.Log.DeepCompare
+"Git.Log.Toolbar
+"Git.LogContextMenu
+"Git.Menu
+nnoremap <leader>gim :action Git.Menu<cr>
+"Git.Merge
+"Git.Pull
+"Git.Rebase
+"Git.Rebase.Abort
+"Git.Rebase.Continue
+"Git.Rebase.Skip
+"Git.RepositoryContextMenu
+"Git.Reset
+"Git.Reset.In.Log
+"Git.ResolveConflicts
+"Git.Revert
+"Git.Stash
+"Git.Tag
+"Git.Unstash
+
+nnoremap <leader>cv :action ChangeView<cr>
+
+""" NERDTree plugin  --------------------------------
+" Emulates NERDTree
+" Basic Commands:
+"   Ctrl-n  Open NERDTree (mapped bellow)
+"   q	    Close the NERDTree window
+"   o   	Open files, directories and bookmarks
+"   go   	Open selected file, but leave cursor in the NERDTree
+"   i   	Open selected file in a split window
+"   gi   	Same as i, but leave the cursor on the NERDTree
+"   s   	Open selected file in a new vsplit
+"   gs   	Same as s, but leave the cursor on the NERDTree
+"   <C-J>	Jump down to next sibling of the current directory
+"   <C-K>	Jump up to previous sibling of the current directory
+"   R	    Recursively refresh the current root
+"   m	    Display the NERDTree menu
+" See  https://github.com/JetBrains/ideavim/wiki/NERDTree-support for details
+set NERDTree
+nnoremap <leader>n :NERDTreeFocus<CR>
+nnoremap <leader>nn :NERDTree<CR>
+nnoremap <leader>nf :NERDTreeFind<CR>
+"nnoremap <C-t> :NERDTreeToggle<CR>
+
+" --- Enable IdeaVim plugins https://jb.gg/ideavim-plugins
+
+" Highlightsymotion-s) copied text
+Plug 'machakann/vim-highlightedyank'
+" Commentary plugin
+Plug 'tpope/vim-commentary'
+" https://github.com/tpope/vim-surround/blob/master/doc/surround.txt
+Plug 'tpope/vim-surround'
+
+""" easy motion plugin  --------------------------------
+" Emulates vim-easymotion
+" Make sure to install IdeaVim-EasyMotion and AceJump Plugins
+" Basic Commands:
+"   easy-motion-s Search backward
+"   easy-motion-f Search forward
+" See https://github.com/AlexPl292/IdeaVim-EasyMotion#supported-commands for details
+"Plug 'easymotion/vim-easymotion'
+set easymotion
+
+"nnoremap s <Plug>(easymotion-s)<CR>
+"nnoremap s <Plug>(easymotion-s)<CR>
+"map S <Plug>(easymotion-s)
+
+vnoremap K :m '<-2<CR>gv=gv
+vnoremap J :m '>+1<CR>gv=gv
+
+"""Find ----------------------------------------
+"Find                                               <M-F>
+"nnoremap <C-f> :action Find<CR>
+"FindInPath                                         <M-S-F>
+nnoremap <leader>fg :action FindInPath<CR>
+"FindMenuGroup
+"FindModal                                          <C-F>
+"FindNext                                           <M-G>
+"FindPrevious                                       <M-S-G>
+"FindUsages                                         <A-F7> <C-F>
+nnoremap <leader>u :action FindUsages<CR>
+"FindUsagesInFile                                   <M-F7>
+"FindWordAtCaret
+
+"""Replace ----------------------------------------
+"Replace                                            <M-R>
+"nnoremap <C-r> :action Replace<CR>
+"ReplaceAttributeWithTagAction
+"ReplaceConstructorWithBuilder
+"ReplaceConstructorWithFactory
+"ReplaceInPath                                      <M-S-R>
+nnoremap <leader>fr :action ReplaceInPath<CR>
+"ReplaceMethodWithMethodObject
+"ReplaceTagWithAttributeAction
+"ReplaceTempWithQuery
+
+"""New ----------------------------------------
+"NewAction
+"NewAndroidAssetImage
+"NewApplicationComponent
+"NewCfmlFile
+"NewClass
+nnoremap <leader>nec :action NewClass<cr>
+"NewCoffeeScriptFile
+"NewDialog
+"NewDir
+"NewElement                                         <M-N>
+"NewElementInMenuGroup
+"NewElementSamePlace                                <A-C-N>
+"NewFile
+nnoremap <leader>nef :action NewFile<cr>
+"NewForm
+"NewFormSnapshot
+"NewFromTemplate
+"NewGroup
+"NewGroup1
+"NewGroupPersistence
+"NewGuiceBindingAnnotation
+"NewGuiceMethodInterceptor
+"NewGuiceModule
+"NewGuiceProvider
+"NewGuiceScopeAnnotation
+"NewHtmlFile
+"NewJavaDiagram
+"NewJavaScriptFile
+"NewModule
+"NewModuleComponent
+"NewModuleInGroup
+"NewModulesDiagram
+"NewPackageInfo
+"NewProject
+"NewProjectComponent
+"NewProjectFromVCS
+"NewProjectOrModuleGroup
+"NewPropertyAction
+"NewScratchFile                                     <M-S-N>
+"NewStylesheetFile
+"NewTypeScriptFile
+"NewXml
+"NewXmlDescriptor
