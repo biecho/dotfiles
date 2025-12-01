@@ -36,6 +36,9 @@ zinit light zsh-users/zsh-autosuggestions
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 
+# Oh-My-Zsh git plugin (provides gco, gcb, gst, etc.)
+zinit snippet OMZP::git
+
 # -----------------------------------------------------------------------------
 # Prompt - Starship
 # -----------------------------------------------------------------------------
@@ -147,14 +150,6 @@ else
         [[ -n "$encoded" ]] && echo "$encoded" | base64 -d
     }
 fi
-
-# Git
-alias gs='git status'
-alias gd='git diff'
-alias ga='git add'
-alias gc='git commit'
-alias gp='git push'
-alias gl='git log --oneline -20'
 
 # Navigation & listing (eza = modern ls)
 alias ..='cd ..'
