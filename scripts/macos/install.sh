@@ -71,6 +71,14 @@ create_symlinks() {
     ln -sf "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
     echo "   ~/.config/ghostty/config"
 
+    # Neovim config (backup existing, then symlink entire directory)
+    if [[ -d "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
+        mv "$HOME/.config/nvim" "$HOME/.config/nvim.backup"
+        echo "   Backed up existing nvim config to ~/.config/nvim.backup"
+    fi
+    ln -sfn "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+    echo "   ~/.config/nvim"
+
     # Global git hooks
     mkdir -p "$HOME/.config/git/hooks"
     ln -sf "$DOTFILES_DIR/git/hooks/prepare-commit-msg" "$HOME/.config/git/hooks/prepare-commit-msg"
