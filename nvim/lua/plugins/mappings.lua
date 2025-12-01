@@ -6,7 +6,8 @@ return {
   opts = function(_, opts)
     local maps = opts.mappings
 
-    maps.n["<leader>rr"] = {
+    -- Moved to <leader>wr to avoid conflict with REPL (<leader>r)
+    maps.n["<leader>wr"] = {
       function()
         vim.notify("Resize mode (Shift-H/J/K/L to resize, <Esc> to exit)", vim.log.levels.INFO, { timeout = 1500 })
         local local_opts = { noremap = true, silent = true, buffer = true }
@@ -21,8 +22,11 @@ return {
           vim.cmd("mapclear <buffer>")
         end, local_opts)
       end,
-      desc = "Enter resize mode (Shift-H/J/K/L, Esc to exit)",
+      desc = "Window resize mode (Shift-H/J/K/L, Esc to exit)",
     }
+
+    -- Window group label
+    maps.n["<leader>w"] = { desc = " Windows" }
 
     maps.n["<leader>v"] = { "<cmd>vsplit<cr>", desc = "Vertical Split" }
     maps.n["<leader>s"] = { "<cmd>split<cr>", desc = "Horizontal Split" }
