@@ -31,6 +31,15 @@ return {
     maps.n["<leader>v"] = { "<cmd>vsplit<cr>", desc = "Vertical Split" }
     maps.n["<leader>s"] = { "<cmd>split<cr>", desc = "Horizontal Split" }
 
+    -- Search all files (including ignored and hidden)
+    maps.n["<leader>fF"] = {
+      function() require("telescope.builtin").find_files({ no_ignore = true, hidden = true }) end,
+      desc = "Find all files",
+    }
+    maps.n["<leader>fW"] = {
+      function() require("telescope.builtin").live_grep({ additional_args = { "--no-ignore", "--hidden" } }) end,
+      desc = "Search all files (grep)",
+    }
     return opts
   end,
 }
