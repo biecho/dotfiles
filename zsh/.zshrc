@@ -9,6 +9,14 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.fzf/bin:$PATH"
 
 # -----------------------------------------------------------------------------
+# fnm (Fast Node Manager) - user-local Node.js
+# -----------------------------------------------------------------------------
+if [[ -d "$HOME/.local/share/fnm" ]]; then
+    export PATH="$HOME/.local/share/fnm:$PATH"
+    eval "$(fnm env --use-on-cd)"
+fi
+
+# -----------------------------------------------------------------------------
 # Zinit setup
 # -----------------------------------------------------------------------------
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
