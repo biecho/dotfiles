@@ -137,10 +137,17 @@ fi
 # Navigation & listing (eza = modern ls)
 alias ..='cd ..'
 alias ...='cd ../..'
-alias ll='eza -l'
-alias l='eza -la'
-alias la='eza -la'
-alias lt='eza -la --tree --level=2'
+eza_params='--git --icons --group-directories-first'
+alias ls="eza $eza_params"
+alias l="eza -la $eza_params"
+alias ll="eza -l $eza_params"
+alias la="eza -la --header $eza_params"
+alias ld="eza -lD $eza_params"       # dirs only
+alias lf="eza -lf $eza_params"       # files only
+alias lm="eza -la --sort=modified $eza_params"
+alias lz="eza -la --sort=size $eza_params"
+alias tree="eza --tree $eza_params"
+lt() { eza -la --tree --level="${1:-2}" ${=eza_params}; }  # lt [depth]
 
 # Ports
 alias listenports="lsof -iTCP -sTCP:LISTEN -n"
