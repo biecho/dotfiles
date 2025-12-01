@@ -57,9 +57,6 @@ bindkey '^?' backward-delete-char
 bindkey '^h' backward-delete-char
 bindkey '^w' backward-kill-word
 
-# Fix Ctrl+[ for Ghostty (CSI u encoding)
-bindkey '^[[91;5u' vi-cmd-mode
-
 # Cursor shape for vi modes (block=normal, bar=insert)
 function zle-keymap-select {
   if [[ ${KEYMAP} == vicmd ]] || [[ $1 == 'block' ]]; then
@@ -127,28 +124,13 @@ alias lg='lazygit'
 alias k='kubectl'
 alias icat='kitten icat'
 
-# Clipboard (cross-platform, works over SSH via OSC 52)
+# Clipboard (kitten clipboard works locally and over kitten ssh)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     alias c='pbcopy'
     alias p='pbpaste'
 else
-    # OSC 52 - copies to local clipboard over SSH
-    c() {
-        local data=$(cat)
-        local encoded=$(echo -n "$data" | base64 | tr -d '\n')
-        printf "\033]52;c;%s\007" "$encoded"
-    }
-    # OSC 52 read - paste from local clipboard over SSH
-    p() {
-        local old_settings=$(stty -g)
-        stty raw -echo min 0 time 10
-        printf "\033]52;c;?\007"
-        local response=$(dd bs=1024 count=1 2>/dev/null < /dev/tty)
-        stty "$old_settings"
-        # Extract base64 data between ;c; and the terminator
-        local encoded=$(echo "$response" | sed -n 's/.*]52;c;\([^[:cntrl:]]*\).*/\1/p')
-        [[ -n "$encoded" ]] && echo "$encoded" | base64 -d
-    }
+    alias c='kitten clipboard'
+    alias p='kitten clipboard --get-clipboard'
 fi
 
 # Navigation & listing (eza = modern ls)
