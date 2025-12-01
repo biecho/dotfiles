@@ -146,6 +146,9 @@ create_symlinks() {
     ln -sfn "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
     echo "   ~/.config/nvim"
 
+    ln -sf "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+    echo "   ~/.tmux.conf"
+
     # Global git hooks
     mkdir -p "$HOME/.config/git/hooks"
     ln -sf "$DOTFILES_DIR/git/hooks/prepare-commit-msg" "$HOME/.config/git/hooks/prepare-commit-msg"
