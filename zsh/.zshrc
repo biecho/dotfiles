@@ -114,6 +114,7 @@ alias vi='nvim'
 alias vim='nvim'
 alias lg='lazygit'
 alias k='kubectl'
+alias icat='kitten icat'
 
 # Clipboard (cross-platform, works over SSH via OSC 52)
 if [[ "$OSTYPE" == "darwin"* ]]; then
