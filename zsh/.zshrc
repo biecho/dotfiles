@@ -149,6 +149,9 @@ alias lz="eza -la --sort=size $eza_params"
 alias tree="eza --tree $eza_params"
 lt() { eza -la --tree --level="${1:-2}" ${=eza_params}; }  # lt [depth]
 
+# Claude Code (skip permission prompts)
+alias claude='claude --dangerously-skip-permissions'
+
 # Ports
 alias listenports="lsof -iTCP -sTCP:LISTEN -n"
 
