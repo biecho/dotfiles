@@ -142,8 +142,22 @@ else
         local encoded=$(echo -n "$data" | base64 | tr -d '\n')
         printf "\033]52;c;%s\007" "$encoded"
     }
-    # Paste not available over SSH (OSC 52 read is often disabled for security)
-    alias p='echo "Paste not available over SSH"'
+    # OSC 52 read - paste from local clipboard over SSH
+    p() {
+        local old_settings=$(stty -g)
+        stty raw -echo
+        printf "\033]52;c;?\007"
+        local response=""
+        local char
+        while IFS= read -r -n1 -t1 char; do
+            response+="$char"
+            [[ "$char" == $'\007' || "$char" == $'\033' ]] && break
+        done < /dev/tty
+        stty "$old_settings"
+        # Extract base64 data between ;c; and the terminator
+        local encoded=$(echo "$response" | sed -n 's/.*]52;c;\([^[:cntrl:]]*\).*/\1/p')
+        [[ -n "$encoded" ]] && echo "$encoded" | base64 -d
+    }
 fi
 
 # Git
