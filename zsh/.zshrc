@@ -78,6 +78,19 @@ bindkey '^w' backward-kill-word
 # Fix Ctrl+[ for Ghostty (CSI u encoding)
 bindkey '^[[91;5u' vi-cmd-mode
 
+# Cursor shape for vi modes (block=normal, bar=insert)
+function zle-keymap-select {
+  if [[ ${KEYMAP} == vicmd ]] || [[ $1 == 'block' ]]; then
+    echo -ne '\e[2 q'  # block cursor
+  elif [[ ${KEYMAP} == main ]] || [[ ${KEYMAP} == viins ]] || [[ $1 == 'beam' ]]; then
+    echo -ne '\e[6 q'  # bar cursor
+  fi
+}
+zle -N zle-keymap-select
+
+# Start with bar cursor (insert mode is default)
+echo -ne '\e[6 q'
+
 # -----------------------------------------------------------------------------
 # History
 # -----------------------------------------------------------------------------
