@@ -117,7 +117,7 @@ export VISUAL="nvim"
 export EDITOR="nvim"
 
 # Additional PATH (platform-specific)
-[[ -d "$(go env GOPATH 2>/dev/null)/bin" ]] && export PATH="$(go env GOPATH)/bin:$PATH"
+command -v go &>/dev/null && export PATH="$(go env GOPATH)/bin:$PATH"
 [[ -d "/Library/TeX/texbin" ]] && export PATH="/Library/TeX/texbin:$PATH"
 
 # Java (macOS)
