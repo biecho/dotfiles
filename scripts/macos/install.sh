@@ -70,6 +70,12 @@ create_symlinks() {
     mkdir -p "$HOME/.config/ghostty"
     ln -sf "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
     echo "   ~/.config/ghostty/config"
+
+    # Global git hooks
+    mkdir -p "$HOME/.config/git/hooks"
+    ln -sf "$DOTFILES_DIR/git/hooks/prepare-commit-msg" "$HOME/.config/git/hooks/prepare-commit-msg"
+    git config --global core.hooksPath "$HOME/.config/git/hooks"
+    echo "   ~/.config/git/hooks (global git hooks)"
 }
 
 # -----------------------------------------------------------------------------

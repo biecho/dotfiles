@@ -1,0 +1,11 @@
+#!/bin/bash
+# Global hook: Ensure no Claude/AI traces in commit messages
+
+COMMIT_MSG_FILE=$1
+
+# Check for Claude-related content
+if grep -qiE "(claude|anthropic|co-authored-by.*claude|generated with claude|🤖.*claude)" "$COMMIT_MSG_FILE"; then
+    echo "ERROR: Commit message contains Claude/AI references."
+    echo "Please remove any traces of AI assistance from your commit message."
+    exit 1
+fi
