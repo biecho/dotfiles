@@ -13,11 +13,13 @@ window-padding-x = 8
 window-padding-y = 8
 
 copy-on-select = clipboard
+clipboard-read = allow
+clipboard-write = allow
 quit-after-last-window-closed = true
 scrollback-limit = 50000
 
 shell-integration = zsh
-shell-integration-features = cursor,sudo,title
+shell-integration-features = cursor,sudo,title,ssh-terminfo,ssh-env
 
 # Splits
 keybind = cmd+"=new_split:right
