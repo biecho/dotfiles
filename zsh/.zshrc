@@ -131,13 +131,19 @@ alias vim='nvim'
 alias lg='lazygit'
 alias k='kubectl'
 
-# Clipboard (cross-platform)
+# Clipboard (cross-platform, works over SSH via OSC 52)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     alias c='pbcopy'
     alias p='pbpaste'
 else
-    alias c='xclip -selection clipboard'
-    alias p='xclip -selection clipboard -o'
+    # OSC 52 - copies to local clipboard over SSH
+    c() {
+        local data=$(cat)
+        local encoded=$(echo -n "$data" | base64 | tr -d '\n')
+        printf "\033]52;c;%s\007" "$encoded"
+    }
+    # Paste not available over SSH (OSC 52 read is often disabled for security)
+    alias p='echo "Paste not available over SSH"'
 fi
 
 # Git
