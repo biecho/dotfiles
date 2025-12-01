@@ -5,6 +5,7 @@
 add_newline = false
 
 format = """
+$username\
 $hostname\
 $directory\
 $git_branch\
@@ -17,6 +18,13 @@ $rust\
 $cmd_duration\
 $line_break\
 $character"""
+
+# Username (only show when SSH'd into a server)
+[username]
+show_always = false
+format = "[$user]($style)@"
+style_user = "green bold"
+style_root = "red bold"
 
 # Hostname (only show when SSH'd into a server)
 [hostname]
