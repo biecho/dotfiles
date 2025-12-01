@@ -145,14 +145,9 @@ else
     # OSC 52 read - paste from local clipboard over SSH
     p() {
         local old_settings=$(stty -g)
-        stty raw -echo
+        stty raw -echo min 0 time 10
         printf "\033]52;c;?\007"
-        local response=""
-        local char
-        while IFS= read -r -n1 -t1 char; do
-            response+="$char"
-            [[ "$char" == $'\007' || "$char" == $'\033' ]] && break
-        done < /dev/tty
+        local response=$(dd bs=1024 count=1 2>/dev/null < /dev/tty)
         stty "$old_settings"
         # Extract base64 data between ;c; and the terminator
         local encoded=$(echo "$response" | sed -n 's/.*]52;c;\([^[:cntrl:]]*\).*/\1/p')
