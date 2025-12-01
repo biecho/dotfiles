@@ -50,6 +50,7 @@ backup_existing() {
     [[ -f "$HOME/.zshrc" ]] && cp "$HOME/.zshrc" "$backup_dir/"
     [[ -f "$HOME/.config/starship.toml" ]] && cp "$HOME/.config/starship.toml" "$backup_dir/"
     [[ -d "$HOME/.config/ghostty" ]] && cp -r "$HOME/.config/ghostty" "$backup_dir/"
+    [[ -d "$HOME/.config/kitty" ]] && cp -r "$HOME/.config/kitty" "$backup_dir/"
 
     echo "   Backup saved to: $backup_dir"
 }
@@ -70,6 +71,11 @@ create_symlinks() {
     mkdir -p "$HOME/.config/ghostty"
     ln -sf "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
     echo "   ~/.config/ghostty/config"
+
+    mkdir -p "$HOME/.config/kitty"
+    ln -sfn "$DOTFILES_DIR/kitty/themes" "$HOME/.config/kitty/themes"
+    ln -sf "$DOTFILES_DIR/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
+    echo "   ~/.config/kitty/kitty.conf"
 
     # Neovim config (backup existing, then symlink entire directory)
     if [[ -d "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
