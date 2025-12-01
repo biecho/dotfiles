@@ -123,6 +123,7 @@ alias vim='nvim'
 alias lg='lazygit'
 alias k='kubectl'
 alias icat='kitten icat'
+alias kssh='kitten ssh'
 
 # Clipboard (kitten clipboard works locally and over kitten ssh)
 if [[ "$OSTYPE" == "darwin"* ]]; then
