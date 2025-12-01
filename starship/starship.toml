@@ -61,7 +61,7 @@ style = "yellow"
 
 # Languages (only show when relevant files detected)
 [python]
-format = '[py $version]($style) '
+format = '[py $version( \($virtualenv\))]($style) '
 style = "yellow"
 
 [golang]
