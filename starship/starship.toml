@@ -5,6 +5,7 @@
 add_newline = false
 
 format = """
+$hostname\
 $directory\
 $git_branch\
 $git_status\
@@ -16,6 +17,12 @@ $rust\
 $cmd_duration\
 $line_break\
 $character"""
+
+# Hostname (only show when SSH'd into a server)
+[hostname]
+ssh_only = true
+format = "[$hostname]($style) "
+style = "green bold"
 
 # Prompt character
 [character]
