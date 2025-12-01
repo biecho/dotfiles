@@ -4,10 +4,13 @@
 
 export PATH="/opt/homebrew/bin:$PATH"
 
-kitty @ ls 2>/dev/null | jq -r '
+home_dir="$HOME"
+kitty @ ls 2>/dev/null | jq -r --arg home "$home_dir" '
   .[].tabs | to_entries[] |
   select(.value.is_focused == false) |
-  "\(.value.id)\t\(.key + 1): \(.value.title)"
+  (.value.windows[] | select(.is_active) | .cwd) as $cwd |
+  (if $cwd == $home then "~" else ($cwd | sub("^.*/"; "")) end) as $dir |
+  "\(.value.id)\t\(.key + 1): \(.value.title)  \($dir)"
 ' | fzf --with-nth 2.. --delimiter='\t' --prompt="Switch to tab: " \
   | cut -f1 \
   | xargs -I{} kitty @ focus-tab -m id:{}
