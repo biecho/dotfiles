@@ -3,6 +3,12 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
+# PATH (set early so tools are available)
+# -----------------------------------------------------------------------------
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.fzf/bin:$PATH"
+
+# -----------------------------------------------------------------------------
 # Zinit setup
 # -----------------------------------------------------------------------------
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
@@ -110,13 +116,12 @@ eval "$(zoxide init zsh)"
 export VISUAL="nvim"
 export EDITOR="nvim"
 
-# PATH additions
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$(go env GOPATH 2>/dev/null)/bin:$PATH"
-export PATH="/Library/TeX/texbin:$PATH"
+# Additional PATH (platform-specific)
+[[ -d "$(go env GOPATH 2>/dev/null)/bin" ]] && export PATH="$(go env GOPATH)/bin:$PATH"
+[[ -d "/Library/TeX/texbin" ]] && export PATH="/Library/TeX/texbin:$PATH"
 
-# Java
-export JAVA_HOME=$(/usr/libexec/java_home -v 17 2>/dev/null)
+# Java (macOS)
+[[ "$OSTYPE" == "darwin"* ]] && export JAVA_HOME=$(/usr/libexec/java_home -v 17 2>/dev/null)
 
 # -----------------------------------------------------------------------------
 # Aliases
