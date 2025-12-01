@@ -75,7 +75,8 @@ create_symlinks() {
     mkdir -p "$HOME/.config/kitty"
     ln -sfn "$DOTFILES_DIR/kitty/themes" "$HOME/.config/kitty/themes"
     ln -sf "$DOTFILES_DIR/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
-    echo "   ~/.config/kitty/kitty.conf"
+    ln -sf "$DOTFILES_DIR/kitty/ssh.conf" "$HOME/.config/kitty/ssh.conf"
+    echo "   ~/.config/kitty/{kitty.conf,ssh.conf}"
 
     # Neovim config (backup existing, then symlink entire directory)
     if [[ -d "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
