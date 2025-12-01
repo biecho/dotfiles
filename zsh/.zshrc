@@ -137,7 +137,7 @@ fi
 # Navigation & listing (eza = modern ls)
 alias ..='cd ..'
 alias ...='cd ../..'
-eza_params='--git --icons --group-directories-first'
+eza_params='--icons --group-directories-first --no-git'
 alias ls="eza $eza_params"
 alias l="eza -la $eza_params"
 alias ll="eza -l $eza_params"
