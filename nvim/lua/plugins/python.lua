@@ -16,11 +16,14 @@ return {
           settings = {
             basedpyright = {
               analysis = {
-                typeCheckingMode = "standard", -- off, basic, standard, strict, all
                 autoImportCompletions = true,
                 autoSearchPaths = true,
                 useLibraryCodeForTypes = true,
                 diagnosticMode = "openFilesOnly", -- workspace or openFilesOnly
+                -- Suppress missing stubs warnings (common in ML projects)
+                diagnosticSeverityOverrides = {
+                  reportMissingTypeStubs = "none",
+                },
                 -- Inlay hints (toggle with <leader>uH)
                 inlayHints = {
                   callArgumentNames = "all",
@@ -273,8 +276,6 @@ return {
         "ruff",
         -- Debugger
         "debugpy",
-        -- Additional tools
-        "mypy", -- optional: secondary type checker
       },
     },
   },

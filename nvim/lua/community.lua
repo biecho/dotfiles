@@ -8,7 +8,7 @@ return {
   -- Lua development
   { import = "astrocommunity.pack.lua" },
 
-  -- Python development (the serious setup)
-  { import = "astrocommunity.pack.python" },      -- pyright + debugpy + treesitter
+  -- Python: only use ruff from astrocommunity, rest is in plugins/python.lua
+  -- (pack.python adds pyright + null-ls which conflicts with basedpyright)
   { import = "astrocommunity.pack.python-ruff" }, -- ruff linter/formatter
 }
