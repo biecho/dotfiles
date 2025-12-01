@@ -1,0 +1,66 @@
+# Starship prompt config
+# Docs: https://starship.rs/config/
+
+# Minimal, fast prompt
+add_newline = false
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$python\
+$golang\
+$java\
+$nodejs\
+$rust\
+$cmd_duration\
+$line_break\
+$character"""
+
+# Prompt character
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](green)"
+
+# Directory
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "blue bold"
+
+# Git
+[git_branch]
+format = "[$branch]($style) "
+style = "purple"
+
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+style = "red"
+
+# Command duration (only show if > 2s)
+[cmd_duration]
+min_time = 2_000
+format = "[$duration]($style) "
+style = "yellow"
+
+# Languages (only show when relevant files detected)
+[python]
+format = '[py $version]($style) '
+style = "yellow"
+
+[golang]
+format = '[go $version]($style) '
+style = "cyan"
+
+[java]
+format = '[java $version]($style) '
+style = "red"
+
+[nodejs]
+format = '[node $version]($style) '
+style = "green"
+
+[rust]
+format = '[rs $version]($style) '
+style = "orange"

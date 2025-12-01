@@ -1,0 +1,32 @@
+theme = Catppuccin Mocha
+
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+
+macos-titlebar-style = tabs
+macos-option-as-alt = true
+
+cursor-style = bar
+cursor-style-blink = false
+
+window-padding-x = 8
+window-padding-y = 8
+
+copy-on-select = clipboard
+quit-after-last-window-closed = true
+scrollback-limit = 50000
+
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+
+# Splits
+keybind = cmd+"=new_split:right
+keybind = cmd+w=close_surface
+window-inherit-working-directory = true
+
+# Navigate splits (cycle through)
+keybind = cmd+]=goto_split:next
+keybind = cmd+[=goto_split:previous
+
+# Other
+keybind = cmd+shift+enter=toggle_fullscreen

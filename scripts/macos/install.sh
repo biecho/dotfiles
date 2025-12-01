@@ -1,0 +1,103 @@
+#!/bin/bash
+# =============================================================================
+# macOS Install Script
+# =============================================================================
+
+set -e
+
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+echo "Installing dotfiles for macOS..."
+echo ""
+
+# -----------------------------------------------------------------------------
+# Install Homebrew + packages
+# -----------------------------------------------------------------------------
+install_deps() {
+    echo "==> Checking Homebrew..."
+    if ! command -v brew &> /dev/null; then
+        echo "Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+
+    echo "==> Installing packages..."
+    brew install starship      # prompt
+    brew install zoxide        # smart cd
+    brew install fzf           # fuzzy finder
+    brew install neovim        # editor
+    brew install lazygit       # git TUI
+    brew install ripgrep       # fast grep
+    brew install fd            # fast find
+    brew install eza           # modern ls
+
+    # Set up fzf key bindings
+    $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
+
+    if ! command -v ghostty &> /dev/null; then
+        echo ""
+        echo "Note: Install Ghostty manually from https://ghostty.org"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Backup existing configs
+# -----------------------------------------------------------------------------
+backup_existing() {
+    echo "==> Backing up existing configs..."
+    local backup_dir="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
+    mkdir -p "$backup_dir"
+
+    [[ -f "$HOME/.zshrc" ]] && cp "$HOME/.zshrc" "$backup_dir/"
+    [[ -f "$HOME/.config/starship.toml" ]] && cp "$HOME/.config/starship.toml" "$backup_dir/"
+    [[ -d "$HOME/.config/ghostty" ]] && cp -r "$HOME/.config/ghostty" "$backup_dir/"
+
+    echo "   Backup saved to: $backup_dir"
+}
+
+# -----------------------------------------------------------------------------
+# Create symlinks
+# -----------------------------------------------------------------------------
+create_symlinks() {
+    echo "==> Creating symlinks..."
+
+    ln -sf "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
+    echo "   ~/.zshrc"
+
+    mkdir -p "$HOME/.config"
+    ln -sf "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
+    echo "   ~/.config/starship.toml"
+
+    mkdir -p "$HOME/.config/ghostty"
+    ln -sf "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+    echo "   ~/.config/ghostty/config"
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+main() {
+    read -p "Install Homebrew packages? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        install_deps
+    fi
+
+    echo ""
+    backup_existing
+
+    echo ""
+    create_symlinks
+
+    echo ""
+    echo "============================================="
+    echo "  Done!"
+    echo "============================================="
+    echo ""
+    echo "Next steps:"
+    echo "  1. Restart your terminal (or: source ~/.zshrc)"
+    echo "  2. Zinit will auto-install plugins on first run"
+    echo "  3. Reload Ghostty: Cmd+Shift+,"
+    echo ""
+}
+
+main "$@"
