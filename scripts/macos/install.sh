@@ -51,6 +51,7 @@ backup_existing() {
     [[ -f "$HOME/.config/starship.toml" ]] && cp "$HOME/.config/starship.toml" "$backup_dir/"
     [[ -d "$HOME/.config/ghostty" ]] && cp -r "$HOME/.config/ghostty" "$backup_dir/"
     [[ -d "$HOME/.config/kitty" ]] && cp -r "$HOME/.config/kitty" "$backup_dir/"
+    [[ -f "$HOME/.config/karabiner/karabiner.json" ]] && cp "$HOME/.config/karabiner/karabiner.json" "$backup_dir/"
 
     echo "   Backup saved to: $backup_dir"
 }
@@ -91,6 +92,11 @@ create_symlinks() {
     ln -sf "$DOTFILES_DIR/git/hooks/prepare-commit-msg" "$HOME/.config/git/hooks/prepare-commit-msg"
     git config --global core.hooksPath "$HOME/.config/git/hooks"
     echo "   ~/.config/git/hooks (global git hooks)"
+
+    # Karabiner Elements
+    mkdir -p "$HOME/.config/karabiner"
+    ln -sf "$DOTFILES_DIR/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
+    echo "   ~/.config/karabiner/karabiner.json"
 }
 
 # -----------------------------------------------------------------------------
