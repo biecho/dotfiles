@@ -1,10 +1,17 @@
 -- ~/.config/nvim/lua/plugins/user-mappings.lua
+-- Custom keymaps and overrides for AstroNvim defaults
 
 ---@type LazySpec
 return {
   "AstroNvim/astrocore",
   opts = function(_, opts)
     local maps = opts.mappings
+
+    -- =========================================================================
+    -- Disable AstroNvim defaults (to make room for Harpoon)
+    -- =========================================================================
+    maps.n["<leader>h"] = false -- Was: Dashboard (Home)
+    maps.i["<C-e>"] = false -- Was: Cancel completion
 
     -- Moved to <leader>wr to avoid conflict with REPL (<leader>r)
     maps.n["<leader>wr"] = {
