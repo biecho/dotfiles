@@ -47,6 +47,21 @@ return {
       function() require("telescope.builtin").live_grep({ additional_args = { "--no-ignore", "--hidden" } }) end,
       desc = "Search all files (grep)",
     }
+
+    maps.n["<leader>yd"] = {
+      function()
+        local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
+        if #diagnostics > 0 then
+          local msg = diagnostics[1].message
+          vim.fn.setreg("+", msg)
+          vim.notify("Copied: " .. msg, vim.log.levels.INFO)
+        else
+          vim.notify("No diagnostic on this line", vim.log.levels.WARN)
+        end
+      end,
+      desc = "Yank diagnostic to clipboard",
+    }
+
     return opts
   end,
 }
