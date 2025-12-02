@@ -1,9 +1,5 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
 -- AstroCore provides a central place to modify mappings, vim options, autocommands, and more!
 -- Configuration documentation can be found with `:h astrocore`
--- NOTE: We highly recommend setting up the Lua Language Server (`:LspInstall lua_ls`)
---       as this provides autocomplete and documentation while editing
 
 ---@type LazySpec
 return {
@@ -24,17 +20,25 @@ return {
       virtual_text = true,
       underline = true,
     },
-    -- passed to `vim.filetype.add`
-    filetypes = {
-      -- see `:h vim.filetype.add` for usage
-      extension = {
-        foo = "fooscript",
-      },
-      filename = {
-        [".foorc"] = "fooscript",
-      },
-      pattern = {
-        [".*/etc/foo/.*"] = "fooscript",
+    -- Autocommands for auto-reloading files changed externally
+    autocmds = {
+      auto_reload_files = {
+        {
+          event = { "FocusGained", "BufEnter", "CursorHold" },
+          desc = "Auto-reload files when changed externally",
+          callback = function()
+            if vim.o.buftype ~= "nofile" then
+              vim.cmd("checktime")
+            end
+          end,
+        },
+        {
+          event = "FileChangedShellPost",
+          desc = "Notify when file changed on disk",
+          callback = function()
+            vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.INFO)
+          end,
+        },
       },
     },
     -- vim options can be configured here
@@ -45,6 +49,7 @@ return {
         spell = false, -- sets vim.opt.spell
         signcolumn = "yes", -- sets vim.opt.signcolumn to yes
         wrap = false, -- sets vim.opt.wrap
+        autoread = true, -- auto-reload files when changed externally
       },
       g = { -- vim.g.<key>
         -- configure global vim variables (vim.g)
