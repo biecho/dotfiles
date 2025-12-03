@@ -1,9 +1,8 @@
 # Custom tab bar for kitty
-# Features: tab index, process name, SSH indicator, zoom indicator, clock
+# Features: tab index, process name, SSH indicator, zoom indicator
 
-from datetime import datetime
 from kitty.boss import get_boss
-from kitty.fast_data_types import Screen, add_timer
+from kitty.fast_data_types import Screen
 from kitty.tab_bar import DrawData, ExtraData, TabBarData, as_rgb
 
 # Cyberdream theme colors (hardcoded to avoid get_options() at load time)
@@ -22,10 +21,6 @@ SEP = ""
 
 # Minimum tab width (characters, excluding separators)
 MIN_TAB_WIDTH = 18
-
-# Refresh interval for clock (seconds)
-REFRESH_TIME = 30
-timer_id = None
 
 
 def _get_proc_name(tab: TabBarData) -> str:
@@ -142,12 +137,6 @@ def draw_tab(
     extra_data: ExtraData,
 ) -> int:
     """Draw a single tab."""
-    global timer_id
-
-    # Set up timer for clock refresh
-    if timer_id is None:
-        timer_id = add_timer(_redraw_tab_bar, REFRESH_TIME, True)
-
     # Determine colors
     is_ssh_tab, ssh_host = _get_ssh_info(tab)
     if tab.is_active:
@@ -195,40 +184,4 @@ def draw_tab(
     screen.cursor.bg = BG
     screen.draw(SEP)
 
-    # Draw clock on last tab
-    if is_last:
-        _draw_clock(screen)
-
     return screen.cursor.x
-
-
-def _draw_clock(screen: Screen) -> None:
-    """Draw clock on the right side."""
-    clock = datetime.now().strftime(" %H:%M ")
-    spaces = screen.columns - screen.cursor.x - len(clock) - 1
-
-    if spaces > 0:
-        screen.cursor.fg = FG
-        screen.cursor.bg = BG
-        screen.draw(" " * spaces)
-
-    # Separator
-    screen.cursor.fg = DIM
-    screen.cursor.bg = BG
-    screen.draw(SEP)
-
-    # Clock
-    screen.cursor.fg = FG
-    screen.cursor.bg = DIM
-    screen.draw(clock)
-
-
-def _redraw_tab_bar(timer_id) -> None:
-    """Callback to refresh tab bar."""
-    try:
-        boss = get_boss()
-        if boss:
-            for tm in boss.all_tab_managers:
-                tm.mark_tab_bar_dirty()
-    except Exception:
-        pass
