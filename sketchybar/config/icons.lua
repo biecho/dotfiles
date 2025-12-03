@@ -1,0 +1,61 @@
+local apps <const> = {
+  ["Alacritty"] = ":alacritty:",
+  ["Arc"] = ":arc:",
+  ["Bitwarden"] = ":bit_warden:",
+  ["Calendar"] = ":calendar:",
+  ["Code"] = ":code:",
+  ["Discord"] = ":discord:",
+  ["Docker Desktop"] = ":docker:",
+  ["Finder"] = ":finder:",
+  ["Firefox"] = ":firefox:",
+  ["Google Chrome"] = ":google_chrome:",
+  ["iTerm2"] = ":iterm:",
+  ["kitty"] = ":kitty:",
+  ["Mail"] = ":mail:",
+  ["Messages"] = ":messages:",
+  ["Microsoft Edge"] = ":microsoft_edge:",
+  ["Microsoft Outlook"] = ":microsoft_outlook:",
+  ["Microsoft Teams"] = ":microsoft_teams:",
+  ["Music"] = ":music:",
+  ["Neovim"] = ":neovim:",
+  ["neovim"] = ":neovim:",
+  ["nvim"] = ":neovim:",
+  ["Notes"] = ":notes:",
+  ["Notion"] = ":notion:",
+  ["Obsidian"] = ":obsidian:",
+  ["Preview"] = ":pdf:",
+  ["qutebrowser"] = ":qute_browser:",
+  ["Safari"] = ":safari:",
+  ["Slack"] = ":slack:",
+  ["Spotify"] = ":spotify:",
+  ["System Settings"] = ":gear:",
+  ["Terminal"] = ":terminal:",
+  ["Warp"] = ":warp:",
+  ["Zed"] = ":zed:",
+  ["default"] = ":default:",
+}
+
+local text <const> = {
+  nerdfont = {
+    apple = "",
+    gear = "",
+    cpu = "",
+    battery = {
+      _100 = "",
+      _75 = "",
+      _50 = "",
+      _25 = "",
+      _0 = "",
+      charging = "",
+    },
+    wifi = {
+      connected = "󰖩",
+      disconnected = "󰖪",
+    },
+  },
+}
+
+return {
+  text = text.nerdfont,
+  apps = apps,
+}

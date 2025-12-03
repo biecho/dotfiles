@@ -1,0 +1,311 @@
+# AeroSpace - i3-like tiling window manager for macOS
+# Docs: https://nikitabobko.github.io/AeroSpace/guide
+#
+# =============================================================================
+# QUICK REFERENCE
+# =============================================================================
+#
+# Navigation:
+#   alt+h/j/k/l          Focus window left/down/up/right
+#   alt+1-9              Switch to workspace (press again to toggle back)
+#   alt+tab              Toggle between last two workspaces
+#
+# Window Management:
+#   alt+shift+h/j/k/l    Move window left/down/up/right
+#   alt+shift+1-9        Move window to workspace 1-9
+#   alt+p                Move workspace to next monitor
+#   alt+shift+p          Move window to next monitor + follow
+#   alt+f                Toggle fullscreen
+#   alt+shift+f          Toggle macOS native fullscreen
+#   alt+- / alt+=        Resize window smaller/larger
+#   alt+space            Toggle floating/tiling
+#
+# Layout:
+#   alt+/                Toggle tile layout (horizontal/vertical)
+#   alt+,                Toggle accordion layout
+#
+# Modes:
+#   alt+r                Resize mode (h/j/k/l to resize, esc to exit)
+#   alt+g                Join mode (h/j/k/l to join with window)
+#   alt+shift+;          Service mode (r=reset, backspace=close others)
+#
+# Other:
+#   alt+enter            Open Kitty terminal
+#
+# Integrations:
+#   - JankyBorders: Colored border on focused window
+#   - SketchyBar: Workspace indicators + app icons in menu bar
+#
+# Note: Kitty split resize is ctrl+alt+h/j/k/l (to avoid conflict)
+# =============================================================================
+
+start-at-login = true
+
+after-login-command = []
+
+# Start borders on startup (sketchybar is started via brew services)
+after-startup-command = [
+  'exec-and-forget /opt/homebrew/opt/borders/bin/borders active_color=0xff5ef1ff inactive_color=0xff3c4048 width=6.0'
+]
+
+# Notify sketchybar when workspace changes
+exec-on-workspace-change = [
+  '/bin/bash', '-c',
+  'sketchybar --trigger aerospace_workspace_changed FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
+]
+
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+on-focus-changed = [
+  'move-mouse window-lazy-center',
+  'exec-and-forget sketchybar --trigger front_app_switched',
+  'exec-and-forget sketchybar --trigger update_windows'
+]
+
+enable-normalization-flatten-containers = false
+enable-normalization-opposite-orientation-for-nested-containers = false
+
+accordion-padding = 30
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+[key-mapping]
+preset = 'qwerty'
+
+# Gaps between windows
+[gaps]
+outer.bottom = 8
+outer.top = 20  # sketchybar handles its own space
+outer.left = 8
+outer.right = 8
+inner.horizontal = 8
+inner.vertical = 8
+
+[exec]
+inherit-env-vars = true
+[exec.env-vars]
+PATH = '/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}'
+
+# =============================================================================
+# Main keybindings
+# =============================================================================
+[mode.main.binding]
+
+# Disable annoying macOS hide shortcuts
+cmd-h = []
+cmd-alt-h = []
+
+# Toggle floating/tiling
+alt-space = 'layout floating tiling'
+
+# Enter resize mode
+alt-r = [
+  'mode resize',
+  'exec-and-forget sketchybar --trigger send_message MESSAGE="RESIZE MODE" HOLD="true"'
+]
+
+# Enter join mode (to create splits)
+alt-g = [
+  'mode join',
+  'exec-and-forget sketchybar --trigger send_message MESSAGE="JOIN MODE" HOLD="true"'
+]
+
+# Open Kitty terminal (i3 style)
+alt-enter = 'exec-and-forget open -na kitty'
+
+# Fullscreen
+alt-f = 'fullscreen'
+alt-shift-f = 'macos-native-fullscreen'
+
+# Layout switching
+alt-slash = 'layout tiles horizontal vertical'
+alt-comma = 'layout accordion horizontal vertical'
+
+# Focus navigation (vim-style)
+alt-h = 'focus --boundaries all-monitors-outer-frame --boundaries-action stop left'
+alt-j = 'focus --boundaries all-monitors-outer-frame --boundaries-action stop down'
+alt-k = 'focus --boundaries all-monitors-outer-frame --boundaries-action stop up'
+alt-l = 'focus --boundaries all-monitors-outer-frame --boundaries-action stop right'
+
+# Arrow key alternatives
+alt-left = 'focus --boundaries all-monitors-outer-frame --boundaries-action stop left'
+alt-down = 'focus --boundaries all-monitors-outer-frame --boundaries-action stop down'
+alt-up = 'focus --boundaries all-monitors-outer-frame --boundaries-action stop up'
+alt-right = 'focus --boundaries all-monitors-outer-frame --boundaries-action stop right'
+
+# Move windows
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+alt-shift-left = 'move left'
+alt-shift-down = 'move down'
+alt-shift-up = 'move up'
+alt-shift-right = 'move right'
+
+# Resize windows
+alt-minus = 'resize smart -50'
+alt-equal = 'resize smart +50'
+
+# Workspace navigation (1-9) - auto-back-and-forth: press same key to toggle back
+alt-1 = 'workspace --auto-back-and-forth 1'
+alt-2 = 'workspace --auto-back-and-forth 2'
+alt-3 = 'workspace --auto-back-and-forth 3'
+alt-4 = 'workspace --auto-back-and-forth 4'
+alt-5 = 'workspace --auto-back-and-forth 5'
+alt-6 = 'workspace --auto-back-and-forth 6'
+alt-7 = 'workspace --auto-back-and-forth 7'
+alt-8 = 'workspace --auto-back-and-forth 8'
+alt-9 = 'workspace --auto-back-and-forth 9'
+
+# Move window to workspace
+alt-shift-1 = 'move-node-to-workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2'
+alt-shift-3 = 'move-node-to-workspace 3'
+alt-shift-4 = 'move-node-to-workspace 4'
+alt-shift-5 = 'move-node-to-workspace 5'
+alt-shift-6 = 'move-node-to-workspace 6'
+alt-shift-7 = 'move-node-to-workspace 7'
+alt-shift-8 = 'move-node-to-workspace 8'
+alt-shift-9 = 'move-node-to-workspace 9'
+
+# Quick workspace switching
+alt-tab = 'workspace-back-and-forth'
+alt-p = 'move-workspace-to-monitor --wrap-around next'
+alt-shift-p = [
+  'move-node-to-monitor --wrap-around next',
+  'focus-monitor next --wrap-around'
+]
+
+# Enter service mode
+alt-shift-semicolon = [
+  'mode service',
+  'exec-and-forget sketchybar --trigger send_message MESSAGE="SERVICE MODE" HOLD="true"'
+]
+
+# =============================================================================
+# Resize mode
+# =============================================================================
+[mode.resize.binding]
+h = 'resize width -50'
+j = 'resize height -50'
+k = 'resize height +50'
+l = 'resize width +50'
+minus = 'resize smart -50'
+equal = 'resize smart +50'
+esc = [
+  'mode main',
+  'exec-and-forget sketchybar --trigger hide_message'
+]
+enter = [
+  'mode main',
+  'exec-and-forget sketchybar --trigger hide_message'
+]
+
+# =============================================================================
+# Join mode (create splits)
+# =============================================================================
+[mode.join.binding]
+h = ['join-with left', 'mode main', 'exec-and-forget sketchybar --trigger hide_message']
+j = ['join-with down', 'mode main', 'exec-and-forget sketchybar --trigger hide_message']
+k = ['join-with up', 'mode main', 'exec-and-forget sketchybar --trigger hide_message']
+l = ['join-with right', 'mode main', 'exec-and-forget sketchybar --trigger hide_message']
+esc = [
+  'mode main',
+  'exec-and-forget sketchybar --trigger hide_message'
+]
+enter = [
+  'mode main',
+  'exec-and-forget sketchybar --trigger hide_message'
+]
+
+# =============================================================================
+# Service mode (for reset, floating toggle, etc.)
+# =============================================================================
+[mode.service.binding]
+esc = [
+  'reload-config',
+  'exec-and-forget sketchybar --trigger hide_message',
+  'exec-and-forget sketchybar --reload',
+  'mode main'
+]
+r = ['flatten-workspace-tree', 'mode main', 'exec-and-forget sketchybar --trigger hide_message']  # Reset layout
+f = ['layout floating tiling', 'mode main', 'exec-and-forget sketchybar --trigger hide_message']  # Toggle floating
+backspace = ['close-all-windows-but-current', 'mode main', 'exec-and-forget sketchybar --trigger hide_message']
+
+# =============================================================================
+# App-to-workspace rules (auto-route apps to specific workspaces)
+# =============================================================================
+# 1 = Terminal (kitty)
+# 2 = Code/Editor
+# 3 = Browser
+# 4 = Communication (Teams, Slack, Discord)
+# 5 = Notes (Obsidian)
+# 6 = Database/Tools
+# 7 = Music (Spotify)
+# 8 = Mail
+# 9 = (free)
+
+[[on-window-detected]]
+if.app-id = 'net.kovidgoyal.kitty'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+if.app-id = 'com.jetbrains.intellij'
+run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Safari'
+run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'org.mozilla.firefox'
+run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'org.qutebrowser.qutebrowser'
+run = ['layout tiling', 'move-node-to-workspace 3']
+
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.teams2'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'com.hnc.Discord'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'md.obsidian'
+run = ['layout tiling', 'move-node-to-workspace 5']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Notes'
+run = 'move-node-to-workspace 5'
+
+[[on-window-detected]]
+if.app-id = 'org.jkiss.dbeaver.core.product'
+run = 'move-node-to-workspace 6'
+
+[[on-window-detected]]
+if.app-id = 'com.spotify.client'
+run = 'move-node-to-workspace 7'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Outlook'
+run = 'move-node-to-workspace 8'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run = 'layout floating'

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# JankyBorders configuration - Cyberdream theme
+# Docs: https://github.com/FelixKratz/JankyBorders
+
+options=(
+  style=round
+  width=5.0
+  hidpi=on
+  active_color=0xff5ef1ff   # Cyan - Cyberdream
+  inactive_color=0xff3c4048 # Grey - Cyberdream
+)
+
+borders "${options[@]}"
