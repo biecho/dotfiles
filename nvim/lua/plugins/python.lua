@@ -181,16 +181,12 @@ return {
 
   -- ╭─────────────────────────────────────────────────────────────╮
   -- │ Virtual Environment: venv-selector.nvim                     │
+  -- │ Note: Base config from astrocommunity python pack           │
+  -- │ Keybinding: <leader>lv (defined in astrocommunity)          │
   -- ╰─────────────────────────────────────────────────────────────╯
   {
     "linux-cultist/venv-selector.nvim",
-    branch = "regexp",
-    dependencies = {
-      "neovim/nvim-lspconfig",
-      "nvim-telescope/telescope.nvim",
-      "mfussenegger/nvim-dap-python",
-    },
-    cmd = { "VenvSelect", "VenvSelectCached" },
+    optional = true,
     opts = {
       settings = {
         search = {
@@ -204,10 +200,6 @@ return {
           },
         },
       },
-    },
-    keys = {
-      { "<leader>cv", "<cmd>VenvSelect<cr>", desc = "Select Python venv" },
-      { "<leader>cV", "<cmd>VenvSelectCached<cr>", desc = "Select cached venv" },
     },
   },
 

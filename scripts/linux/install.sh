@@ -82,20 +82,31 @@ install_bins() {
 }
 
 # -----------------------------------------------------------------------------
-# Install Python packages required for Neovim
+# Install required dependencies for Neovim plugins
 # -----------------------------------------------------------------------------
-install_nvim_python() {
-    echo "==> Installing Python packages for Neovim..."
+install_nvim_deps() {
+    echo "==> Installing Neovim plugin dependencies..."
+    mkdir -p "$LOCAL_BIN"
 
+    # fd is required for venv-selector.nvim and telescope file finding
+    if ! command -v fd &> /dev/null; then
+        echo "   Installing fd (required for venv-selector)..."
+        local fd_tmp=$(mktemp -d)
+        curl -sL "https://github.com/sharkdp/fd/releases/download/v10.2.0/fd-v10.2.0-x86_64-unknown-linux-musl.tar.gz" \
+            -o "$fd_tmp/fd.tar.gz"
+        tar -xzf "$fd_tmp/fd.tar.gz" -C "$fd_tmp"
+        cp "$fd_tmp"/fd-*/fd "$LOCAL_BIN/"
+        chmod +x "$LOCAL_BIN/fd"
+        rm -rf "$fd_tmp"
+    fi
+
+    # Python venv for pynvim and molten-nvim
     local nvim_python_dir="$HOME/.local/share/nvim/python"
-
-    # Create a dedicated venv for nvim if it doesn't exist
     if [[ ! -d "$nvim_python_dir" ]]; then
         echo "   Creating dedicated Python venv for Neovim..."
         python3 -m venv "$nvim_python_dir"
     fi
 
-    # Install pynvim and molten-nvim dependencies
     echo "   Installing pynvim and Jupyter dependencies..."
     "$nvim_python_dir/bin/pip" install --upgrade pip pynvim \
         jupyter_client jupyter_core \
@@ -165,7 +176,7 @@ main() {
     create_symlinks
 
     echo ""
-    install_nvim_python
+    install_nvim_deps
 
     # Register Neovim remote plugins (required for molten-nvim)
     echo "==> Registering Neovim remote plugins..."
