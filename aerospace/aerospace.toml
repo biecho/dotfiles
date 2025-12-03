@@ -42,10 +42,7 @@ start-at-login = true
 
 after-login-command = []
 
-# Start borders on startup
-after-startup-command = [
-  'exec-and-forget /opt/homebrew/opt/borders/bin/borders active_color=0xff5ef1ff inactive_color=0xff3c4048 width=6.0'
-]
+after-startup-command = []
 
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
@@ -64,7 +61,7 @@ preset = 'qwerty'
 # Gaps between windows
 [gaps]
 outer.bottom = 8
-outer.top = 8
+outer.top = 12
 outer.left = 8
 outer.right = 8
 inner.horizontal = 8
