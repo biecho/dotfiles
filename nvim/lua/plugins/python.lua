@@ -469,7 +469,7 @@ return {
           -- Group labels (note: <leader>m is used by markdown.lua for Markdown group)
           ["<leader>j"] = { desc = " Jupyter/Molten" },
           ["<leader>r"] = { desc = " REPL" },
-          ["<leader>q"] = { desc = " Quarto" },
+          ["<leader>q"] = false, -- Disable AstroNvim's "Quit Window" to use for Quarto
           -- Quick pytest
           ["<leader>tp"] = { function() require("neotest").run.run() end, desc = "Run nearest test" },
           ["<leader>tP"] = { function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Run file tests" },
