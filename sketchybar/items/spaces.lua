@@ -86,13 +86,11 @@ local function addWorkspaceItem(workspaceName)
 end
 
 local function createWorkspaces()
-  sbar.exec(constants.aerospace.LIST_ALL_WORKSPACES, function(workspacesOutput)
-    for workspaceName in workspacesOutput:gmatch("[^\r\n]+") do
-      addWorkspaceItem(workspaceName)
-    end
-
-    findAndSelectCurrentWorkspace()
-  end)
+  -- Create workspaces 1-9 statically (no async dependency on aerospace)
+  for i = 1, 9 do
+    addWorkspaceItem(tostring(i))
+  end
+  findAndSelectCurrentWorkspace()
 end
 
 currentWorkspaceWatcher:subscribe(constants.events.AEROSPACE_WORKSPACE_CHANGED, function(env)
