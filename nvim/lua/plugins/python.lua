@@ -261,6 +261,7 @@ return {
     version = "^1.0.0",
     build = ":UpdateRemotePlugins",
     dependencies = { "3rd/image.nvim" },
+    lazy = false, -- Remote plugins need to load early for commands to register
     init = function()
       -- Output window settings
       vim.g.molten_output_win_max_height = 20
@@ -269,8 +270,8 @@ return {
       -- Virtual text for small outputs
       vim.g.molten_virt_text_output = true
       vim.g.molten_virt_lines_off_by_1 = true
-      -- Image rendering
-      vim.g.molten_image_provider = "image.nvim"
+      -- Image rendering (disabled until ImageMagick is installed)
+      vim.g.molten_image_provider = ""
       -- Wrap output
       vim.g.molten_wrap_output = true
       -- Cell marker
@@ -278,21 +279,6 @@ return {
       -- Save/restore cell outputs
       vim.g.molten_save_path = vim.fn.stdpath("data") .. "/molten"
     end,
-    cmd = {
-      "MoltenInit",
-      "MoltenEvaluateLine",
-      "MoltenEvaluateVisual",
-      "MoltenEvaluateOperator",
-      "MoltenReevaluateCell",
-      "MoltenDelete",
-      "MoltenShowOutput",
-      "MoltenHideOutput",
-      "MoltenInterrupt",
-      "MoltenSave",
-      "MoltenLoad",
-      "MoltenExportOutput",
-      "MoltenImportOutput",
-    },
     keys = {
       -- Initialization
       { "<leader>ji", "<cmd>MoltenInit<cr>", desc = "Initialize (select kernel)" },

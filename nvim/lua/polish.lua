@@ -1,4 +1,35 @@
 -- This will run last in the setup process.
+
+-- Python provider for remote plugins (molten-nvim, etc.)
+-- Searches for a Python with pynvim installed
+local function find_python_with_pynvim()
+  local candidates = {
+    vim.fn.exepath("python3"),
+    vim.fn.expand("~/.local/share/nvim/python/bin/python"),
+    "/usr/bin/python3",
+  }
+  -- Also check current venv if active
+  local venv = os.getenv("VIRTUAL_ENV")
+  if venv then
+    table.insert(candidates, 1, venv .. "/bin/python")
+  end
+
+  for _, python in ipairs(candidates) do
+    if vim.fn.executable(python) == 1 then
+      local check = vim.fn.system(python .. ' -c "import pynvim" 2>/dev/null')
+      if vim.v.shell_error == 0 then
+        return python
+      end
+    end
+  end
+  return nil
+end
+
+local python = find_python_with_pynvim()
+if python then
+  vim.g.python3_host_prog = python
+end
+
 -- Kitty terminal optimizations
 
 -- Ensure true color support

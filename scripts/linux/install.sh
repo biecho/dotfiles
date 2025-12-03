@@ -82,6 +82,30 @@ install_bins() {
 }
 
 # -----------------------------------------------------------------------------
+# Install Python packages required for Neovim
+# -----------------------------------------------------------------------------
+install_nvim_python() {
+    echo "==> Installing Python packages for Neovim..."
+
+    local nvim_python_dir="$HOME/.local/share/nvim/python"
+
+    # Create a dedicated venv for nvim if it doesn't exist
+    if [[ ! -d "$nvim_python_dir" ]]; then
+        echo "   Creating dedicated Python venv for Neovim..."
+        python3 -m venv "$nvim_python_dir"
+    fi
+
+    # Install pynvim and molten-nvim dependencies
+    echo "   Installing pynvim and Jupyter dependencies..."
+    "$nvim_python_dir/bin/pip" install --upgrade pip pynvim \
+        jupyter_client jupyter_core \
+        cairosvg pnglatex plotly kaleido pillow \
+        --quiet
+
+    echo ""
+}
+
+# -----------------------------------------------------------------------------
 # Backup existing configs
 # -----------------------------------------------------------------------------
 backup_existing() {
@@ -139,6 +163,21 @@ main() {
 
     echo ""
     create_symlinks
+
+    echo ""
+    install_nvim_python
+
+    # Register Neovim remote plugins (required for molten-nvim)
+    echo "==> Registering Neovim remote plugins..."
+    if command -v nvim &> /dev/null; then
+        nvim --headless \
+            -c "Lazy load molten-nvim" \
+            -c "UpdateRemotePlugins" \
+            -c "q" 2>/dev/null
+        echo "   Remote plugins registered"
+    else
+        echo "   Skipping (nvim not found)"
+    fi
 
     echo ""
     echo "============================================="
