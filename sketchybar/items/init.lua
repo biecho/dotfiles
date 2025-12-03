@@ -1,4 +1,5 @@
 -- Left items
+require("items.apple")
 require("items.spaces")
 require("items.front_apps")
 

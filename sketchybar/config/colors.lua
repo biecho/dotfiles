@@ -24,7 +24,7 @@ local colors <const> = {
   transparent = 0x00000000,
 
   bar = {
-    bg = 0xf016181a,     -- Semi-transparent black
+    bg = 0xe016181a,     -- Semi-transparent dark (Cyberdream bg with ~88% opacity)
     border = 0xff3c4048,
   },
   popup = {
