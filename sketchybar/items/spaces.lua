@@ -11,15 +11,15 @@ local currentWorkspaceWatcher = sbar.add("item", {
 -- Workspace icons - customize these for your workflow
 -- Icons from Nerd Fonts: https://www.nerdfonts.com/cheat-sheet
 local spaceConfigs <const> = {
-  ["1"] = { icon = "", name = "Terminal" },     -- Kitty
-  ["2"] = { icon = "", name = "Code" },         -- Editor/IDE
-  ["3"] = { icon = "󰖟", name = "Browser" },      -- Web
-  ["4"] = { icon = "󰊻", name = "Chat" },         -- Communication
-  ["5"] = { icon = "󱞁", name = "Notes" },        -- Obsidian/Notes
-  ["6"] = { icon = "", name = "Database" },     -- DB tools
-  ["7"] = { icon = "", name = "Music" },        -- Spotify
-  ["8"] = { icon = "", name = "Mail" },         -- Outlook
-  ["9"] = { icon = "", name = "Misc" },         -- Miscellaneous
+  ["1"] = { icon = "1", name = "One" },
+  ["2"] = { icon = "2", name = "Two" },
+  ["3"] = { icon = "3", name = "Three" },
+  ["4"] = { icon = "4", name = "Four" },
+  ["5"] = { icon = "5", name = "Five" },
+  ["6"] = { icon = "6", name = "Six" },
+  ["7"] = { icon = "7", name = "Seven" },
+  ["8"] = { icon = "8", name = "Eight" },
+  ["9"] = { icon = "9", name = "Nine" },
 }
 
 local function selectCurrentWorkspace(focusedWorkspaceName)
