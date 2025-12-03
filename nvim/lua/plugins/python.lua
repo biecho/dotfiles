@@ -5,14 +5,34 @@
 -- │ Helper Functions                                            │
 -- ╰─────────────────────────────────────────────────────────────╯
 
---- Get the name of the active virtual environment
----@return string|nil venv_name The name of the active venv, or nil if none
-local function get_venv_name()
+--- Get possible kernel names for the active virtual environment
+--- Returns: venv folder name, parent dir name (project name), normalized variants
+---@return string[] names Possible kernel names to try
+local function get_possible_kernel_names()
   local venv = os.getenv("VIRTUAL_ENV") or os.getenv("CONDA_PREFIX")
-  if venv then
-    return vim.fn.fnamemodify(venv, ":t")
+  if not venv then
+    return {}
   end
-  return nil
+  local names = {}
+  local seen = {}
+  local function add_name(name)
+    if name and name ~= "" and not seen[name] then
+      table.insert(names, name)
+      seen[name] = true
+    end
+  end
+  -- Try venv folder name (e.g., ".venv", "venv")
+  local venv_name = vim.fn.fnamemodify(venv, ":t")
+  add_name(venv_name)
+  -- Try parent directory name (project name, e.g., "LoRA_stealing")
+  local project_name = vim.fn.fnamemodify(venv, ":h:t")
+  add_name(project_name)
+  -- Try normalized version (lowercase, underscores to hyphens: "lora-stealing")
+  if project_name then
+    local normalized = project_name:lower():gsub("_", "-")
+    add_name(normalized)
+  end
+  return names
 end
 
 --- Check if a jupyter kernel exists by name
@@ -31,13 +51,19 @@ local function kernel_exists(kernel_name)
 end
 
 --- Initialize Molten with the appropriate kernel
---- Tries: 1) venv-matched kernel, 2) python3 fallback
+--- Tries: 1) venv/project-matched kernel, 2) python3 fallback, 3) interactive
 local function molten_init_venv()
-  local venv_name = get_venv_name()
-  if venv_name and kernel_exists(venv_name) then
-    vim.cmd("MoltenInit " .. venv_name)
-    vim.notify("Molten: initialized with kernel '" .. venv_name .. "'", vim.log.levels.INFO)
-  elseif kernel_exists("python3") then
+  local names = get_possible_kernel_names()
+  -- Try each possible kernel name
+  for _, name in ipairs(names) do
+    if kernel_exists(name) then
+      vim.cmd("MoltenInit " .. name)
+      vim.notify("Molten: initialized with kernel '" .. name .. "'", vim.log.levels.INFO)
+      return
+    end
+  end
+  -- Fallback to python3
+  if kernel_exists("python3") then
     vim.cmd("MoltenInit python3")
     vim.notify("Molten: initialized with kernel 'python3'", vim.log.levels.INFO)
   else
