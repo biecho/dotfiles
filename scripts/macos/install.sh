@@ -30,19 +30,9 @@ install_deps() {
     brew install fd            # fast find
     brew install eza           # modern ls
 
-    # Window management & bar
+    # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager
-    brew install FelixKratz/formulae/sketchybar    # custom menu bar
     brew install FelixKratz/formulae/borders       # window borders
-    brew install --cask font-sketchybar-app-font   # app icons for sketchybar
-
-    # Install SbarLua for Lua-based sketchybar config
-    if [[ ! -d "$HOME/.local/share/sketchybar_lua" ]]; then
-        echo "Installing SbarLua..."
-        git clone https://github.com/FelixKratz/SbarLua.git /tmp/SbarLua
-        cd /tmp/SbarLua && make install
-        rm -rf /tmp/SbarLua
-    fi
 
     # Set up fzf key bindings
     $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
@@ -117,10 +107,6 @@ create_symlinks() {
     ln -sfn "$DOTFILES_DIR/aerospace" "$HOME/.config/aerospace"
     echo "   ~/.config/aerospace"
 
-    # SketchyBar (custom menu bar)
-    ln -sfn "$DOTFILES_DIR/sketchybar" "$HOME/.config/sketchybar"
-    echo "   ~/.config/sketchybar"
-
     # JankyBorders (window borders)
     ln -sfn "$DOTFILES_DIR/borders" "$HOME/.config/borders"
     echo "   ~/.config/borders"
@@ -150,9 +136,7 @@ main() {
     echo "Next steps:"
     echo "  1. Restart your terminal (or: source ~/.zshrc)"
     echo "  2. Zinit will auto-install plugins on first run"
-    echo "  3. Start services:"
-    echo "     brew services start sketchybar"
-    echo "     brew services start borders"
+    echo "  3. Start borders: brew services start borders"
     echo "  4. Log out and back in to start AeroSpace"
     echo ""
 }
