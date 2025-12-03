@@ -58,7 +58,7 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
 on-focus-changed = [
   'move-mouse window-lazy-center',
-  'exec-and-forget sketchybar --trigger front_app_switched',
+  'exec-and-forget sketchybar --trigger aerospace_workspace_changed FOCUSED_WORKSPACE=$(aerospace list-workspaces --focused)',
   'exec-and-forget sketchybar --trigger update_windows'
 ]
 

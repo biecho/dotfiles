@@ -96,8 +96,8 @@ local function createWorkspaces()
 end
 
 currentWorkspaceWatcher:subscribe(constants.events.AEROSPACE_WORKSPACE_CHANGED, function(env)
-  selectCurrentWorkspace(env.FOCUSED_WORKSPACE)
-  sbar.trigger(constants.events.UPDATE_WINDOWS)
+  -- Always query the actual focused workspace instead of trusting the event
+  findAndSelectCurrentWorkspace()
 end)
 
 createWorkspaces()
