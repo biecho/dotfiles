@@ -1,6 +1,98 @@
 -- Professional Python Development Configuration
 -- Handles both ML/Data Science AND Software Engineering workflows
 
+-- ╭─────────────────────────────────────────────────────────────╮
+-- │ Helper Functions                                            │
+-- ╰─────────────────────────────────────────────────────────────╯
+
+--- Get the name of the active virtual environment
+---@return string|nil venv_name The name of the active venv, or nil if none
+local function get_venv_name()
+  local venv = os.getenv("VIRTUAL_ENV") or os.getenv("CONDA_PREFIX")
+  if venv then
+    return vim.fn.fnamemodify(venv, ":t")
+  end
+  return nil
+end
+
+--- Check if a jupyter kernel exists by name
+---@param kernel_name string The kernel name to check
+---@return boolean exists Whether the kernel exists
+local function kernel_exists(kernel_name)
+  local result = vim.fn.system("jupyter kernelspec list --json 2>/dev/null")
+  if vim.v.shell_error ~= 0 then
+    return false
+  end
+  local ok, specs = pcall(vim.json.decode, result)
+  if ok and specs and specs.kernelspecs then
+    return specs.kernelspecs[kernel_name] ~= nil
+  end
+  return false
+end
+
+--- Initialize Molten with the appropriate kernel
+--- Tries: 1) venv-matched kernel, 2) python3 fallback
+local function molten_init_venv()
+  local venv_name = get_venv_name()
+  if venv_name and kernel_exists(venv_name) then
+    vim.cmd("MoltenInit " .. venv_name)
+    vim.notify("Molten: initialized with kernel '" .. venv_name .. "'", vim.log.levels.INFO)
+  elseif kernel_exists("python3") then
+    vim.cmd("MoltenInit python3")
+    vim.notify("Molten: initialized with kernel 'python3'", vim.log.levels.INFO)
+  else
+    -- Fallback to interactive selection
+    vim.cmd("MoltenInit")
+  end
+end
+
+--- Navigate to next cell marker (# %%)
+local function goto_next_cell()
+  local found = vim.fn.search("^# %%", "W")
+  if found == 0 then
+    vim.notify("No more cells below", vim.log.levels.INFO)
+  end
+end
+
+--- Navigate to previous cell marker (# %%)
+local function goto_prev_cell()
+  local found = vim.fn.search("^# %%", "bW")
+  if found == 0 then
+    vim.notify("No more cells above", vim.log.levels.INFO)
+  end
+end
+
+--- Select current cell (visual mode)
+local function select_cell()
+  -- Go to start of current cell
+  local start_line = vim.fn.search("^# %%", "bcnW")
+  if start_line == 0 then
+    start_line = 1
+  end
+  -- Find end of cell (next marker or EOF)
+  local end_line = vim.fn.search("^# %%", "nW")
+  if end_line == 0 then
+    end_line = vim.fn.line("$")
+  else
+    end_line = end_line - 1
+  end
+  -- Select the range
+  vim.cmd(string.format("normal! %dGV%dG", start_line, end_line))
+end
+
+--- Run current cell with Molten
+local function run_cell()
+  -- Save cursor position
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  -- Select cell and evaluate
+  select_cell()
+  vim.cmd("MoltenEvaluateVisual")
+  -- Restore cursor
+  vim.api.nvim_win_set_cursor(0, cursor)
+  -- Exit visual mode
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+end
+
 ---@type LazySpec
 return {
   -- ╭─────────────────────────────────────────────────────────────╮
@@ -168,7 +260,7 @@ return {
     "benlubas/molten-nvim",
     version = "^1.0.0",
     build = ":UpdateRemotePlugins",
-    dependencies = { "3rd/image.nvim" }, -- you already have this!
+    dependencies = { "3rd/image.nvim" },
     init = function()
       -- Output window settings
       vim.g.molten_output_win_max_height = 20
@@ -183,6 +275,8 @@ return {
       vim.g.molten_wrap_output = true
       -- Cell marker
       vim.g.molten_cell_comment = "# %%"
+      -- Save/restore cell outputs
+      vim.g.molten_save_path = vim.fn.stdpath("data") .. "/molten"
     end,
     cmd = {
       "MoltenInit",
@@ -194,17 +288,39 @@ return {
       "MoltenShowOutput",
       "MoltenHideOutput",
       "MoltenInterrupt",
+      "MoltenSave",
+      "MoltenLoad",
+      "MoltenExportOutput",
+      "MoltenImportOutput",
     },
     keys = {
-      { "<leader>mi", "<cmd>MoltenInit<cr>", desc = "Initialize Molten" },
-      { "<leader>me", "<cmd>MoltenEvaluateOperator<cr>", desc = "Evaluate operator" },
-      { "<leader>ml", "<cmd>MoltenEvaluateLine<cr>", desc = "Evaluate line" },
-      { "<leader>mr", "<cmd>MoltenReevaluateCell<cr>", desc = "Re-evaluate cell" },
-      { "<leader>mv", ":<C-u>MoltenEvaluateVisual<cr>", mode = "v", desc = "Evaluate visual" },
-      { "<leader>mo", "<cmd>MoltenShowOutput<cr>", desc = "Show output" },
-      { "<leader>mh", "<cmd>MoltenHideOutput<cr>", desc = "Hide output" },
-      { "<leader>md", "<cmd>MoltenDelete<cr>", desc = "Delete cell" },
-      { "<leader>mx", "<cmd>MoltenInterrupt<cr>", desc = "Interrupt kernel" },
+      -- Initialization
+      { "<leader>ji", "<cmd>MoltenInit<cr>", desc = "Initialize (select kernel)" },
+      { "<leader>jI", molten_init_venv, desc = "Initialize (auto venv)" },
+      -- Execution
+      { "<leader>je", "<cmd>MoltenEvaluateOperator<cr>", desc = "Evaluate operator" },
+      { "<leader>jl", "<cmd>MoltenEvaluateLine<cr>", desc = "Evaluate line" },
+      { "<leader>jc", run_cell, desc = "Run current cell" },
+      { "<leader>jr", "<cmd>MoltenReevaluateCell<cr>", desc = "Re-evaluate cell" },
+      { "<leader>jv", ":<C-u>MoltenEvaluateVisual<cr>", mode = "v", desc = "Evaluate visual" },
+      -- Output management
+      { "<leader>jo", "<cmd>MoltenShowOutput<cr>", desc = "Show output" },
+      { "<leader>jO", ":noautocmd MoltenEnterOutput<cr>", desc = "Enter output window" },
+      { "<leader>jh", "<cmd>MoltenHideOutput<cr>", desc = "Hide output" },
+      -- Cell management
+      { "<leader>jd", "<cmd>MoltenDelete<cr>", desc = "Delete cell output" },
+      { "<leader>jD", "<cmd>MoltenDelete!<cr>", desc = "Delete all outputs" },
+      { "<leader>jx", "<cmd>MoltenInterrupt<cr>", desc = "Interrupt kernel" },
+      -- Save/Load/Export
+      { "<leader>js", "<cmd>MoltenSave<cr>", desc = "Save outputs" },
+      { "<leader>jL", "<cmd>MoltenLoad<cr>", desc = "Load outputs" },
+      { "<leader>jE", "<cmd>MoltenExportOutput!<cr>", desc = "Export to notebook" },
+      { "<leader>jM", "<cmd>MoltenImportOutput<cr>", desc = "Import from notebook" },
+      -- Cell navigation (]x/[x for "execute" - avoids conflict with ]c "current heading" in markdown)
+      { "]x", goto_next_cell, ft = { "python", "markdown", "quarto" }, desc = "Next cell" },
+      { "[x", goto_prev_cell, ft = { "python", "markdown", "quarto" }, desc = "Previous cell" },
+      { "<leader>j]", goto_next_cell, desc = "Next cell" },
+      { "<leader>j[", goto_prev_cell, desc = "Previous cell" },
     },
   },
 
@@ -248,9 +364,41 @@ return {
       },
     },
     keys = {
+      -- Preview
       { "<leader>qp", "<cmd>QuartoPreview<cr>", desc = "Quarto preview" },
       { "<leader>qc", "<cmd>QuartoClosePreview<cr>", desc = "Close preview" },
       { "<leader>qa", "<cmd>QuartoActivate<cr>", desc = "Activate Quarto" },
+      -- Code runner
+      {
+        "<leader>qr",
+        function() require("quarto.runner").run_cell() end,
+        ft = { "quarto", "markdown" },
+        desc = "Run cell",
+      },
+      {
+        "<leader>qR",
+        function() require("quarto.runner").run_all() end,
+        ft = { "quarto", "markdown" },
+        desc = "Run all cells",
+      },
+      {
+        "<leader>ql",
+        function() require("quarto.runner").run_line() end,
+        ft = { "quarto", "markdown" },
+        desc = "Run line",
+      },
+      {
+        "<leader>qA",
+        function() require("quarto.runner").run_above() end,
+        ft = { "quarto", "markdown" },
+        desc = "Run all above",
+      },
+      {
+        "<leader>qb",
+        function() require("quarto.runner").run_below() end,
+        ft = { "quarto", "markdown" },
+        desc = "Run all below",
+      },
     },
   },
 
@@ -261,6 +409,15 @@ return {
     "jmbuhr/otter.nvim",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     opts = {},
+  },
+
+  -- ╭─────────────────────────────────────────────────────────────╮
+  -- │ Cell Text Objects: ih (inner cell) and ah (around cell)     │
+  -- ╰─────────────────────────────────────────────────────────────╯
+  {
+    "GCBallesteros/vim-textobj-hydrogen",
+    dependencies = { "kana/vim-textobj-user" },
+    ft = { "python", "markdown", "quarto" },
   },
 
   -- ╭─────────────────────────────────────────────────────────────╮
@@ -305,8 +462,8 @@ return {
     opts = {
       mappings = {
         n = {
-          -- Group labels
-          ["<leader>m"] = { desc = " Molten/Jupyter" },
+          -- Group labels (note: <leader>m is used by markdown.lua for Markdown group)
+          ["<leader>j"] = { desc = " Jupyter/Molten" },
           ["<leader>r"] = { desc = " REPL" },
           ["<leader>q"] = { desc = " Quarto" },
           -- Quick pytest
