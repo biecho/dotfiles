@@ -276,3 +276,5 @@ conda() {
     conda "$@"
 }
 
+
+. "$HOME/.atuin/bin/env"
