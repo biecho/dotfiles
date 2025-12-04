@@ -134,6 +134,14 @@ install_bins() {
         chmod +x "$LOCAL_BIN/magick"
     fi
 
+    # just (command runner)
+    if ! command -v just &> /dev/null; then
+        echo "   Installing just..."
+        JUST_VERSION=$(curl -s https://api.github.com/repos/casey/just/releases/latest | grep -Po '"tag_name": "\K[^"]*')
+        curl -sL "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+            | tar xz -C "$LOCAL_BIN" just
+    fi
+
     echo ""
 }
 

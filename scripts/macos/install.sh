@@ -37,6 +37,7 @@ install_deps() {
     brew install tlrc          # tldr pages (simplified man pages)
     brew install yazi ffmpegthumbnailer unar  # file manager + preview deps
     brew install glow                         # markdown preview for yazi
+    brew install just                         # command runner
 
     # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager
