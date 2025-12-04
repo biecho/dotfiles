@@ -168,6 +168,18 @@ if command -v btop &> /dev/null; then
     alias htop='btop'
 fi
 
+# yazi file manager (cd to directory on exit with 'y')
+if command -v yazi &> /dev/null; then
+    function y() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+        yazi "$@" --cwd-file="$tmp"
+        if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            builtin cd -- "$cwd"
+        fi
+        rm -f -- "$tmp"
+    }
+fi
+
 # Claude Code (skip permission prompts)
 alias claude='claude --dangerously-skip-permissions'
 

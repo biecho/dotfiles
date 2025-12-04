@@ -116,6 +116,17 @@ install_bins() {
             | tar xz -C "$LOCAL_BIN" tldr
     fi
 
+    # yazi (file manager)
+    if ! command -v yazi &> /dev/null; then
+        echo "   Installing yazi..."
+        YAZI_VERSION=$(curl -s https://api.github.com/repos/sxyazi/yazi/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -sL "https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/yazi-x86_64-unknown-linux-musl.zip" \
+            -o /tmp/yazi.zip
+        unzip -q -o /tmp/yazi.zip -d /tmp/yazi
+        cp /tmp/yazi/yazi-x86_64-unknown-linux-musl/yazi "$LOCAL_BIN/"
+        rm -rf /tmp/yazi /tmp/yazi.zip
+    fi
+
     # ImageMagick (required for image.nvim)
     if ! command -v magick &> /dev/null && ! command -v convert &> /dev/null; then
         echo "   Installing ImageMagick..."

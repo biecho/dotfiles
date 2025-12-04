@@ -35,6 +35,7 @@ install_deps() {
     brew install bat           # modern cat with syntax highlighting
     brew install btop          # modern top/htop
     brew install tlrc          # tldr pages (simplified man pages)
+    brew install yazi ffmpegthumbnailer unar  # file manager + preview deps
 
     # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager
