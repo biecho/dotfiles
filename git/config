@@ -1,0 +1,51 @@
+# =============================================================================
+# Git Configuration
+# =============================================================================
+# Symlinked to ~/.gitconfig by install script
+
+[user]
+    email = diego.a.meyer@gmail.com
+    name = dmeyer
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[push]
+    default = current
+
+[core]
+    autocrlf = input
+    editor = nvim
+    hooksPath = ~/.config/git/hooks
+    pager = delta
+
+[credential]
+    helper = store
+
+[alias]
+    amend-now = commit --amend --date="now" --no-edit
+
+[gui]
+    encoding = utf-8
+
+# -----------------------------------------------------------------------------
+# Delta - syntax-highlighted diffs
+# -----------------------------------------------------------------------------
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    side-by-side = false
+    line-numbers = true
+    hyperlinks = true
+
+[merge]
+    conflictstyle = zdiff3
+
+[diff]
+    colorMoved = default
+    algorithm = histogram

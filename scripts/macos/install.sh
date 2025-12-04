@@ -30,6 +30,7 @@ install_deps() {
     brew install fd            # fast find
     brew install eza           # modern ls
     brew install imagemagick   # image.nvim dependency
+    brew install git-delta     # syntax-highlighted git diffs
 
     # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager
@@ -57,6 +58,7 @@ backup_existing() {
     [[ -d "$HOME/.config/ghostty" ]] && cp -r "$HOME/.config/ghostty" "$backup_dir/"
     [[ -d "$HOME/.config/kitty" ]] && cp -r "$HOME/.config/kitty" "$backup_dir/"
     [[ -f "$HOME/.config/karabiner/karabiner.json" ]] && cp "$HOME/.config/karabiner/karabiner.json" "$backup_dir/"
+    [[ -f "$HOME/.gitconfig" ]] && cp "$HOME/.gitconfig" "$backup_dir/"
 
     echo "   Backup saved to: $backup_dir"
 }
@@ -93,11 +95,18 @@ create_symlinks() {
     ln -sfn "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
     echo "   ~/.config/nvim"
 
-    # Global git hooks
+    # Git config (symlink entire config, hooks handled via hooksPath in config)
+    ln -sf "$DOTFILES_DIR/git/config" "$HOME/.gitconfig"
     mkdir -p "$HOME/.config/git/hooks"
     ln -sf "$DOTFILES_DIR/git/hooks/prepare-commit-msg" "$HOME/.config/git/hooks/prepare-commit-msg"
-    git config --global core.hooksPath "$HOME/.config/git/hooks"
+    echo "   ~/.gitconfig"
     echo "   ~/.config/git/hooks (global git hooks)"
+
+    # Lazygit config (for delta integration)
+    # macOS uses ~/Library/Application Support/lazygit/
+    mkdir -p "$HOME/Library/Application Support/lazygit"
+    ln -sf "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
+    echo "   ~/Library/Application Support/lazygit/config.yml"
 
     # Karabiner Elements
     mkdir -p "$HOME/.config/karabiner"

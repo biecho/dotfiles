@@ -78,6 +78,14 @@ install_bins() {
         curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
     fi
 
+    # git-delta
+    if ! command -v delta &> /dev/null; then
+        echo "   Installing git-delta..."
+        DELTA_VERSION=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep -Po '"tag_name": "\K[^"]*')
+        curl -sL "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+            | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/delta'
+    fi
+
     # ImageMagick (required for image.nvim)
     if ! command -v magick &> /dev/null && ! command -v convert &> /dev/null; then
         echo "   Installing ImageMagick..."
@@ -134,6 +142,7 @@ backup_existing() {
     [[ -f "$HOME/.zshrc" ]] && cp "$HOME/.zshrc" "$backup_dir/"
     [[ -f "$HOME/.bashrc" ]] && cp "$HOME/.bashrc" "$backup_dir/"
     [[ -f "$HOME/.config/starship.toml" ]] && cp "$HOME/.config/starship.toml" "$backup_dir/"
+    [[ -f "$HOME/.gitconfig" ]] && cp "$HOME/.gitconfig" "$backup_dir/"
 
     echo "   Backup saved to: $backup_dir"
 }
@@ -159,11 +168,18 @@ create_symlinks() {
     ln -sfn "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
     echo "   ~/.config/nvim"
 
-    # Global git hooks
+    # Git config (symlink entire config, hooks handled via hooksPath in config)
+    ln -sf "$DOTFILES_DIR/git/config" "$HOME/.gitconfig"
     mkdir -p "$HOME/.config/git/hooks"
     ln -sf "$DOTFILES_DIR/git/hooks/prepare-commit-msg" "$HOME/.config/git/hooks/prepare-commit-msg"
-    git config --global core.hooksPath "$HOME/.config/git/hooks"
+    echo "   ~/.gitconfig"
     echo "   ~/.config/git/hooks (global git hooks)"
+
+    # Lazygit config (for delta integration)
+    # Linux uses ~/.config/lazygit/
+    mkdir -p "$HOME/.config/lazygit"
+    ln -sf "$DOTFILES_DIR/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
+    echo "   ~/.config/lazygit/config.yml"
 }
 
 # -----------------------------------------------------------------------------
