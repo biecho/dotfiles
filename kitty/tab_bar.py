@@ -5,16 +5,16 @@ from kitty.boss import get_boss
 from kitty.fast_data_types import Screen
 from kitty.tab_bar import DrawData, ExtraData, TabBarData, as_rgb
 
-# Cyberdream theme colors (hardcoded to avoid get_options() at load time)
-BG = as_rgb(0x16181A)
-FG = as_rgb(0xFFFFFF)
-DIM = as_rgb(0x3C4048)
-CYAN = as_rgb(0x5EF1FF)
-ORANGE = as_rgb(0xFFBD5E)
-BLACK = as_rgb(0x000000)
+# Tokyo Night Storm theme colors (hardcoded to avoid get_options() at load time)
+BG = as_rgb(0x24283B)
+FG = as_rgb(0xC0CAF5)
+DIM = as_rgb(0x414868)
+CYAN = as_rgb(0x7DCFFF)
+ORANGE = as_rgb(0xFF9E64)
+BLACK = as_rgb(0x1F2335)
 # Dimmer variants for inactive tabs
-DIM_CYAN = as_rgb(0x2A5A66)
-DIM_ORANGE = as_rgb(0x665532)
+DIM_CYAN = as_rgb(0x394B70)
+DIM_ORANGE = as_rgb(0x4D3D2E)
 
 # Powerline symbols
 SEP = ""

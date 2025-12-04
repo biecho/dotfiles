@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# JankyBorders configuration - Cyberdream theme
+# JankyBorders configuration - Tokyo Night Storm theme
 # Docs: https://github.com/FelixKratz/JankyBorders
 
 options=(
   style=round
   width=5.0
   hidpi=on
-  active_color=0xff5ef1ff   # Cyan - Cyberdream
-  inactive_color=0xff3c4048 # Grey - Cyberdream
+  active_color=0xff7aa2f7   # Blue - Tokyo Night
+  inactive_color=0xff414868 # Grey - Tokyo Night
 )
 
 borders "${options[@]}"
