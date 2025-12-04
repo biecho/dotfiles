@@ -98,9 +98,16 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 eval "$(zoxide init zsh)"
 
 # -----------------------------------------------------------------------------
-# fzf - fuzzy finder
+# fzf - fuzzy finder (Ctrl+T for files, Alt+C for dirs)
 # -----------------------------------------------------------------------------
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# -----------------------------------------------------------------------------
+# atuin - better shell history (Ctrl+R) - must be after fzf to override
+# -----------------------------------------------------------------------------
+if command -v atuin &> /dev/null; then
+    eval "$(atuin init zsh)"
+fi
 
 # -----------------------------------------------------------------------------
 # Environment

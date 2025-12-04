@@ -86,6 +86,12 @@ install_bins() {
             | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/delta'
     fi
 
+    # atuin (better shell history)
+    if ! command -v atuin &> /dev/null; then
+        echo "   Installing atuin..."
+        curl -sS https://raw.githubusercontent.com/atuinsh/atuin/main/install.sh | bash -s -- --no-modify-path
+    fi
+
     # ImageMagick (required for image.nvim)
     if ! command -v magick &> /dev/null && ! command -v convert &> /dev/null; then
         echo "   Installing ImageMagick..."

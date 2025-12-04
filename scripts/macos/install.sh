@@ -31,6 +31,7 @@ install_deps() {
     brew install eza           # modern ls
     brew install imagemagick   # image.nvim dependency
     brew install git-delta     # syntax-highlighted git diffs
+    brew install atuin         # better shell history
 
     # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager
