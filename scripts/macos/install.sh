@@ -38,6 +38,8 @@ install_deps() {
     brew install yazi ffmpegthumbnailer unar  # file manager + preview deps
     brew install glow                         # markdown preview for yazi
     brew install just                         # command runner
+    brew install dust                         # modern du (disk usage)
+    brew install duf                          # modern df (disk free)
 
     # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager

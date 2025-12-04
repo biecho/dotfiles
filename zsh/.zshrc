@@ -168,6 +168,11 @@ if command -v btop &> /dev/null; then
     alias htop='btop'
 fi
 
+# duf (modern df - disk free)
+if command -v duf &> /dev/null; then
+    alias df='duf'
+fi
+
 # yazi file manager (cd to directory on exit with 'y')
 if command -v yazi &> /dev/null; then
     function y() {

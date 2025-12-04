@@ -142,6 +142,22 @@ install_bins() {
             | tar xz -C "$LOCAL_BIN" just
     fi
 
+    # dust (modern du - disk usage analyzer)
+    if ! command -v dust &> /dev/null; then
+        echo "   Installing dust..."
+        DUST_VERSION=$(curl -s https://api.github.com/repos/bootandy/dust/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -sL "https://github.com/bootandy/dust/releases/download/v${DUST_VERSION}/dust-v${DUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+            | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/dust'
+    fi
+
+    # duf (modern df - disk free overview)
+    if ! command -v duf &> /dev/null; then
+        echo "   Installing duf..."
+        DUF_VERSION=$(curl -s https://api.github.com/repos/muesli/duf/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -sL "https://github.com/muesli/duf/releases/download/v${DUF_VERSION}/duf_${DUF_VERSION}_linux_amd64.tar.gz" \
+            | tar xz -C "$LOCAL_BIN" duf
+    fi
+
     echo ""
 }
 
