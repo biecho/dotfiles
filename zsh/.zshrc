@@ -277,4 +277,5 @@ conda() {
 }
 
 
-. "$HOME/.atuin/bin/env"
+# Atuin shell history (Homebrew install)
+eval "$(atuin init zsh)"
