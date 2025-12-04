@@ -221,6 +221,18 @@ create_symlinks() {
     mkdir -p "$HOME/.config/lazygit"
     ln -sf "$DOTFILES_DIR/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
     echo "   ~/.config/lazygit/config.yml"
+
+    # Yazi config (file manager)
+    mkdir -p "$HOME/.config/yazi"
+    ln -sf "$DOTFILES_DIR/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
+    ln -sf "$DOTFILES_DIR/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
+    ln -sf "$DOTFILES_DIR/yazi/init.lua" "$HOME/.config/yazi/init.lua"
+    ln -sf "$DOTFILES_DIR/yazi/package.toml" "$HOME/.config/yazi/package.toml"
+    echo "   ~/.config/yazi/{yazi.toml,keymap.toml,init.lua,package.toml}"
+    # Install yazi plugins
+    if command -v ya &> /dev/null; then
+        ya pkg install 2>/dev/null || true
+    fi
 }
 
 # -----------------------------------------------------------------------------

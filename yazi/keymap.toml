@@ -1,0 +1,83 @@
+# =============================================================================
+# Yazi Keymap Configuration
+# =============================================================================
+# Docs: https://yazi-rs.github.io/docs/configuration/keymap
+#
+# These keybindings are PREPENDED to defaults, so defaults still work.
+# Use "prepend_keymap" to add, or "keymap" to replace entirely.
+
+# -----------------------------------------------------------------------------
+# Manager Mode (main file browser)
+# -----------------------------------------------------------------------------
+[manager]
+prepend_keymap = [
+    # Smart enter: open file OR enter directory with single key
+    { on = "l", run = "plugin smart-enter", desc = "Enter directory or open file" },
+    { on = "<Enter>", run = "plugin smart-enter", desc = "Enter directory or open file" },
+    { on = "<Right>", run = "plugin smart-enter", desc = "Enter directory or open file" },
+
+    # Jump to char (like vim's f key)
+    { on = "f", run = "plugin jump-to-char", desc = "Jump to file starting with char" },
+
+    # Smart filter (better than default filter)
+    { on = "F", run = "plugin smart-filter", desc = "Smart filter files" },
+
+    # Git: go to repo root
+    { on = ["g", "r"], run = "cd $(git rev-parse --show-toplevel 2>/dev/null || echo .)", desc = "Go to git root" },
+
+    # Diff selected file with hovered
+    { on = ["d", "d"], run = "plugin diff", desc = "Diff selected with hovered" },
+
+    # Chmod
+    { on = ["c", "m"], run = "plugin chmod", desc = "Change file permissions" },
+
+    # Copy path to clipboard
+    { on = ["c", "p"], run = "copy path", desc = "Copy file path" },
+    { on = ["c", "n"], run = "copy filename", desc = "Copy filename" },
+    { on = ["c", "d"], run = "copy dirname", desc = "Copy directory path" },
+
+    # Open in editor
+    { on = "e", run = "open", desc = "Open in editor" },
+    { on = "E", run = "open --interactive", desc = "Open with picker" },
+
+    # Shell commands
+    { on = "!", run = "shell \"$SHELL\" --block", desc = "Open shell here" },
+    { on = "@", run = "shell --interactive", desc = "Run shell command" },
+
+    # Quick navigation
+    { on = ["g", "h"], run = "cd ~", desc = "Go to home" },
+    { on = ["g", "c"], run = "cd ~/.config", desc = "Go to config" },
+    { on = ["g", "d"], run = "cd ~/dotfiles", desc = "Go to dotfiles" },
+    { on = ["g", "D"], run = "cd ~/Downloads", desc = "Go to downloads" },
+    { on = ["g", "p"], run = "cd ~/projects", desc = "Go to projects" },
+
+    # Tabs
+    { on = "t", run = "tab_create --current", desc = "New tab in current dir" },
+    { on = "T", run = "tab_create", desc = "New tab in home" },
+
+    # Selection
+    { on = "<C-a>", run = "select_all --state=true", desc = "Select all" },
+    { on = "<C-d>", run = "select_all --state=false", desc = "Deselect all" },
+
+    # Sorting
+    { on = ["s", "m"], run = "sort modified --reverse", desc = "Sort by modified (newest)" },
+    { on = ["s", "M"], run = "sort modified", desc = "Sort by modified (oldest)" },
+    { on = ["s", "n"], run = "sort natural", desc = "Sort by name" },
+    { on = ["s", "N"], run = "sort natural --reverse", desc = "Sort by name (reverse)" },
+    { on = ["s", "s"], run = "sort size --reverse", desc = "Sort by size (largest)" },
+    { on = ["s", "S"], run = "sort size", desc = "Sort by size (smallest)" },
+    { on = ["s", "e"], run = "sort extension", desc = "Sort by extension" },
+]
+
+# -----------------------------------------------------------------------------
+# Input Mode (when typing in prompts)
+# -----------------------------------------------------------------------------
+[input]
+prepend_keymap = [
+    # Emacs-style shortcuts
+    { on = "<C-a>", run = "move -999", desc = "Move to line start" },
+    { on = "<C-e>", run = "move 999", desc = "Move to line end" },
+    { on = "<C-k>", run = "kill", desc = "Kill to end of line" },
+    { on = "<C-u>", run = "backward-kill-line", desc = "Kill to start of line" },
+    { on = "<C-w>", run = "backward-kill-word", desc = "Delete word backward" },
+]

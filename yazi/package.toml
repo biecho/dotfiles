@@ -1,0 +1,20 @@
+# =============================================================================
+# Yazi Plugins
+# =============================================================================
+# Install with: ya pkg install
+# Update with: ya pkg upgrade
+
+[plugin]
+deps = [
+    # Official plugins
+    { use = "yazi-rs/plugins:git" },
+    { use = "yazi-rs/plugins:full-border" },
+    { use = "yazi-rs/plugins:smart-enter" },
+    { use = "yazi-rs/plugins:chmod" },
+    { use = "yazi-rs/plugins:diff" },
+    { use = "yazi-rs/plugins:jump-to-char" },
+    { use = "yazi-rs/plugins:smart-filter" },
+
+    # Community plugins
+    { use = "Reledia/glow" },  # Markdown preview
+]

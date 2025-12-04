@@ -36,6 +36,7 @@ install_deps() {
     brew install btop          # modern top/htop
     brew install tlrc          # tldr pages (simplified man pages)
     brew install yazi ffmpegthumbnailer unar  # file manager + preview deps
+    brew install glow                         # markdown preview for yazi
 
     # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager
@@ -112,6 +113,18 @@ create_symlinks() {
     mkdir -p "$HOME/Library/Application Support/lazygit"
     ln -sf "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
     echo "   ~/Library/Application Support/lazygit/config.yml"
+
+    # Yazi config (file manager)
+    mkdir -p "$HOME/.config/yazi"
+    ln -sf "$DOTFILES_DIR/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
+    ln -sf "$DOTFILES_DIR/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
+    ln -sf "$DOTFILES_DIR/yazi/init.lua" "$HOME/.config/yazi/init.lua"
+    ln -sf "$DOTFILES_DIR/yazi/package.toml" "$HOME/.config/yazi/package.toml"
+    echo "   ~/.config/yazi/{yazi.toml,keymap.toml,init.lua,package.toml}"
+    # Install yazi plugins
+    if command -v ya &> /dev/null; then
+        ya pkg install 2>/dev/null || true
+    fi
 
     # Karabiner Elements
     mkdir -p "$HOME/.config/karabiner"
