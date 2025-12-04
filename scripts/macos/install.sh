@@ -34,6 +34,7 @@ install_deps() {
     brew install atuin         # better shell history
     brew install bat           # modern cat with syntax highlighting
     brew install btop          # modern top/htop
+    brew install tlrc          # tldr pages (simplified man pages)
 
     # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager

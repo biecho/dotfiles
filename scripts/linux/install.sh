@@ -108,6 +108,14 @@ install_bins() {
             | tar xj -C "$LOCAL_BIN" --strip-components=2 btop/bin/btop
     fi
 
+    # tlrc (tldr pages - simplified man pages)
+    if ! command -v tldr &> /dev/null; then
+        echo "   Installing tlrc..."
+        TLRC_VERSION=$(curl -s https://api.github.com/repos/tldr-pages/tlrc/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -sL "https://github.com/tldr-pages/tlrc/releases/download/v${TLRC_VERSION}/tlrc-v${TLRC_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+            | tar xz -C "$LOCAL_BIN" tldr
+    fi
+
     # ImageMagick (required for image.nvim)
     if ! command -v magick &> /dev/null && ! command -v convert &> /dev/null; then
         echo "   Installing ImageMagick..."
