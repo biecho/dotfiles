@@ -78,6 +78,9 @@ return {
           desc = "Close buffer from tabline",
         },
 
+        -- Quit all with confirmation (prompts to save unsaved changes)
+        ["<Leader>Q"] = { "<cmd>confirm qa<cr>", desc = "Quit all (confirm)" },
+
         -- tables with just a `desc` key will be registered with which-key if it's installed
         -- this is useful for naming menus
         -- ["<Leader>b"] = { desc = "Buffers" },
