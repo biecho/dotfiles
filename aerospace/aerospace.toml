@@ -61,7 +61,7 @@ preset = 'qwerty'
 # Gaps between windows
 [gaps]
 outer.bottom = 8
-outer.top = 12
+outer.top = 8
 outer.left = 8
 outer.right = 8
 inner.horizontal = 8
