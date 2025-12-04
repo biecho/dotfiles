@@ -29,6 +29,7 @@ install_deps() {
     brew install ripgrep       # fast grep
     brew install fd            # fast find
     brew install eza           # modern ls
+    brew install imagemagick   # image.nvim dependency
 
     # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager

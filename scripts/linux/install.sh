@@ -78,6 +78,13 @@ install_bins() {
         curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
     fi
 
+    # ImageMagick (required for image.nvim)
+    if ! command -v magick &> /dev/null && ! command -v convert &> /dev/null; then
+        echo "   Installing ImageMagick..."
+        curl -sL https://imagemagick.org/archive/binaries/magick -o "$LOCAL_BIN/magick"
+        chmod +x "$LOCAL_BIN/magick"
+    fi
+
     echo ""
 }
 
