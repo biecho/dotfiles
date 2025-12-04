@@ -104,8 +104,10 @@ install_bins() {
     if ! command -v btop &> /dev/null; then
         echo "   Installing btop..."
         BTOP_VERSION=$(curl -s https://api.github.com/repos/aristocratos/btop/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/aristocratos/btop/releases/download/v${BTOP_VERSION}/btop-x86_64-linux-musl.tbz" \
-            | tar xj -C "$LOCAL_BIN" --strip-components=2 btop/bin/btop
+        curl -sL "https://github.com/aristocratos/btop/releases/download/v${BTOP_VERSION}/btop-x86_64-linux-musl.tbz" -o /tmp/btop.tbz
+        cd /tmp && tar xjf btop.tbz
+        cp /tmp/btop/bin/btop "$LOCAL_BIN/"
+        rm -rf /tmp/btop /tmp/btop.tbz
     fi
 
     # tlrc (tldr pages - simplified man pages)
@@ -153,8 +155,8 @@ install_bins() {
     # duf (modern df - disk free overview)
     if ! command -v duf &> /dev/null; then
         echo "   Installing duf..."
-        DUF_VERSION=$(curl -s https://api.github.com/repos/muesli/duf/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/muesli/duf/releases/download/v${DUF_VERSION}/duf_${DUF_VERSION}_linux_amd64.tar.gz" \
+        # Note: duf uses linux_x86_64 naming convention, not linux_amd64
+        curl -sSL "https://github.com/muesli/duf/releases/download/v0.8.1/duf_0.8.1_linux_x86_64.tar.gz" \
             | tar xz -C "$LOCAL_BIN" duf
     fi
 
