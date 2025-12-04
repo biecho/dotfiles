@@ -3,7 +3,7 @@
 # =============================================================================
 # Docs: https://yazi-rs.github.io/docs/configuration/yazi
 
-[manager]
+[mgr]
 # Show file sizes in listing
 linemode = "size"
 
