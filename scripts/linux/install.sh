@@ -92,6 +92,22 @@ install_bins() {
         curl -sS https://raw.githubusercontent.com/atuinsh/atuin/main/install.sh | bash -s -- --no-modify-path
     fi
 
+    # bat (modern cat with syntax highlighting)
+    if ! command -v bat &> /dev/null; then
+        echo "   Installing bat..."
+        BAT_VERSION=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -sL "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+            | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/bat'
+    fi
+
+    # btop (modern top/htop)
+    if ! command -v btop &> /dev/null; then
+        echo "   Installing btop..."
+        BTOP_VERSION=$(curl -s https://api.github.com/repos/aristocratos/btop/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -sL "https://github.com/aristocratos/btop/releases/download/v${BTOP_VERSION}/btop-x86_64-linux-musl.tbz" \
+            | tar xj -C "$LOCAL_BIN" --strip-components=2 btop/bin/btop
+    fi
+
     # ImageMagick (required for image.nvim)
     if ! command -v magick &> /dev/null && ! command -v convert &> /dev/null; then
         echo "   Installing ImageMagick..."

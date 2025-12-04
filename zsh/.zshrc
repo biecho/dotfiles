@@ -156,6 +156,18 @@ alias lz="eza -la --sort=size $eza_params"
 alias tree="eza --tree $eza_params"
 lt() { eza -la --tree --level="${1:-2}" ${=eza_params}; }  # lt [depth]
 
+# bat (modern cat with syntax highlighting)
+if command -v bat &> /dev/null; then
+    alias cat='bat --paging=never'
+    alias catp='bat'  # with paging
+fi
+
+# btop (modern top/htop)
+if command -v btop &> /dev/null; then
+    alias top='btop'
+    alias htop='btop'
+fi
+
 # Claude Code (skip permission prompts)
 alias claude='claude --dangerously-skip-permissions'
 

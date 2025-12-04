@@ -32,6 +32,8 @@ install_deps() {
     brew install imagemagick   # image.nvim dependency
     brew install git-delta     # syntax-highlighted git diffs
     brew install atuin         # better shell history
+    brew install bat           # modern cat with syntax highlighting
+    brew install btop          # modern top/htop
 
     # Window management
     brew install --cask nikitabobko/tap/aerospace  # tiling window manager
