@@ -25,6 +25,14 @@
 [credential]
     helper = store
 
+[credential "https://github.com"]
+    helper =
+    helper = !/home/diego/.local/bin/gh auth git-credential
+
+[credential "https://gist.github.com"]
+    helper =
+    helper = !/home/diego/.local/bin/gh auth git-credential
+
 [alias]
     amend-now = commit --amend --date="now" --no-edit
 
