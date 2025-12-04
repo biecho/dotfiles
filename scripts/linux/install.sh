@@ -255,9 +255,11 @@ create_symlinks() {
     ln -sf "$DOTFILES_DIR/yazi/init.lua" "$HOME/.config/yazi/init.lua"
     ln -sf "$DOTFILES_DIR/yazi/package.toml" "$HOME/.config/yazi/package.toml"
     echo "   ~/.config/yazi/{yazi.toml,keymap.toml,init.lua,package.toml}"
-    # Install yazi plugins
-    if command -v ya &> /dev/null; then
-        ya pkg install 2>/dev/null || true
+
+    # Install yazi plugins (use full path since ~/.local/bin may not be in PATH yet)
+    if [[ -x "$LOCAL_BIN/ya" ]]; then
+        echo "   Installing yazi plugins..."
+        "$LOCAL_BIN/ya" pkg install
     fi
 }
 
