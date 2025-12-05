@@ -160,6 +160,14 @@ install_bins() {
             | tar xz -C "$LOCAL_BIN" duf
     fi
 
+    # gh (GitHub CLI)
+    if ! command -v gh &> /dev/null; then
+        echo "   Installing gh..."
+        GH_VERSION=$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -sL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" \
+            | tar xz --strip-components=2 -C "$LOCAL_BIN" --wildcards '*/bin/gh'
+    fi
+
     echo ""
 }
 
@@ -184,8 +192,9 @@ install_nvim_deps() {
 
     # Python venv for pynvim and molten-nvim
     local nvim_python_dir="$HOME/.local/share/nvim/python"
-    if [[ ! -d "$nvim_python_dir" ]]; then
+    if [[ ! -f "$nvim_python_dir/bin/pip" ]]; then
         echo "   Creating dedicated Python venv for Neovim..."
+        rm -rf "$nvim_python_dir"
         python3 -m venv "$nvim_python_dir"
     fi
 
