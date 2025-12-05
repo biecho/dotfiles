@@ -1,5 +1,22 @@
 -- ~/.config/nvim/lua/plugins/user-mappings.lua
 -- Custom keymaps and overrides for AstroNvim defaults
+--
+-- ============================================================================
+-- BUFFER & FILE NAVIGATION
+-- ============================================================================
+--
+-- FRECENCY (files sorted by usage - frequency + recency):
+--   <leader>fr    Open frecency picker (most used files bubble to top)
+--
+-- BUFFERS (open buffers sorted by most recently used):
+--   <leader>fb    Open buffer picker (MRU order, excludes current)
+--
+-- JUMPLIST (recent code locations - like PyCharm's "Recent Locations"):
+--   <leader>fj    Open jumplist picker (shows line previews)
+--   <C-o>         Jump to previous location (built-in)
+--   <C-i>         Jump to next location (built-in)
+--
+-- ============================================================================
 
 ---@type LazySpec
 return {
@@ -42,6 +59,24 @@ return {
     maps.n["<leader>fF"] = {
       function() require("telescope.builtin").find_files({ no_ignore = true, hidden = true }) end,
       desc = "Find all files",
+    }
+
+    -- Frecency: files sorted by usage (frequency + recency)
+    maps.n["<leader>fr"] = {
+      function() require("telescope").extensions.frecency.frecency() end,
+      desc = "Frecency (most used files)",
+    }
+
+    -- Buffers sorted by most recently used
+    maps.n["<leader>fb"] = {
+      function() require("telescope.builtin").buffers({ sort_mru = true, ignore_current_buffer = true }) end,
+      desc = "Find buffers (MRU)",
+    }
+
+    -- Jumplist: recent code locations (like PyCharm's Recent Locations)
+    maps.n["<leader>fj"] = {
+      function() require("telescope.builtin").jumplist() end,
+      desc = "Jumplist (recent locations)",
     }
     maps.n["<leader>fW"] = {
       function() require("telescope.builtin").live_grep({ additional_args = { "--no-ignore", "--hidden" } }) end,
