@@ -335,6 +335,32 @@ conda() {
     conda "$@"
 }
 
+# -----------------------------------------------------------------------------
+# abduco - session persistence for SSH (detach: Ctrl+\)
+# -----------------------------------------------------------------------------
+# Usage: abs <name>  - attach to or create a persistent session
+#        abs         - list all sessions
+# Detach with Ctrl+\, reattach later with 'abs <name>'
+if command -v abduco &> /dev/null; then
+    abs() {
+        if [[ -z "$1" ]]; then
+            echo "📦 abduco sessions:"
+            abduco 2>/dev/null | tail -n +2 || echo "   (none)"
+            echo ""
+            echo "Usage: abs <name>  - attach/create session"
+            return
+        fi
+        abduco -A "$1"
+    }
 
+    # Show available sessions on SSH login
+    if [[ -n "$SSH_CONNECTION" && -z "$ABDUCO_SESSION" ]]; then
+        _sessions=$(abduco 2>/dev/null | tail -n +2)
+        if [[ -n "$_sessions" ]]; then
+            echo "📦 Sessions: $(echo "$_sessions" | wc -l | tr -d ' ') available (abs to list, abs <name> to attach)"
+        fi
+        unset _sessions
+    fi
+fi
 
 . "$HOME/.atuin/bin/env"

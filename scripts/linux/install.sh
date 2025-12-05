@@ -169,6 +169,15 @@ install_bins() {
             | tar xz --strip-components=2 -C "$LOCAL_BIN" --wildcards '*/bin/gh'
     fi
 
+    # abduco (session persistence - detach/reattach like tmux)
+    # Note: requires compilation, so we check if available or print instructions
+    if ! command -v abduco &> /dev/null; then
+        echo "   abduco not found - for session persistence, install via:"
+        echo "      sudo apt install abduco   # Debian/Ubuntu"
+        echo "      sudo pacman -S abduco     # Arch"
+        echo "   Then use 'abs <name>' to create persistent sessions"
+    fi
+
     echo ""
 }
 
@@ -348,6 +357,11 @@ main() {
     echo "  1. Restart your terminal (or: source ~/.zshrc)"
     echo "  2. Zinit will auto-install zsh plugins on first run"
     echo "  3. Neovim will auto-install plugins on first run"
+    echo ""
+    echo "For SSH session persistence (optional):"
+    echo "  sudo apt install abduco"
+    echo "  Then use 'abs <name>' to create/attach to persistent sessions"
+    echo "  Detach with Ctrl+\\"
     echo ""
 }
 
