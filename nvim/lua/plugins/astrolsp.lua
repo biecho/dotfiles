@@ -103,6 +103,16 @@ return {
             return client.supports_method "textDocument/semanticTokens/full" and vim.lsp.semantic_tokens ~= nil
           end,
         },
+        ["<Leader>lci"] = {
+          function() vim.lsp.buf.incoming_calls() end,
+          desc = "Incoming calls",
+          cond = "textDocument/prepareCallHierarchy",
+        },
+        ["<Leader>lco"] = {
+          function() vim.lsp.buf.outgoing_calls() end,
+          desc = "Outgoing calls",
+          cond = "textDocument/prepareCallHierarchy",
+        },
       },
     },
     -- A custom `on_attach` function to be run after the default `on_attach` function
