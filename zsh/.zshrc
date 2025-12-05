@@ -220,7 +220,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 # Fuzzy git (fzf-powered branch/log navigation)
-alias gco='git branch --sort=-committerdate | fzf --header "Checkout branch" | xargs git checkout'
+alias gco='git branch -a --sort=-committerdate --format="%(refname:short)" | fzf --header "Checkout branch" | sed "s#^origin/##" | xargs git checkout'
 alias glog='git log --oneline | fzf --preview "git show {1}" --bind "enter:execute(git show {1})"'
 
 # -----------------------------------------------------------------------------
@@ -336,31 +336,94 @@ conda() {
 }
 
 # -----------------------------------------------------------------------------
-# abduco - session persistence for SSH (detach: Ctrl+\)
+# Background jobs - run commands that survive disconnection
 # -----------------------------------------------------------------------------
-# Usage: abs <name>  - attach to or create a persistent session
-#        abs         - list all sessions
-# Detach with Ctrl+\, reattach later with 'abs <name>'
-if command -v abduco &> /dev/null; then
-    abs() {
-        if [[ -z "$1" ]]; then
-            echo "📦 abduco sessions:"
-            abduco 2>/dev/null | tail -n +2 || echo "   (none)"
-            echo ""
-            echo "Usage: abs <name>  - attach/create session"
-            return
-        fi
-        abduco -A "$1"
-    }
+# run <cmd>  - run command in background with logging
+# runs       - list background jobs
+# runlog     - view/tail logs (fzf picker)
+# runrm      - clean up finished job logs
 
-    # Show available sessions on SSH login
-    if [[ -n "$SSH_CONNECTION" && -z "$ABDUCO_SESSION" ]]; then
-        _sessions=$(abduco 2>/dev/null | tail -n +2)
-        if [[ -n "$_sessions" ]]; then
-            echo "📦 Sessions: $(echo "$_sessions" | wc -l | tr -d ' ') available (abs to list, abs <name> to attach)"
+_RUN_DIR="${HOME}/.local/share/run"
+
+run() {
+    [[ -z "$1" ]] && { echo "Usage: run <command> [args...]"; return 1; }
+    mkdir -p "$_RUN_DIR"
+
+    local name="${1:t}"  # basename of command
+    local ts=$(date +%Y%m%d_%H%M%S)
+    local logfile="${_RUN_DIR}/${name}_${ts}.log"
+
+    echo "$ $*" > "$logfile"
+    echo "Started: $(date)" >> "$logfile"
+    echo "---" >> "$logfile"
+
+    nohup "$@" >> "$logfile" 2>&1 &
+    local pid=$!
+    echo "$pid" > "${logfile%.log}.pid"
+
+    echo "Running: $name (PID: $pid)"
+    echo "Log: $logfile"
+}
+
+runs() {
+    mkdir -p "$_RUN_DIR"
+    local found=0
+
+    for pidfile in "$_RUN_DIR"/*.pid(N); do
+        [[ ! -f "$pidfile" ]] && continue
+        found=1
+
+        local pid=$(<"$pidfile")
+        local logfile="${pidfile%.pid}.log"
+        local name=$(basename "$logfile" .log)
+
+        if kill -0 "$pid" 2>/dev/null; then
+            echo "● $name (PID: $pid) - running"
+        else
+            echo "○ $name (PID: $pid) - done"
         fi
-        unset _sessions
+    done
+
+    [[ $found -eq 0 ]] && echo "No background jobs"
+}
+
+runlog() {
+    mkdir -p "$_RUN_DIR"
+    local logs=("$_RUN_DIR"/*.log(N))
+
+    [[ ${#logs[@]} -eq 0 ]] && { echo "No logs found"; return 1; }
+
+    local logfile
+    if [[ ${#logs[@]} -eq 1 ]]; then
+        logfile="${logs[1]}"
+    elif command -v fzf &> /dev/null; then
+        logfile=$(printf '%s\n' "${logs[@]}" | xargs -n1 basename | \
+            fzf --height=40% --reverse --prompt="log> " | \
+            xargs -I{} echo "$_RUN_DIR/{}")
+        [[ -z "$logfile" ]] && return 1
+    else
+        logfile="${logs[-1]}"  # most recent
     fi
-fi
+
+    echo "=== $logfile ==="
+    tail -f "$logfile"
+}
+
+runrm() {
+    mkdir -p "$_RUN_DIR"
+    local cleaned=0
+
+    for pidfile in "$_RUN_DIR"/*.pid(N); do
+        [[ ! -f "$pidfile" ]] && continue
+        local pid=$(<"$pidfile")
+
+        if ! kill -0 "$pid" 2>/dev/null; then
+            rm -f "$pidfile" "${pidfile%.pid}.log"
+            ((cleaned++))
+        fi
+    done
+
+    echo "Cleaned $cleaned finished job(s)"
+}
 
 [[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"

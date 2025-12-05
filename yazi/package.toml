@@ -1,20 +1,37 @@
-# =============================================================================
-# Yazi Plugins
-# =============================================================================
-# Install with: ya pkg install
-# Update with: ya pkg upgrade
+[[plugin.deps]]
+use = "yazi-rs/plugins:git"
+rev = "19dc890"
+hash = "27ca02f49fd236b5cc7bf03c243859fe"
 
-[plugin]
-deps = [
-    # Official plugins
-    { use = "yazi-rs/plugins:git" },
-    { use = "yazi-rs/plugins:full-border" },
-    { use = "yazi-rs/plugins:smart-enter" },
-    { use = "yazi-rs/plugins:chmod" },
-    { use = "yazi-rs/plugins:diff" },
-    { use = "yazi-rs/plugins:jump-to-char" },
-    { use = "yazi-rs/plugins:smart-filter" },
+[[plugin.deps]]
+use = "yazi-rs/plugins:full-border"
+rev = "19dc890"
+hash = "3996fc74044bc44144b323686f887e1"
 
-    # Community plugins
-    { use = "Reledia/glow" },  # Markdown preview
-]
+[[plugin.deps]]
+use = "yazi-rs/plugins:smart-enter"
+rev = "19dc890"
+hash = "56fdabc96fc1f4d53c96eb884b02a5be"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:chmod"
+rev = "19dc890"
+hash = "5b2eb0cc2050cec1e4de83cfa51a5b90"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:diff"
+rev = "19dc890"
+hash = "82376c3381ae915fd799d40f4dd4c6cd"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:jump-to-char"
+rev = "19dc890"
+hash = "ce67445ebb1bf3d97b8e44f50904b2c5"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:smart-filter"
+rev = "19dc890"
+hash = "bcda8eeb3f4013bae156aecabfc745e8"
+
+[flavor]
+deps = []
