@@ -145,6 +145,10 @@ fi
 # Navigation & listing (eza = modern ls)
 alias ..='cd ..'
 alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias dl='cd ~/Downloads'
+alias dt='cd ~/Desktop'
 eza_params='--icons --group-directories-first --no-git'
 alias ls="eza $eza_params"
 alias l="eza -la $eza_params"
@@ -199,9 +203,63 @@ alias sgtime='TZ="Asia/Singapore" date "+%Y-%m-%d %H:%M:%S %Z"'
 # Fuzzy kill processes
 alias fkill='ps -ef | fzf --multi | awk "{print \$2}" | xargs kill'
 
+# Utility aliases (inspired by mathiasbynens, jessfraz, paulirish dotfiles)
+alias reload='exec $SHELL -l'                       # reload shell config
+alias chmox='chmod +x'                              # make executable
+alias pubip='curl -s https://ipinfo.io/ip'          # public IP address
+alias localip='ipconfig getifaddr en0'              # local IP address
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"  # remove .DS_Store recursively
+alias map='xargs -n1'                               # apply command to each line (e.g., find . | map wc -l)
+alias timer='echo "Timer started. Stop with Ctrl-D." && date && time cat && date'  # simple stopwatch
+
+# macOS specific utilities
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    alias afk='pmset displaysleepnow'               # lock screen / sleep display
+    alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES && killall Finder'
+    alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO && killall Finder'
+fi
+
+# Fuzzy git (fzf-powered branch/log navigation)
+alias gco='git branch --sort=-committerdate | fzf --header "Checkout branch" | xargs git checkout'
+alias glog='git log --oneline | fzf --preview "git show {1}" --bind "enter:execute(git show {1})"'
+
 # -----------------------------------------------------------------------------
 # Custom functions
 # -----------------------------------------------------------------------------
+
+# Jump to project and open editor
+workon() { z "$1" && nvim . }
+
+# Make directory and cd into it
+mkcd() { mkdir -p "$1" && cd "$1" }
+
+# Pretty print PATH
+alias path='echo $PATH | tr ":" "\n"'
+
+# What's running on a port (usage: ports 3000)
+ports() { lsof -i ":${1:-80}" }
+
+# Universal archive extractor
+extract() {
+    if [[ -f "$1" ]]; then
+        case "$1" in
+            *.tar.bz2) tar xjf "$1" ;;
+            *.tar.gz)  tar xzf "$1" ;;
+            *.tar.xz)  tar xJf "$1" ;;
+            *.bz2)     bunzip2 "$1" ;;
+            *.gz)      gunzip "$1" ;;
+            *.tar)     tar xf "$1" ;;
+            *.tbz2)    tar xjf "$1" ;;
+            *.tgz)     tar xzf "$1" ;;
+            *.zip)     unzip "$1" ;;
+            *.7z)      7z x "$1" ;;
+            *)         echo "Unknown archive format: $1" ;;
+        esac
+    else
+        echo "File not found: $1"
+    fi
+}
+
 function ssh_setup() {
     if [ -z "$1" ]; then
         echo "Usage: ssh_setup /path/to/your/key"

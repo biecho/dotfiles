@@ -33,8 +33,45 @@
     helper =
     helper = !gh auth git-credential
 
+# -----------------------------------------------------------------------------
+# Aliases (inspired by mathiasbynens, paulirish dotfiles)
+# -----------------------------------------------------------------------------
 [alias]
+    # Quick shortcuts
+    s = status -sb
+    co = checkout
+    cob = checkout -b
+    amend = commit --amend --no-edit
     amend-now = commit --amend --date="now" --no-edit
+
+    # Visual log (last 20 commits with graph)
+    l = log --oneline -20 --graph --decorate
+    ll = log --oneline -40 --graph --decorate
+    la = log --oneline --graph --decorate --all
+
+    # Switch to branch, creating if needed
+    go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
+
+    # Delete branches merged into main/master
+    cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d"
+
+    # Find commits by message
+    find-msg = "!f() { git log --pretty=format:'%C(yellow)%h %Cblue%ad %Creset%s' --date=short --grep=$1; }; f"
+
+    # Find commits that changed a file
+    find-file = "!f() { git log --pretty=format:'%C(yellow)%h %Cblue%ad %Creset%s' --date=short -- $1; }; f"
+
+    # Show contributors ranked by commit count
+    contributors = shortlog -sn --no-merges
+
+    # Undo last commit (keep changes staged)
+    undo = reset --soft HEAD~1
+
+    # Show what I did today
+    today = log --since=midnight --author=\"$(git config user.name)\" --oneline
+
+    # Show what I did yesterday
+    yesterday = log --since=yesterday.midnight --until=midnight --author=\"$(git config user.name)\" --oneline
 
 [gui]
     encoding = utf-8
