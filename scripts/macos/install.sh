@@ -128,7 +128,7 @@ create_symlinks() {
     echo "   ~/.config/yazi/{yazi.toml,keymap.toml,init.lua,package.toml}"
     # Install yazi plugins
     if command -v ya &> /dev/null; then
-        ya pkg install 2>/dev/null || true
+        ya pack -i 2>/dev/null || true
     fi
 
     # Karabiner Elements
