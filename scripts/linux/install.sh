@@ -170,12 +170,19 @@ install_bins() {
     fi
 
     # abduco (session persistence - detach/reattach like tmux)
-    # Note: requires compilation, so we check if available or print instructions
     if ! command -v abduco &> /dev/null; then
-        echo "   abduco not found - for session persistence, install via:"
-        echo "      sudo apt install abduco   # Debian/Ubuntu"
-        echo "      sudo pacman -S abduco     # Arch"
-        echo "   Then use 'abs <name>' to create persistent sessions"
+        echo "   Installing abduco..."
+        local abduco_tmp=$(mktemp -d)
+        git clone --depth 1 https://github.com/martanne/abduco.git "$abduco_tmp" 2>/dev/null
+        cd "$abduco_tmp"
+        if command -v cc &> /dev/null || command -v gcc &> /dev/null; then
+            make 2>/dev/null && cp abduco "$LOCAL_BIN/"
+            echo "   abduco installed to ~/.local/bin"
+        else
+            echo "   abduco: C compiler not found, install via: sudo apt install abduco"
+        fi
+        cd - > /dev/null
+        rm -rf "$abduco_tmp"
     fi
 
     echo ""
@@ -358,9 +365,8 @@ main() {
     echo "  2. Zinit will auto-install zsh plugins on first run"
     echo "  3. Neovim will auto-install plugins on first run"
     echo ""
-    echo "For SSH session persistence (optional):"
-    echo "  sudo apt install abduco"
-    echo "  Then use 'abs <name>' to create/attach to persistent sessions"
+    echo "SSH session persistence:"
+    echo "  Use 'abs <name>' to create/attach to persistent sessions"
     echo "  Detach with Ctrl+\\"
     echo ""
 }
