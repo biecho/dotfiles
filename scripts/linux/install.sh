@@ -273,6 +273,38 @@ create_symlinks() {
 }
 
 # -----------------------------------------------------------------------------
+# Set default shell to zsh
+# -----------------------------------------------------------------------------
+set_default_shell() {
+    local current_shell
+    current_shell=$(getent passwd "$(whoami)" | cut -d: -f7)
+
+    if [[ "$current_shell" == */zsh ]]; then
+        echo "==> Default shell is already zsh"
+        return
+    fi
+
+    if ! command -v zsh &> /dev/null; then
+        echo "==> zsh not found, skipping shell change"
+        return
+    fi
+
+    echo "==> Setting default shell to zsh..."
+    local zsh_path
+    zsh_path=$(which zsh)
+
+    if sudo -n true 2>/dev/null; then
+        sudo chsh -s "$zsh_path" "$(whoami)"
+        echo "   Default shell changed to zsh"
+    else
+        echo "   Changing shell requires sudo. Running: sudo chsh -s $zsh_path $(whoami)"
+        sudo chsh -s "$zsh_path" "$(whoami)"
+        echo "   Default shell changed to zsh"
+    fi
+    echo ""
+}
+
+# -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
 main() {
@@ -290,6 +322,9 @@ main() {
 
     echo ""
     install_nvim_deps
+
+    echo ""
+    set_default_shell
 
     # Register Neovim remote plugins (required for molten-nvim)
     echo "==> Registering Neovim remote plugins..."
