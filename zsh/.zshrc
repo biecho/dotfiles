@@ -363,4 +363,4 @@ if command -v abduco &> /dev/null; then
     fi
 fi
 
-. "$HOME/.atuin/bin/env"
+[[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
