@@ -34,6 +34,7 @@ install_deps() {
     brew install atuin         # better shell history
     brew install bat           # modern cat with syntax highlighting
     brew install btop          # modern top/htop
+    brew install glances       # system monitoring with web UI
     brew install tlrc          # tldr pages (simplified man pages)
     brew install yazi ffmpegthumbnailer unar  # file manager + preview deps
     brew install glow                         # markdown preview for yazi
