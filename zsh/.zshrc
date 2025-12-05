@@ -278,3 +278,5 @@ conda() {
 }
 
 
+
+. "$HOME/.atuin/bin/env"
