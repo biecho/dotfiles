@@ -118,7 +118,7 @@ install_bins() {
             | tar xz -C "$LOCAL_BIN" tldr
     fi
 
-    # yazi (file manager)
+    # yazi (file manager) and ya (plugin manager)
     if ! command -v yazi &> /dev/null; then
         echo "   Installing yazi..."
         YAZI_VERSION=$(curl -s https://api.github.com/repos/sxyazi/yazi/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
@@ -126,6 +126,7 @@ install_bins() {
             -o /tmp/yazi.zip
         unzip -q -o /tmp/yazi.zip -d /tmp/yazi
         cp /tmp/yazi/yazi-x86_64-unknown-linux-musl/yazi "$LOCAL_BIN/"
+        cp /tmp/yazi/yazi-x86_64-unknown-linux-musl/ya "$LOCAL_BIN/"
         rm -rf /tmp/yazi /tmp/yazi.zip
     fi
 
@@ -268,7 +269,7 @@ create_symlinks() {
     # Install yazi plugins (use full path since ~/.local/bin may not be in PATH yet)
     if [[ -x "$LOCAL_BIN/ya" ]]; then
         echo "   Installing yazi plugins..."
-        "$LOCAL_BIN/ya" pkg install
+        "$LOCAL_BIN/ya" pack -i
     fi
 }
 
