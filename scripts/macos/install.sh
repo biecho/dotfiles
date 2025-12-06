@@ -11,7 +11,7 @@ echo "Installing dotfiles for macOS..."
 echo ""
 
 # -----------------------------------------------------------------------------
-# Install Homebrew + packages
+# Install Homebrew + packages from Brewfile
 # -----------------------------------------------------------------------------
 install_deps() {
     echo "==> Checking Homebrew..."
@@ -20,39 +20,11 @@ install_deps() {
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
 
-    echo "==> Installing packages..."
-    brew install starship      # prompt
-    brew install zoxide        # smart cd
-    brew install fzf           # fuzzy finder
-    brew install neovim        # editor
-    brew install lazygit       # git TUI
-    brew install ripgrep       # fast grep
-    brew install fd            # fast find
-    brew install eza           # modern ls
-    brew install imagemagick   # image.nvim dependency
-    brew install git-delta     # syntax-highlighted git diffs
-    brew install atuin         # better shell history
-    brew install bat           # modern cat with syntax highlighting
-    brew install btop          # modern top/htop
-    brew install glances       # system monitoring with web UI
-    brew install tlrc          # tldr pages (simplified man pages)
-    brew install yazi ffmpegthumbnailer unar  # file manager + preview deps
-    brew install glow                         # markdown preview for yazi
-    brew install just                         # command runner
-    brew install dust                         # modern du (disk usage)
-    brew install duf                          # modern df (disk free)
-
-    # Window management
-    brew install --cask nikitabobko/tap/aerospace  # tiling window manager
-    brew install FelixKratz/formulae/borders       # window borders
+    echo "==> Installing packages from Brewfile..."
+    brew bundle --file="$DOTFILES_DIR/Brewfile"
 
     # Set up fzf key bindings
     $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
-
-    if ! command -v ghostty &> /dev/null; then
-        echo ""
-        echo "Note: Install Ghostty manually from https://ghostty.org"
-    fi
 }
 
 # -----------------------------------------------------------------------------
