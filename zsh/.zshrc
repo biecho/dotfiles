@@ -219,8 +219,18 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 # Fuzzy git (fzf-powered branch/log navigation)
+# gco   - checkout branch (local or remote, sorted by recent)
+# glog  - browse commits with preview, enter to show full commit
 alias gco='git branch -a --sort=-committerdate --format="%(refname:short)" | fzf --header "Checkout branch" | sed "s#^origin/##" | xargs git checkout'
 alias glog='git log --oneline | fzf --preview "git show {1}" --bind "enter:execute(git show {1})"'
+
+# Fuzzy git branch deletion (Tab to multi-select)
+# gbd   - delete local branch(es), safe (checks if merged)
+# gbD   - delete local branch(es), force (no merge check)
+# gbdr  - delete remote branch(es) from origin
+alias gbd='git branch --sort=-committerdate | grep -v "^\*" | fzf --multi --header "Delete local branch(es)" | xargs -r git branch -d'
+alias gbD='git branch --sort=-committerdate | grep -v "^\*" | fzf --multi --header "FORCE delete local branch(es)" | xargs -r git branch -D'
+alias gbdr='git branch -r --sort=-committerdate | grep -v HEAD | fzf --multi --header "Delete REMOTE branch(es)" | sed "s#origin/##" | xargs -I {} git push origin --delete {}'
 
 # -----------------------------------------------------------------------------
 # Custom functions
