@@ -129,7 +129,6 @@ command -v go &>/dev/null && export PATH="$(go env GOPATH)/bin:$PATH"
 alias vi='nvim'
 alias vim='nvim'
 alias lg='lazygit'
-alias k='kubectl'
 alias icat='kitten icat'
 alias kssh='kitten ssh'
 
