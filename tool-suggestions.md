@@ -1,61 +1,118 @@
 # Tool Suggestions for macOS Developer Setup
 
-## Installed
-
-| Tool | Description | Status |
-|------|-------------|--------|
-| **git-delta** | Syntax-highlighted git diffs | ✅ Installed |
-| **atuin** | Better shell history with sync | ✅ Installed |
-| **bat** | Modern `cat` with syntax highlighting | ✅ Installed |
-| **btop** | Modern `top`/`htop` replacement | ✅ Installed |
-| **tlrc** | tldr pages (simplified man pages) | ✅ Installed |
-| **yazi** | Terminal file manager with image preview | ✅ Installed |
-| **just** | Command runner (better Makefile) | ✅ Installed |
+Based on research from popular dotfiles repos: [mathiasbynens](https://github.com/mathiasbynens/dotfiles), [holman](https://github.com/holman/dotfiles), [paulirish](https://github.com/paulirish/dotfiles), [ThePrimeagen](https://github.com/ThePrimeagen/.dotfiles).
 
 ---
 
-## Remaining Suggestions
+## Currently Installed
 
-### High Priority
+### Core CLI Replacements (Rust-based)
+| Tool | Replaces | Notes |
+|------|----------|-------|
+| eza | ls | Icons, git-aware, tree view |
+| bat | cat | Syntax highlighting, line numbers |
+| ripgrep | grep | Fast, respects .gitignore |
+| fd | find | Simple syntax, fast |
+| dust | du | Visual disk usage |
+| duf | df | Better disk free output |
+| zoxide | cd/autojump | Frecency-based jumping |
+| delta | diff | Syntax-highlighted git diffs |
 
-| Tool | Description | Why |
-|------|-------------|-----|
-| **tmux** | Terminal multiplexer | Session persistence, split panes across SSH. Pairs well with Kitty but adds session survival if terminal crashes. |
-| **direnv** | Auto-load env vars per directory | Automatically activates project-specific environment variables when you `cd` into directories. Great for managing API keys, project configs. |
+### Productivity
+| Tool | Purpose |
+|------|---------|
+| fzf | Fuzzy finder (files, history, branches) |
+| atuin | Shell history with sync |
+| yazi | Terminal file manager |
+| lazygit | Git TUI |
+| just | Task runner (Makefile alternative) |
+| starship | Fast, customizable prompt |
+| btop | System monitor |
+| tlrc | Simplified man pages (tldr) |
 
-### Medium Priority
+### macOS-Specific
+| Tool | Purpose |
+|------|---------|
+| AeroSpace | Tiling window manager (i3-like) |
+| Borders | Window border styling |
+| Karabiner | Keyboard remapping |
 
-| Tool | Description | Why |
-|------|-------------|-----|
-| **httpie** / **curlie** | Modern HTTP clients | Better than curl for API testing. `curlie` uses curl syntax with httpie output. |
-| **jq** / **yq** | JSON/YAML processors | Essential for parsing API responses and config files. |
-| **gh** | GitHub CLI | Create PRs, issues, browse repos from terminal. |
-| **gum** | Shell script UI toolkit | Create beautiful interactive shell scripts. |
-| **hyperfine** | Benchmarking tool | Time and compare command execution. |
+---
 
-### Nice to Have
+## Missing (High Value)
 
-| Tool | Description | Why |
-|------|-------------|-----|
-| **dust** | Modern `du` | Disk usage analyzer with visual output. |
-| **duf** | Modern `df` | Disk free space with better formatting. |
-| **procs** | Modern `ps` | Process viewer with tree view and search. |
-| **tokei** | Code statistics | Count lines of code by language. |
-| **gping** | Graphical ping | Visual ping with graph output. |
-| **dog** | Modern `dig` | DNS lookup with colored output. |
+These are common in professional dotfiles and would add real value:
 
-### Development-Specific
+| Tool | Why | Used By |
+|------|-----|---------|
+| **Brewfile** | Reproducible package installs. Run `brew bundle dump` | mathiasbynens, holman, paulirish |
+| **.macos script** | Automate macOS system preferences (key repeat, Dock, Finder) | mathiasbynens (famous for this), paulirish |
+| **direnv** | Auto-load `.envrc` per project. Essential for API keys, project configs | Almost universal in pro setups |
+| **jq** | JSON parsing. Pairs with curl for API work | Universal |
+| **gh** | GitHub CLI (PRs, issues from terminal) | Already using for git credential, but not installed explicitly |
 
-| Tool | Description | Why |
-|------|-------------|-----|
-| **mise** (formerly rtx) | Polyglot version manager | Replaces nvm/pyenv/rbenv with one tool. Faster than asdf. |
-| **watchexec** | File watcher | Run commands on file changes. |
+---
+
+## Worth Considering
+
+### Fits the Rust/Modern Theme
+| Tool | Replaces | Why |
+|------|----------|-----|
+| sd | sed | Intuitive find & replace, regex |
+| procs | ps | Colorful, tree view, Docker column |
+| hyperfine | time | Benchmarking with statistical analysis |
+| bandwhich | - | Network utilization by process |
+| ouch | tar/zip/etc | Universal archive tool |
+
+### Development
+| Tool | Purpose |
+|------|---------|
+| mise | Polyglot version manager (replaces fnm, pyenv, goenv). Single tool for all runtimes |
+| httpie / curlie | Modern HTTP clients. Better than curl for API testing |
+| watchexec | Run commands on file changes |
+| tokei | Code statistics by language |
+
+### Alternative Approaches
+| Tool | Purpose | Trade-off |
+|------|---------|-----------|
+| zellij | Terminal workspace | More modern than tmux, but heavier |
+| chezmoi | Dotfiles manager | More features than stow, but more complex |
+| Ansible | Machine provisioning | ThePrimeagen uses this. Overkill for personal use? |
+
+---
+
+## Not Needed
+
+These are popular but redundant given current setup:
+
+| Tool | Why Skip |
+|------|----------|
+| exa | Unmaintained, use eza instead (already installed) |
+| autojump | zoxide is faster and better |
+| oh-my-zsh | Using zinit (lighter weight) |
+| tmux plugins (tpm) | Minimal tmux usage, AeroSpace handles windows |
+| nvm | Using fnm (faster) or could switch to mise |
+
+---
+
+## Quick Wins
+
+```bash
+# Generate Brewfile from current packages
+brew bundle dump --file=~/dotfiles/Brewfile
+
+# Install missing essentials
+brew install jq direnv
+
+# Add direnv to zshrc
+echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
+```
 
 ---
 
 ## Notes
 
-- All installed tools are configured in `~/dotfiles/` with symlinks
+- All installed tools configured in `~/dotfiles/`
 - macOS install: `scripts/macos/install.sh`
 - Linux install: `scripts/linux/install.sh`
-- Consider your actual workflow before adding more tools
+- Philosophy: Terminal-first, keyboard-driven, modern Rust tools
