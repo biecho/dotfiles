@@ -33,5 +33,10 @@ use = "yazi-rs/plugins:smart-filter"
 rev = "19dc890"
 hash = "bcda8eeb3f4013bae156aecabfc745e8"
 
+[[plugin.deps]]
+use = "Reledia/glow"
+rev = "bd3eaa5"
+hash = "92b5c58159a51c567f82b618cee2b78"
+
 [flavor]
 deps = []
