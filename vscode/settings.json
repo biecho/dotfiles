@@ -1,0 +1,102 @@
+{
+  // ============================================================================
+  // VSCODE-NEOVIM CONFIGURATION
+  // ============================================================================
+  // Local macOS
+  "vscode-neovim.neovimExecutablePaths.darwin": "/opt/homebrew/bin/nvim",
+  "vscode-neovim.neovimInitVimPaths.darwin": "/Users/dmeyer/dotfiles/nvim-vscode/init.lua",
+  // Remote Linux (dotfiles cloned to ~/dotfiles)
+  "vscode-neovim.neovimExecutablePaths.linux": "/usr/bin/nvim",
+  "vscode-neovim.neovimInitVimPaths.linux": "~/dotfiles/nvim-vscode/init.lua",
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  },
+  // Let neovim handle these keys (pass through to nvim)
+  "vscode-neovim.ctrlKeysForNormalMode": [
+    "a", "b", "d", "e", "f", "h", "i", "j", "k", "l", "o", "r", "u", "v", "w", "x", "y",
+    "/"
+  ],
+  "vscode-neovim.ctrlKeysForInsertMode": ["a", "d", "h", "j", "o", "r", "u", "w"],
+
+  // ============================================================================
+  // EDITOR - Match nvim feel
+  // ============================================================================
+  "editor.fontSize": 14,
+  "editor.fontFamily": "JetBrainsMono Nerd Font, Menlo, Monaco, monospace",
+  "editor.lineNumbers": "relative",
+  "editor.cursorBlinking": "solid",
+  "editor.cursorStyle": "block",
+  "editor.renderWhitespace": "selection",
+  "editor.minimap.enabled": false,
+  "editor.scrollBeyondLastLine": false,
+  "editor.wordWrap": "off",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.formatOnSave": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.smoothScrolling": false,
+  "editor.linkedEditing": true,
+
+  // Disable VS Code's built-in vim-like behavior (vscode-neovim handles it)
+  "editor.lineHighlightBackground": "#00000000",
+  "editor.renderLineHighlight": "none",
+
+  // ============================================================================
+  // WORKBENCH
+  // ============================================================================
+  "workbench.colorTheme": "Tokyo Night",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.startupEditor": "none",
+  "workbench.editor.showTabs": "multiple",
+  "workbench.activityBar.location": "top",
+  "workbench.sideBar.location": "left",
+  "workbench.editor.enablePreview": false,
+
+  // ============================================================================
+  // TERMINAL
+  // ============================================================================
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font",
+  "terminal.integrated.defaultProfile.osx": "zsh",
+
+  // ============================================================================
+  // FILE HANDLING
+  // ============================================================================
+  "files.autoSave": "onFocusChange",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+
+  // ============================================================================
+  // SEARCH
+  // ============================================================================
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/.git": true,
+    "**/dist": true,
+    "**/.next": true,
+    "**/coverage": true
+  },
+
+  // ============================================================================
+  // GIT
+  // ============================================================================
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+
+  // ============================================================================
+  // NUMBERED BOOKMARKS (Harpoon alternative)
+  // ============================================================================
+  "numberedBookmarks.saveBookmarksInProject": true,
+
+  // ============================================================================
+  // TELEMETRY OFF
+  // ============================================================================
+  "telemetry.telemetryLevel": "off",
+  "redhat.telemetry.enabled": false
+}
