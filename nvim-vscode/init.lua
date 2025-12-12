@@ -88,6 +88,10 @@ keymap("n", "<leader>fb", call("workbench.action.showAllEditors"), { desc = "Fin
 keymap("n", "<leader>fw", call("workbench.action.findInFiles"), { desc = "Find in files (grep)" })
 keymap("n", "<leader>fW", call("workbench.action.findInFiles"), { desc = "Find in files" })
 
+-- Symbol search (like PyCharm Ctrl+O / Cmd+Shift+O)
+keymap("n", "<leader>fs", call("workbench.action.gotoSymbol"), { desc = "Symbols in file" })
+keymap("n", "<leader>fS", call("workbench.action.showAllSymbols"), { desc = "Symbols in workspace" })
+
 -- Buffer/editor navigation
 keymap("n", "]b", call("workbench.action.nextEditor"), { desc = "Next buffer" })
 keymap("n", "[b", call("workbench.action.previousEditor"), { desc = "Previous buffer" })
@@ -124,14 +128,27 @@ keymap("n", "<leader>la", call("editor.action.quickFix"), { desc = "Code actions
 keymap("n", "<leader>lr", call("editor.action.rename"), { desc = "Rename" })
 keymap("n", "<leader>lf", call("editor.action.formatDocument"), { desc = "Format" })
 
+-- Call hierarchy (like PyCharm)
+keymap("n", "<leader>lci", call("editor.showIncomingCalls"), { desc = "Incoming calls (who calls this)" })
+keymap("n", "<leader>lco", call("editor.showOutgoingCalls"), { desc = "Outgoing calls (what this calls)" })
+keymap("n", "<leader>lh", call("references-view.showCallHierarchy"), { desc = "Call hierarchy" })
+
+-- Type hierarchy
+keymap("n", "<leader>lt", call("editor.showTypeHierarchy"), { desc = "Type hierarchy" })
+
 -- Diagnostics
 keymap("n", "]d", call("editor.action.marker.next"), { desc = "Next diagnostic" })
 keymap("n", "[d", call("editor.action.marker.prev"), { desc = "Previous diagnostic" })
 keymap("n", "<leader>ld", call("workbench.actions.view.problems"), { desc = "Diagnostics list" })
 
--- Git (basic)
+-- Git
 keymap("n", "<leader>gg", call("workbench.view.scm"), { desc = "Git view" })
 keymap("n", "<leader>gb", call("gitlens.toggleFileBlame"), { desc = "Git blame" })
+keymap("n", "<leader>gG", call("git-graph.view"), { desc = "Git graph" })
+keymap("n", "<leader>gl", call("gitlens.showCommitsInView"), { desc = "Git log" })
+
+-- Todo Tree
+keymap("n", "<leader>ft", call("todo-tree-view.focus"), { desc = "Todo tree" })
 
 -- Explorer & terminal
 keymap("n", "<leader>e", call("workbench.action.toggleSidebarVisibility"), { desc = "Toggle explorer" })
