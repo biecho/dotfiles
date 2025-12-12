@@ -91,6 +91,7 @@ keymap("n", "<leader>fW", call("workbench.action.findInFiles"), { desc = "Find i
 -- Symbol search (like PyCharm Ctrl+O / Cmd+Shift+O)
 keymap("n", "<leader>fs", call("workbench.action.gotoSymbol"), { desc = "Symbols in file" })
 keymap("n", "<leader>fS", call("workbench.action.showAllSymbols"), { desc = "Symbols in workspace" })
+keymap("n", "<leader>lo", call("outline.focus"), { desc = "Outline (symbols sidebar)" })
 
 -- Buffer/editor navigation
 keymap("n", "]b", call("workbench.action.nextEditor"), { desc = "Next buffer" })
@@ -128,9 +129,7 @@ keymap("n", "<leader>la", call("editor.action.quickFix"), { desc = "Code actions
 keymap("n", "<leader>lr", call("editor.action.rename"), { desc = "Rename" })
 keymap("n", "<leader>lf", call("editor.action.formatDocument"), { desc = "Format" })
 
--- Call hierarchy (like PyCharm)
-keymap("n", "<leader>lci", call("editor.showIncomingCalls"), { desc = "Incoming calls (who calls this)" })
-keymap("n", "<leader>lco", call("editor.showOutgoingCalls"), { desc = "Outgoing calls (what this calls)" })
+-- Call hierarchy (like PyCharm) - opens panel, toggle incoming/outgoing with icons
 keymap("n", "<leader>lh", call("references-view.showCallHierarchy"), { desc = "Call hierarchy" })
 
 -- Type hierarchy

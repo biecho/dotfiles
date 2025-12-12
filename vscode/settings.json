@@ -175,5 +175,13 @@
   // TELEMETRY OFF
   // ============================================================================
   "telemetry.telemetryLevel": "off",
-  "redhat.telemetry.enabled": false
+  "redhat.telemetry.enabled": false,
+
+  // ============================================================================
+  // DISABLE BUILT-IN COPILOT (using Claude Code instead)
+  // ============================================================================
+  "github.copilot.enable": false,
+  "github.copilot.chat.enabled": false,
+  "chat.commandCenter.enabled": false,
+  "claudeCode.preferredLocation": "panel"
 }
