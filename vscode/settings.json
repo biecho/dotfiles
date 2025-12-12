@@ -95,6 +95,83 @@
   "numberedBookmarks.saveBookmarksInProject": true,
 
   // ============================================================================
+  // ERRORLENS - Inline error display (killer feature)
+  // ============================================================================
+  "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+  "errorLens.delay": 500,
+  "errorLens.fontStyleItalic": true,
+  "errorLens.gutterIconsEnabled": true,
+  "errorLens.messageMaxChars": 100,
+
+  // ============================================================================
+  // TODO TREE - Track TODOs across codebase
+  // ============================================================================
+  "todo-tree.general.tags": ["TODO", "FIXME", "BUG", "HACK", "XXX", "NOTE", "WARN"],
+  "todo-tree.highlights.defaultHighlight": {
+    "gutterIcon": true,
+    "foreground": "#fff",
+    "type": "tag"
+  },
+  "todo-tree.highlights.customHighlight": {
+    "TODO": { "background": "#ffab00" },
+    "FIXME": { "background": "#f06292" },
+    "BUG": { "background": "#ef5350" },
+    "HACK": { "background": "#7c4dff" },
+    "NOTE": { "background": "#2196f3" }
+  },
+
+  // ============================================================================
+  // PYTHON - Ruff linter/formatter, Pylance
+  // ============================================================================
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.inlayHints.functionReturnTypes": true,
+  "python.analysis.inlayHints.variableTypes": false,
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+  // Ruff native server settings (ruff.lint.args is deprecated)
+  "ruff.nativeServer": "on",
+  "ruff.lint.select": ["E", "F", "W", "I", "UP", "B", "SIM"],
+
+  // ============================================================================
+  // SPELL CHECKER
+  // ============================================================================
+  "cSpell.enableFiletypes": ["markdown", "plaintext", "python", "typescript", "javascript"],
+  "cSpell.userWords": [],
+
+  // ============================================================================
+  // EDITOR - Killer productivity features
+  // ============================================================================
+  // Sticky scroll - keep context visible
+  "editor.stickyScroll.enabled": true,
+  "editor.stickyScroll.maxLineCount": 5,
+  // Inlay hints - show type info inline
+  "editor.inlayHints.enabled": "onUnlessPressed",
+  // Breadcrumbs - file path navigation
+  "breadcrumbs.enabled": true,
+  // Quick suggestions
+  "editor.quickSuggestions": {
+    "strings": true,
+    "comments": false,
+    "other": true
+  },
+  "editor.suggestSelection": "first",
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  // Multi-cursor
+  "editor.multiCursorModifier": "ctrlCmd",
+
+  // ============================================================================
+  // GIT GRAPH
+  // ============================================================================
+  "git-graph.showCurrentBranchByDefault": true,
+
+  // ============================================================================
   // TELEMETRY OFF
   // ============================================================================
   "telemetry.telemetryLevel": "off",
