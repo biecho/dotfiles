@@ -10,14 +10,11 @@ $hostname\
 $directory\
 $git_branch\
 $git_status\
-$python\
-$golang\
-$java\
-$nodejs\
-$rust\
-$cmd_duration\
 $line_break\
 $character"""
+
+# Right side prompt (languages, duration)
+right_format = """$python$golang$java$nodejs$rust$cmd_duration"""
 
 # Username (only show when SSH'd into a server)
 [username]
@@ -38,10 +35,11 @@ success_symbol = "[❯](green)"
 error_symbol = "[❯](red)"
 vimcmd_symbol = "[❮](green)"
 
-# Directory
+# Directory (fish-style abbreviates parent dirs to single chars)
 [directory]
 truncation_length = 3
 truncate_to_repo = true
+fish_style_pwd_dir_length = 1
 style = "blue bold"
 
 # Git

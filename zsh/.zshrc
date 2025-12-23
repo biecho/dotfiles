@@ -221,7 +221,14 @@ fi
 # Fuzzy git (fzf-powered branch/log navigation)
 # gco   - checkout branch (local or remote, sorted by recent)
 # glog  - browse commits with preview, enter to show full commit
-alias gco='git branch -a --sort=-committerdate --format="%(refname:short)" | fzf --header "Checkout branch" | sed "s#^origin/##" | xargs git checkout'
+unalias gco 2>/dev/null
+gco() {
+    if [[ -n "$1" ]]; then
+        git checkout "$@"
+    else
+        git branch -a --sort=-committerdate --format="%(refname:short)" | fzf --header "Checkout branch" | sed "s#^origin/##" | xargs git checkout
+    fi
+}
 alias glog='git log --oneline | fzf --preview "git show {1}" --bind "enter:execute(git show {1})"'
 
 # Fuzzy git branch deletion (Tab to multi-select)
