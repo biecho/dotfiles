@@ -442,4 +442,42 @@ runrm() {
     echo "Cleaned $cleaned finished job(s)"
 }
 
+# -----------------------------------------------------------------------------
+# YouTube audio download (controlled workflow)
+# -----------------------------------------------------------------------------
+_YT_DIR="$HOME/Music/YouTube"
+
+# Add URL to queue for later download
+ytq() {
+    [[ -z "$1" ]] && { echo "Usage: ytq <url>"; return 1; }
+    mkdir -p "$_YT_DIR"
+    echo "$1" >> "$_YT_DIR/queue.txt"
+    echo "Queued: $1"
+    echo "Queue has $(wc -l < "$_YT_DIR/queue.txt" | tr -d ' ') item(s)"
+}
+
+# Download all queued items (skips already downloaded)
+ytd() {
+    mkdir -p "$_YT_DIR"
+    local queue="$_YT_DIR/queue.txt"
+
+    [[ ! -s "$queue" ]] && { echo "Queue is empty"; return 0; }
+
+    echo "Downloading $(wc -l < "$queue" | tr -d ' ') item(s)..."
+    yt-dlp -x --audio-format mp3 --audio-quality 0 \
+        -o "$_YT_DIR/%(title)s.%(ext)s" \
+        --download-archive "$_YT_DIR/.archive" \
+        -a "$queue"
+
+    > "$queue"  # clear queue after download
+    echo "Done. Queue cleared."
+}
+
+# Show queue contents
+ytls() {
+    local queue="$HOME/Music/YouTube/queue.txt"
+    [[ ! -s "$queue" ]] && { echo "Queue is empty"; return 0; }
+    cat -n "$queue"
+}
+
 [[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
