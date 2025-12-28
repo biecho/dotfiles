@@ -465,6 +465,7 @@ ytd() {
 
     echo "Downloading $(wc -l < "$queue" | tr -d ' ') item(s)..."
     yt-dlp -x --audio-format mp3 --audio-quality 0 \
+        --no-playlist \
         -o "$_YT_DIR/%(title)s.%(ext)s" \
         --download-archive "$_YT_DIR/.archive" \
         -a "$queue"
