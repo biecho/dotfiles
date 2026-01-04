@@ -18,6 +18,8 @@ return {
   config = function()
     -- Use the default browser
     vim.g.mkdp_auto_close = 1
+    -- Fixed port for SSH forwarding
+    vim.g.mkdp_port = '9765'
     -- Auto scroll sync between editor and preview
     vim.g.mkdp_preview_options = {
       mkit = {},
