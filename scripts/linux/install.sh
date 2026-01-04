@@ -221,6 +221,14 @@ install_nvim_deps() {
         cairosvg pnglatex plotly kaleido pillow \
         --quiet
 
+    # markdown-preview.nvim dependencies
+    local mkdp_dir="$HOME/.local/share/nvim/lazy/markdown-preview.nvim/app"
+    if [[ -d "$mkdp_dir" && ! -f "$mkdp_dir/bin/markdown-preview-linux" ]]; then
+        echo "   Installing markdown-preview.nvim dependencies..."
+        cd "$mkdp_dir" && ./install.sh
+        cd - > /dev/null
+    fi
+
     echo ""
 }
 

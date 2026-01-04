@@ -113,6 +113,23 @@ create_symlinks() {
 }
 
 # -----------------------------------------------------------------------------
+# Install required dependencies for Neovim plugins
+# -----------------------------------------------------------------------------
+install_nvim_deps() {
+    echo "==> Installing Neovim plugin dependencies..."
+
+    # markdown-preview.nvim dependencies
+    local mkdp_dir="$HOME/.local/share/nvim/lazy/markdown-preview.nvim/app"
+    if [[ -d "$mkdp_dir" && ! -f "$mkdp_dir/bin/markdown-preview-macos" ]]; then
+        echo "   Installing markdown-preview.nvim dependencies..."
+        cd "$mkdp_dir" && ./install.sh
+        cd - > /dev/null
+    fi
+
+    echo ""
+}
+
+# -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
 main() {
@@ -127,6 +144,9 @@ main() {
 
     echo ""
     create_symlinks
+
+    echo ""
+    install_nvim_deps
 
     echo ""
     echo "============================================="
