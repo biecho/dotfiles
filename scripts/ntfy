@@ -1,0 +1,81 @@
+#!/bin/bash
+# ntfy - Send notifications via ntfy.sh
+#
+# Usage:
+#   ntfy <topic> <message>                    # Send a message
+#   ntfy <topic> -t <title> <message>         # With title
+#   ntfy <topic> -p <priority> <message>      # With priority (1-5, or min/low/default/high/max)
+#   ntfy <topic> -T <tags> <message>          # With emoji tags (comma-separated)
+#
+# Examples:
+#   ntfy ml-experiments "Training complete"
+#   ntfy ml-experiments -t "Experiment Done" -p high -T "tada,rocket" "30 runs finished"
+#
+# Environment:
+#   NTFY_TOPIC    Default topic (if not specified)
+#   NTFY_SERVER   Server URL (default: https://ntfy.sh)
+
+set -e
+
+NTFY_SERVER="${NTFY_SERVER:-https://ntfy.sh}"
+
+usage() {
+    echo "Usage: ntfy <topic> [options] <message>"
+    echo ""
+    echo "Options:"
+    echo "  -t, --title <title>      Notification title"
+    echo "  -p, --priority <prio>    Priority: 1-5 or min/low/default/high/max"
+    echo "  -T, --tags <tags>        Emoji tags (comma-separated)"
+    echo "  -h, --help               Show this help"
+    echo ""
+    echo "Examples:"
+    echo "  ntfy my-channel 'Hello world'"
+    echo "  ntfy my-channel -t 'Done' -p high 'Task completed'"
+    exit 1
+}
+
+# Parse arguments
+TOPIC="${1:-$NTFY_TOPIC}"
+[ -z "$TOPIC" ] && { echo "Error: No topic specified"; usage; }
+shift
+
+TITLE=""
+PRIORITY=""
+TAGS=""
+MESSAGE=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -t|--title)
+            TITLE="$2"
+            shift 2
+            ;;
+        -p|--priority)
+            PRIORITY="$2"
+            shift 2
+            ;;
+        -T|--tags)
+            TAGS="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            MESSAGE="$1"
+            shift
+            ;;
+    esac
+done
+
+[ -z "$MESSAGE" ] && { echo "Error: No message specified"; usage; }
+
+# Build curl command
+CURL_ARGS=()
+[ -n "$TITLE" ] && CURL_ARGS+=(-H "Title: $TITLE")
+[ -n "$PRIORITY" ] && CURL_ARGS+=(-H "Priority: $PRIORITY")
+[ -n "$TAGS" ] && CURL_ARGS+=(-H "Tags: $TAGS")
+
+curl -s "${CURL_ARGS[@]}" -d "$MESSAGE" "$NTFY_SERVER/$TOPIC" > /dev/null
+
+echo "Notification sent to $NTFY_SERVER/$TOPIC"
