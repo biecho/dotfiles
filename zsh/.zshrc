@@ -8,6 +8,7 @@
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.fzf/bin:$PATH"
 export PATH="$HOME/.atuin/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 
 # -----------------------------------------------------------------------------
 # fnm (Fast Node Manager) - user-local Node.js

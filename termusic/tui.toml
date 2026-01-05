@@ -1,0 +1,197 @@
+version = "2"
+com = "same"  # Use same communication settings as server.toml
+
+[behavior]
+quit_server_on_exit = true  # Stop playback when exiting termusic
+confirm_quit = true         # Ask for confirmation before quitting
+
+# Album cover art settings (works in Kitty, iTerm2, and other terminals)
+[coverart]
+align = "bottom right"      # Position: "bottom right", "bottom left", "top right", "top left"
+size_scale = 0              # Size offset (-10 to 10, 0 = auto)
+hidden = false              # Show album covers by default
+protocols = ["kitty", "sixel", "iterm2", "ueberzug"]  # Cover display protocols
+
+# Library view styling
+[style.library]
+foreground_color = "Foreground"
+background_color = "Reset"
+border_color = "Blue"
+highlight_color = "LightYellow"
+highlight_symbol = "▶ "     # Clean highlight symbol
+
+# Playlist view styling
+[style.playlist]
+foreground_color = "Foreground"
+background_color = "Reset"
+border_color = "Blue"
+highlight_color = "LightYellow"
+highlight_symbol = "▶ "     # Clean highlight symbol
+current_track_symbol = "▶"  # Currently playing indicator
+use_loop_mode_symbol = true # Show loop mode in UI
+
+# Lyrics view styling
+[style.lyric]
+foreground_color = "Foreground"
+background_color = "Reset"
+border_color = "Blue"
+
+# Progress bar styling
+[style.progress]
+foreground_color = "LightBlack"
+background_color = "Reset"
+border_color = "Blue"
+
+# Important popup styling (errors, confirmations)
+[style.important_popup]
+foreground_color = "Yellow"
+background_color = "Reset"
+border_color = "Yellow"
+
+# Fallback styling
+[style.fallback]
+foreground_color = "Foreground"
+background_color = "Reset"
+border_color = "Blue"
+highlight_color = "LightYellow"
+
+# Theme settings - uses terminal colors by default
+# To use a custom theme, create a .yml file in themes/ directory
+[theme]
+name = "terminal_default"
+author = "system"
+
+[theme.primary]
+background = "#101421"
+foreground = "#fffbf6"
+
+[theme.cursor]
+text = "#1e1e1e"
+cursor = "#ffffff"
+
+[theme.normal]
+black = "#2e2e2e"
+red = "#eb4129"
+green = "#abe047"
+yellow = "#f6c744"
+blue = "#47a0f3"
+magenta = "#7b5cb0"
+cyan = "#64dbed"
+white = "#e5e9f0"
+
+[theme.bright]
+black = "#565656"
+red = "#ec5357"
+green = "#c0e17d"
+yellow = "#f9da6a"
+blue = "#49a4f8"
+magenta = "#a47de9"
+cyan = "#99faf2"
+white = "#ffffff"
+
+# ============================================================================
+# Keybindings - Vim-style navigation with powerful shortcuts
+# ============================================================================
+
+[keys]
+escape = "escape"
+quit = "q"
+
+# View switching
+[keys.view]
+view_library = "1"        # Switch to library view
+view_database = "2"       # Switch to database view
+view_podcasts = "3"       # Switch to podcast view
+open_config = "shift+C"   # Open configuration editor
+open_help = "control+h"   # Show help/keybindings
+
+# Vim-style navigation
+[keys.navigation]
+up = "k"                  # Move up
+down = "j"                # Move down
+left = "h"                # Move left/collapse
+right = "l"               # Move right/expand
+goto_top = "g"            # Jump to top
+goto_bottom = "shift+G"   # Jump to bottom
+
+# Playback controls
+[keys.global_player]
+toggle_pause = "space"         # Play/pause
+next_track = "n"               # Next track
+previous_track = "shift+N"     # Previous track
+volume_up = "+"                # Increase volume
+volume_down = "-"              # Decrease volume
+seek_forward = "f"             # Seek forward
+seek_backward = "b"            # Seek backward
+speed_up = "control+f"         # Increase playback speed
+speed_down = "control+b"       # Decrease playback speed
+toggle_prefetch = "control+g"  # Toggle track prefetching
+save_playlist = "control+s"    # Save current playlist
+
+# Lyrics controls
+[keys.global_lyric]
+adjust_offset_forwards = "shift+F"   # Adjust lyric timing forward
+adjust_offset_backwards = "shift+B"  # Adjust lyric timing backward
+cycle_frames = "shift+T"             # Cycle through lyric frames
+
+# Library view actions
+[keys.library]
+load_track = "l"           # Load/play selected track
+load_dir = "shift+L"       # Load entire directory
+delete = "d"               # Delete from library
+yank = "y"                 # Copy to clipboard
+paste = "p"                # Paste from clipboard
+cycle_root = "o"           # Cycle through root directories
+add_root = "a"             # Add new root directory
+remove_root = "shift+A"    # Remove root directory
+search = "/"               # Search in library
+youtube_search = "s"       # Search YouTube for music
+open_tag_editor = "t"      # Open tag editor for selected file
+
+# Playlist view actions
+[keys.playlist]
+delete = "d"               # Remove from playlist
+delete_all = "shift+D"     # Clear entire playlist
+shuffle = "r"              # Shuffle playlist
+cycle_loop_mode = "m"      # Cycle loop modes (single/playlist/random)
+play_selected = "l"        # Play selected track
+search = "/"               # Search in playlist
+swap_up = "shift+K"        # Move track up in playlist
+swap_down = "shift+J"      # Move track down in playlist
+add_random_songs = "s"     # Add random songs
+add_random_album = "shift+S"  # Add random album
+
+# Database view actions
+[keys.database]
+add_selected = "l"         # Add selected to playlist
+add_all = "shift+L"        # Add all to playlist
+
+# Podcast view actions
+[keys.podcast]
+search = "s"                    # Search for podcasts
+mark_played = "m"               # Mark episode as played
+mark_all_played = "shift+M"     # Mark all episodes as played
+refresh_feed = "r"              # Refresh selected feed
+refresh_all_feeds = "shift+R"   # Refresh all feeds
+download_episode = "d"          # Download episode
+delete_local_episode = "shift+D"  # Delete downloaded episode
+delete_feed = "x"               # Delete podcast feed
+delete_all_feeds = "shift+X"    # Delete all feeds
+
+# Cover art adjustment (for fine-tuning display)
+[keys.adjust_cover_art]
+move_left = "control+shift+arrowleft"
+move_right = "control+shift+arrowright"
+move_up = "control+shift+arrowup"
+move_down = "control+shift+arrowdown"
+increase_size = "control+shift+pageup"
+decrease_size = "control+shift+pagedown"
+toggle_hide = "control+shift+end"
+
+# Config editor
+[keys.config]
+save = "control+s"         # Save configuration
+
+# YouTube downloader options
+[ytdlp]
+extra_args = "--audio-quality 0"  # Best quality for YouTube downloads

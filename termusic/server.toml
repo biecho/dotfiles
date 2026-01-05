@@ -1,0 +1,58 @@
+version = "2"
+
+[com]
+protocol = "uds"
+socket_path = "/tmp/termusic.socket"
+port = 50101
+address = "::1"
+
+[player]
+# Music directories - customize as needed
+music_dirs = ["/Users/dmeyer/Music"]
+
+# Playback settings
+loop_mode = "playlist"           # Options: "single", "playlist", "random"
+volume = 50                      # Default volume (0-100)
+speed = 10                       # Speed multiplier * 10 (10 = 1.0x speed)
+gapless = true                   # Enable gapless playback for seamless transitions
+use_mediacontrols = true         # Enable media controls (play/pause from keyboard/headphones)
+set_discord_status = true        # Show what you're listening to on Discord
+
+# Random playback settings
+random_track_quantity = 25       # Number of random tracks to add
+random_album_min_quantity = 5    # Minimum tracks when adding random album
+
+# Backend selection: "rusty" (default), "gstreamer", or "mpv"
+# rusty = Symphonia backend (pure Rust, good compatibility)
+# gstreamer = More formats, better quality (requires gstreamer)
+# mpv = Most formats, best compatibility (requires mpv)
+backend = "rusty"
+
+[player.remember_position]
+music = "no"                     # Don't remember position for music tracks
+podcast = "yes"                  # Remember position for podcasts (resume where you left off)
+
+[player.seek_step]
+short_tracks = 5                 # Seek 5 seconds for tracks < 5 minutes
+long_tracks = 30                 # Seek 30 seconds for tracks >= 5 minutes
+
+[podcast]
+concurrent_downloads_max = 3     # Max simultaneous podcast downloads
+max_download_retries = 3         # Retry failed downloads
+download_dir = "/Users/dmeyer/Music/podcast"
+
+# Rusty backend settings (Symphonia - default, pure Rust)
+[backends.rusty]
+soundtouch = true                # Enable time-stretching for speed control
+file_buffer_size = "8.0 MiB"     # Increased buffer for smoother playback
+decoded_buffer_size = "1.5 MiB"  # Increased decoded buffer
+output_sample_rate = 48000       # High quality output (48kHz)
+
+# MPV backend settings (uncomment and set backend = "mpv" to use)
+[backends.mpv]
+audio_device = "auto"            # Auto-detect best audio device
+
+# Metadata settings
+[metadata]
+directory_scan_depth = 10        # How deep to scan for music files
+artist_separators = [",", ";", "&", "ft.", "feat.", "/", "|", "×", "、", " x "]
