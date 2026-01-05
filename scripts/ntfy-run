@@ -1,0 +1,91 @@
+#!/bin/bash
+# ntfy-run - Run a command and notify when done
+#
+# Usage:
+#   ntfy-run <topic> <command> [args...]
+#   ntfy-run <topic> "<command with pipes>"
+#
+# Examples:
+#   ntfy-run ml-experiments ./train.sh
+#   ntfy-run ml-experiments "python train.py && python eval.py"
+#   nohup ntfy-run ml-experiments ./long-job.sh > job.log 2>&1 &
+#
+# Environment:
+#   NTFY_TOPIC    Default topic (if not specified)
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+usage() {
+    echo "Usage: ntfy-run <topic> <command> [args...]"
+    echo ""
+    echo "Run a command and send notification when complete."
+    echo ""
+    echo "Examples:"
+    echo "  ntfy-run my-channel ./script.sh"
+    echo "  ntfy-run my-channel python train.py --epochs 100"
+    echo "  ntfy-run my-channel 'make build && make test'"
+    echo ""
+    echo "With nohup (for logout-safe execution):"
+    echo "  nohup ntfy-run my-channel ./long-job.sh > job.log 2>&1 &"
+    exit 1
+}
+
+TOPIC="${1:-$NTFY_TOPIC}"
+[ -z "$TOPIC" ] && { echo "Error: No topic specified"; usage; }
+shift
+
+[ $# -eq 0 ] && { echo "Error: No command specified"; usage; }
+
+# Capture command for display
+CMD_DISPLAY="$*"
+[ ${#CMD_DISPLAY} -gt 50 ] && CMD_DISPLAY="${CMD_DISPLAY:0:47}..."
+
+START_TIME=$(date +%s)
+
+echo "Running: $*"
+echo "Will notify: $TOPIC"
+echo "Started: $(date)"
+echo ""
+
+# Run command
+set +e
+if [ $# -eq 1 ]; then
+    # Single argument - might contain pipes, run in shell
+    bash -c "$1"
+else
+    # Multiple arguments - run directly
+    "$@"
+fi
+EXIT_CODE=$?
+set -e
+
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME))
+
+# Format duration
+if [ $DURATION -ge 3600 ]; then
+    DURATION_STR="$((DURATION / 3600))h $((DURATION % 3600 / 60))m"
+elif [ $DURATION -ge 60 ]; then
+    DURATION_STR="$((DURATION / 60))m $((DURATION % 60))s"
+else
+    DURATION_STR="${DURATION}s"
+fi
+
+# Send notification
+if [ $EXIT_CODE -eq 0 ]; then
+    "$SCRIPT_DIR/ntfy" "$TOPIC" \
+        -t "Command Complete" \
+        -p high \
+        -T "white_check_mark" \
+        "$CMD_DISPLAY completed in $DURATION_STR"
+else
+    "$SCRIPT_DIR/ntfy" "$TOPIC" \
+        -t "Command Failed" \
+        -p urgent \
+        -T "x" \
+        "$CMD_DISPLAY failed (exit $EXIT_CODE) after $DURATION_STR"
+fi
+
+exit $EXIT_CODE
