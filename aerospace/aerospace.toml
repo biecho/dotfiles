@@ -73,6 +73,30 @@ inherit-env-vars = true
 PATH = '/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}'
 
 # =============================================================================
+# Workspace to Monitor Assignment
+# =============================================================================
+# Assign workspaces to specific monitors to prevent random workspace numbers
+# Monitor 1: Built-in Retina Display (Left)
+# Monitor 2: DELL E2425HS (Middle - Main work monitor)
+# Monitor 3: DELL P2412H (Right)
+
+[workspace-to-monitor-force-assignment]
+# Left monitor (Built-in Retina)
+1 = 1  # Browser
+2 = 1  # Communication (Slack, Teams, Discord)
+3 = 1  # Notes (Obsidian)
+
+# Middle monitor (DELL E2425HS) - Main work area
+4 = 2  # Terminal (Kitty)
+5 = 2  # Code/Editor (VSCode/IntelliJ)
+6 = 2  # Database tools
+
+# Right monitor (DELL P2412H) - Background/Utilities
+7 = 3  # Music (Spotify)
+8 = 3  # Mail (Outlook)
+9 = 3  # Free/Misc
+
+# =============================================================================
 # Main keybindings
 # =============================================================================
 [mode.main.binding]
@@ -196,63 +220,68 @@ backspace = ['close-all-windows-but-current', 'mode main']
 # =============================================================================
 # App-to-workspace rules (auto-route apps to specific workspaces)
 # =============================================================================
-# 1 = Terminal (kitty)
-# 2 = Code/Editor
-# 3 = Browser
-# 4 = Communication (Teams, Slack, Discord)
-# 5 = Notes (Obsidian)
+# Left monitor (1-3):
+# 1 = Browser
+# 2 = Communication (Teams, Slack, Discord)
+# 3 = Notes (Obsidian)
+#
+# Middle monitor (4-6):
+# 4 = Terminal (kitty)
+# 5 = Code/Editor
 # 6 = Database/Tools
+#
+# Right monitor (7-9):
 # 7 = Music (Spotify)
 # 8 = Mail
 # 9 = (free)
 
 [[on-window-detected]]
 if.app-id = 'net.kovidgoyal.kitty'
-run = 'move-node-to-workspace 1'
+run = 'move-node-to-workspace 4'
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.VSCode'
-run = 'move-node-to-workspace 2'
+run = 'move-node-to-workspace 5'
 
 [[on-window-detected]]
 if.app-id = 'com.jetbrains.intellij'
-run = 'move-node-to-workspace 2'
+run = 'move-node-to-workspace 5'
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
-run = 'move-node-to-workspace 3'
+run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Safari'
-run = 'move-node-to-workspace 3'
+run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefox'
-run = 'move-node-to-workspace 3'
+run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-id = 'org.qutebrowser.qutebrowser'
-run = ['layout tiling', 'move-node-to-workspace 3']
+run = ['layout tiling', 'move-node-to-workspace 1']
 
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
-run = 'move-node-to-workspace 4'
+run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'com.microsoft.teams2'
-run = 'move-node-to-workspace 4'
+run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'com.hnc.Discord'
-run = 'move-node-to-workspace 4'
+run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'md.obsidian'
-run = ['layout tiling', 'move-node-to-workspace 5']
+run = ['layout tiling', 'move-node-to-workspace 3']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Notes'
-run = 'move-node-to-workspace 5'
+run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
 if.app-id = 'org.jkiss.dbeaver.core.product'
