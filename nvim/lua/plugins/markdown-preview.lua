@@ -18,11 +18,11 @@ return {
   config = function()
     -- Use the default browser
     vim.g.mkdp_auto_close = 1
-    -- Fixed port for SSH forwarding
-    vim.g.mkdp_port = '9765'
 
     -- Open browser on local machine when using SSH via kitty remote control
     if vim.env.SSH_CONNECTION or vim.env.SSH_TTY then
+      -- Fixed port for SSH forwarding
+      vim.g.mkdp_port = '9765'
       vim.g.mkdp_browserfunc = 'OpenMarkdownPreviewBrowser'
       vim.cmd([[
         function! OpenMarkdownPreviewBrowser(url)
