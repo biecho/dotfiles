@@ -9,6 +9,8 @@ Unlike terminal multiplexers (tmux, screen, abduco), these don't hijack your ter
 | Command | Description |
 |---------|-------------|
 | `run <cmd> [args]` | Run command in background with logging |
+| `run -n <cmd>` | Run with ntfy notification on completion |
+| `run -n <topic> <cmd>` | Run with notification to specific topic |
 | `runs` | List background jobs with status |
 | `runlog` | View/tail logs (fzf picker if multiple) |
 | `runrm` | Clean up finished job logs |
@@ -20,6 +22,10 @@ Unlike terminal multiplexers (tmux, screen, abduco), these don't hijack your ter
 run ./build.sh
 run python train.py --epochs 100
 run make -j8
+
+# With push notification on completion
+run -n my-topic python train.py --epochs 100
+run -n ./long-build.sh              # uses $NTFY_TOPIC
 
 # Check what's running
 runs
@@ -33,12 +39,29 @@ runlog
 runrm
 ```
 
+## Notifications
+
+Set a default topic to avoid typing it each time:
+
+```bash
+export NTFY_TOPIC="my-notifications"  # add to .zshrc
+
+# Then just use -n flag
+run -n python train.py
+```
+
+Notifications include:
+- Success/failure status with emoji
+- Command name (truncated if long)
+- Duration (e.g., "2h 15m" or "45s")
+
 ## How it works
 
 - Jobs run with `nohup` so they survive disconnection
 - Logs stored in `~/.local/share/run/`
 - Each job creates two files: `name_timestamp.log` and `name_timestamp.pid`
 - Log includes the command, start time, and all output
+- With `-n`: spawns a watcher process that sends ntfy notification on completion
 
 ## When to use
 
