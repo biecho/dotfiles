@@ -362,8 +362,26 @@ conda() {
 
 _RUN_DIR="${HOME}/.local/share/run"
 
+# run [-n] <cmd> - run command in background with logging
+#   -n          enable ntfy notification on completion (uses $NTFY_TOPIC)
+#   -n <topic>  notify specific topic
 run() {
-    [[ -z "$1" ]] && { echo "Usage: run <command> [args...]"; return 1; }
+    local notify_topic=""
+
+    # Parse -n flag
+    if [[ "$1" == "-n" ]]; then
+        shift
+        if [[ -n "$1" && "$1" != -* && ! -x "$(command -v "$1" 2>/dev/null)" ]]; then
+            # Next arg looks like a topic (not a command)
+            notify_topic="$1"
+            shift
+        else
+            notify_topic="${NTFY_TOPIC:-}"
+        fi
+        [[ -z "$notify_topic" ]] && { echo "Error: No topic. Use -n <topic> or set NTFY_TOPIC"; return 1; }
+    fi
+
+    [[ -z "$1" ]] && { echo "Usage: run [-n [topic]] <command> [args...]"; return 1; }
     mkdir -p "$_RUN_DIR"
 
     local name="${1:t}"  # basename of command
@@ -380,6 +398,39 @@ run() {
 
     echo "Running: $name (PID: $pid)"
     echo "Log: $logfile"
+
+    # Spawn notification watcher if requested
+    if [[ -n "$notify_topic" ]]; then
+        local cmd_short="$*"
+        [[ ${#cmd_short} -gt 40 ]] && cmd_short="${cmd_short:0:37}..."
+
+        (
+            local start_time=$(date +%s)
+            while kill -0 "$pid" 2>/dev/null; do sleep 10; done
+            wait "$pid" 2>/dev/null
+            local exit_code=$?
+            local end_time=$(date +%s)
+            local duration=$((end_time - start_time))
+
+            # Format duration
+            local dur_str
+            if (( duration >= 3600 )); then
+                dur_str="$((duration / 3600))h $((duration % 3600 / 60))m"
+            elif (( duration >= 60 )); then
+                dur_str="$((duration / 60))m $((duration % 60))s"
+            else
+                dur_str="${duration}s"
+            fi
+
+            if [[ $exit_code -eq 0 ]]; then
+                ntfy "$notify_topic" -t "Job Complete" -p high -T "white_check_mark" "$cmd_short ($dur_str)"
+            else
+                ntfy "$notify_topic" -t "Job Failed" -p urgent -T "x" "$cmd_short failed (exit $exit_code) after $dur_str"
+            fi
+        ) &>/dev/null &
+        disown
+        echo "Notify: $notify_topic (on completion)"
+    fi
 }
 
 runs() {
