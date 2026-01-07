@@ -19,9 +19,18 @@ return {
 
     -- Open browser on local machine when using SSH via kitty remote control
     if vim.env.SSH_CONNECTION or vim.env.SSH_TTY then
-      -- Fixed port for SSH forwarding
-      vim.g.mkdp_port = '9765'
+      -- Use port range 9700-9799 based on PID for multiple SSH sessions
+      -- Each neovim instance gets a unique port within the forwarded range
+      local port = 9700 + (vim.fn.getpid() % 100)
+      vim.g.mkdp_port = tostring(port)
       vim.g.mkdp_browserfunc = 'OpenMarkdownPreviewBrowser'
+      -- Notify user which port is being used (helpful for SSH forwarding)
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "MarkdownPreviewToggle",
+        callback = function()
+          vim.notify("Markdown Preview using port " .. port .. " (ensure SSH forwarding)", vim.log.levels.INFO)
+        end,
+      })
       vim.cmd([[
         function! OpenMarkdownPreviewBrowser(url)
           " Replace remote address with localhost since we're using port forwarding
