@@ -20,12 +20,12 @@ return {
     -- Open browser on local machine when using SSH via kitty remote control
     if vim.env.SSH_CONNECTION or vim.env.SSH_TTY then
       -- Detect hostname to determine port range (different hosts use different ranges)
-      -- p12: 9700-9709, s16 (diego): 9710-9719, others: 9720-9799
+      -- p12: 9700-9709, s16: 9710-9719, others: 9720-9799
       local hostname = vim.fn.hostname()
       local base_port, range_size
       if hostname == "p12" then
         base_port, range_size = 9700, 10
-      elseif hostname == "diego" then
+      elseif hostname == "s16" then
         base_port, range_size = 9710, 10
       else
         base_port, range_size = 9720, 80
