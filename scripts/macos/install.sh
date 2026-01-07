@@ -25,6 +25,12 @@ install_deps() {
 
     # Set up fzf key bindings
     $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
+
+    # Install Python CLI tools via pipx
+    echo "==> Installing Python CLI tools via pipx..."
+    if ! command -v huggingface-cli &> /dev/null; then
+        pipx install huggingface_hub
+    fi
 }
 
 # -----------------------------------------------------------------------------

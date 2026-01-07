@@ -185,6 +185,12 @@ install_bins() {
         rm -rf "$abduco_tmp"
     fi
 
+    # huggingface-cli (HuggingFace Hub CLI for dataset/model sync)
+    if ! command -v huggingface-cli &> /dev/null; then
+        echo "   Installing huggingface-cli..."
+        pip install --user --quiet huggingface_hub
+    fi
+
     echo ""
 }
 
