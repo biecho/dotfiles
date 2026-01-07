@@ -16,6 +16,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_TOPIC="runs-biecho_7k1x1"
 
 usage() {
     echo "Usage: ntfy-run <topic> <command> [args...]"
@@ -32,8 +33,7 @@ usage() {
     exit 1
 }
 
-TOPIC="${1:-$NTFY_TOPIC}"
-[ -z "$TOPIC" ] && { echo "Error: No topic specified"; usage; }
+TOPIC="${1:-${NTFY_TOPIC:-$DEFAULT_TOPIC}}"
 shift
 
 [ $# -eq 0 ] && { echo "Error: No command specified"; usage; }
