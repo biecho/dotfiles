@@ -376,9 +376,8 @@ run() {
             notify_topic="$1"
             shift
         else
-            notify_topic="${NTFY_TOPIC:-}"
+            notify_topic="${NTFY_TOPIC:-runs-biecho_7k1x1}"
         fi
-        [[ -z "$notify_topic" ]] && { echo "Error: No topic. Use -n <topic> or set NTFY_TOPIC"; return 1; }
     fi
 
     [[ -z "$1" ]] && { echo "Usage: run [-n [topic]] <command> [args...]"; return 1; }
@@ -448,7 +447,14 @@ runs() {
         if kill -0 "$pid" 2>/dev/null; then
             echo "● $name (PID: $pid) - running"
         else
-            echo "○ $name (PID: $pid) - done"
+            # Get completion time from log file modification time
+            local done_time
+            if [[ "$(uname)" == "Darwin" ]]; then
+                done_time=$(stat -f '%Sm' -t '%H:%M' "$logfile" 2>/dev/null)
+            else
+                done_time=$(stat -c '%y' "$logfile" 2>/dev/null | cut -d: -f1,2 | cut -d' ' -f2)
+            fi
+            echo "○ $name (PID: $pid) - done at $done_time"
         fi
     done
 
