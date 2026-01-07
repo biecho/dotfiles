@@ -14,8 +14,8 @@ return {
     },
   },
   config = function()
-    -- Use the default browser
-    vim.g.mkdp_auto_close = 1
+    -- Don't auto-close preview when switching buffers (allows multiple previews)
+    vim.g.mkdp_auto_close = 0
 
     -- Open browser on local machine when using SSH via kitty remote control
     if vim.env.SSH_CONNECTION or vim.env.SSH_TTY then
