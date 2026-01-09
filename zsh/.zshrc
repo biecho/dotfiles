@@ -516,16 +516,24 @@ ytq() {
 }
 
 # Download all queued items (skips already downloaded)
+# Usage: ytd [subfolder]  (e.g., ytd Electronic/Melodic-Techno)
 ytd() {
     mkdir -p "$_YT_DIR"
     local queue="$_YT_DIR/queue.txt"
+    local dest="$_YT_DIR"
+
+    # If subfolder provided, use it as destination
+    if [[ -n "$1" ]]; then
+        dest="$_YT_DIR/$1"
+        mkdir -p "$dest"
+    fi
 
     [[ ! -s "$queue" ]] && { echo "Queue is empty"; return 0; }
 
-    echo "Downloading $(wc -l < "$queue" | tr -d ' ') item(s)..."
+    echo "Downloading $(wc -l < "$queue" | tr -d ' ') item(s) to $dest..."
     yt-dlp -x --audio-format mp3 --audio-quality 0 \
         --no-playlist --restrict-filenames \
-        -o "$_YT_DIR/%(title)s.%(ext)s" \
+        -o "$dest/%(title)s.%(ext)s" \
         --download-archive "$_YT_DIR/.archive" \
         -a "$queue"
 
