@@ -18,13 +18,13 @@ vim.keymap.set("n", "<leader>yn", function()
   vim.notify("Copied filename: " .. vim.fn.expand("%:t"))
 end, { desc = "Yank filename only" })
 
-vim.keymap.set("n", "<leader>yd", function()
-  local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
+-- Helper to format and yank diagnostics
+local function yank_diagnostics(diagnostics, scope_desc)
   if #diagnostics == 0 then
-    vim.notify("No diagnostics on current line", vim.log.levels.WARN)
+    vim.notify("No diagnostics " .. scope_desc, vim.log.levels.WARN)
     return
   end
-  local filename = vim.fn.expand("%:.")  -- relative path
+  local filename = vim.fn.expand("%:.") -- relative path
   local lines = {}
   for _, d in ipairs(diagnostics) do
     local source = d.source or "unknown"
@@ -32,7 +32,35 @@ vim.keymap.set("n", "<leader>yd", function()
     local loc = string.format("%s:%d:%d", filename, d.lnum + 1, d.col + 1)
     table.insert(lines, string.format("%s: %s: %s%s", loc, source, d.message, code))
   end
-  local text = table.concat(lines, "\n")
-  vim.fn.setreg("+", text)
+  vim.fn.setreg("+", table.concat(lines, "\n"))
   vim.notify("Copied " .. #diagnostics .. " diagnostic(s)")
+end
+
+-- Yank diagnostics on current line
+vim.keymap.set("n", "<leader>yd", function()
+  local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
+  yank_diagnostics(diagnostics, "on current line")
 end, { desc = "Yank diagnostics on line" })
+
+-- Yank all diagnostics in file
+vim.keymap.set("n", "<leader>yD", function()
+  local diagnostics = vim.diagnostic.get(0)
+  yank_diagnostics(diagnostics, "in file")
+end, { desc = "Yank all diagnostics in file" })
+
+-- Yank diagnostics in visual selection
+vim.keymap.set("v", "<leader>yd", function()
+  -- Exit visual mode to populate '< and '> marks
+  vim.cmd([[execute "normal! \<Esc>"]])
+  local start_line = vim.fn.line("'<") - 1 -- 0-indexed
+  local end_line = vim.fn.line("'>") - 1
+
+  local all_diagnostics = vim.diagnostic.get(0)
+  local diagnostics = {}
+  for _, d in ipairs(all_diagnostics) do
+    if d.lnum >= start_line and d.lnum <= end_line then
+      table.insert(diagnostics, d)
+    end
+  end
+  yank_diagnostics(diagnostics, "in selection")
+end, { desc = "Yank diagnostics in selection" })
