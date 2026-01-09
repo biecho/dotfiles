@@ -68,3 +68,7 @@ end, { desc = "Yank diagnostics in selection" })
 -- Call hierarchy (with Telescope preview)
 vim.keymap.set("n", "<leader>ci", "<cmd>Telescope lsp_incoming_calls<cr>", { desc = "Incoming calls" })
 vim.keymap.set("n", "<leader>co", "<cmd>Telescope lsp_outgoing_calls<cr>", { desc = "Outgoing calls" })
+
+-- Remap macro recording to Q to prevent accidental triggers
+vim.keymap.set("n", "q", "<Nop>")
+vim.keymap.set("n", "Q", "q", { desc = "Record macro" })
