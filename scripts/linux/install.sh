@@ -369,6 +369,27 @@ main() {
         echo "   Skipping (nvim not found)"
     fi
 
+    # Install tree-sitter-cli (required for nvim-treesitter)
+    # Pin to 0.23.0 - newer versions require GLIBC 2.39
+    if command -v npm &> /dev/null; then
+        if ! command -v tree-sitter &> /dev/null; then
+            echo "==> Installing tree-sitter-cli 0.23.0..."
+            npm install -g tree-sitter-cli@0.23.0 --silent
+        fi
+    fi
+
+    # Install common treesitter parsers
+    echo "==> Installing treesitter parsers..."
+    if command -v nvim &> /dev/null && command -v tree-sitter &> /dev/null; then
+        nvim --headless \
+            -c "TSInstall python bash lua json yaml toml" \
+            -c "sleep 15" \
+            -c "q" 2>/dev/null || true
+        echo "   Treesitter parsers installed"
+    else
+        echo "   Skipping (nvim or tree-sitter not found)"
+    fi
+
     echo ""
     echo "============================================="
     echo "  Done!"
