@@ -100,6 +100,69 @@ def is_running(pid: int) -> bool:
         return False
 
 
+def get_descendants(pid: int) -> list[int]:
+    """Get all descendant PIDs of a process (children, grandchildren, etc.)."""
+    descendants = []
+    try:
+        # Use pgrep to find direct children
+        result = subprocess.run(
+            ["pgrep", "-P", str(pid)],
+            capture_output=True, text=True
+        )
+        if result.returncode == 0:
+            for child_pid in result.stdout.strip().split("\n"):
+                if child_pid:
+                    child = int(child_pid)
+                    descendants.append(child)
+                    # Recursively get grandchildren
+                    descendants.extend(get_descendants(child))
+    except Exception:
+        pass
+    return descendants
+
+
+def is_tree_running(pid: int) -> bool:
+    """Check if process or any of its descendants are still running."""
+    if is_running(pid):
+        return True
+    # Parent might have exited but children still running (orphaned to init)
+    # This is rare, but check descendants anyway
+    for child in get_descendants(pid):
+        if is_running(child):
+            return True
+    return False
+
+
+def get_children_info(pid: int) -> list[dict]:
+    """Get info about all descendant processes."""
+    children = []
+    for child_pid in get_descendants(pid):
+        cmd = get_command(child_pid)
+        # Skip shell wrappers and short-lived processes
+        if not cmd or cmd.startswith("-bash") or cmd.startswith("-sh"):
+            continue
+        log = detect_log_file(child_pid)
+        children.append({
+            "pid": child_pid,
+            "cmd": cmd[:200],
+            "log": log,
+        })
+    return children
+
+
+def get_hottest_log(logs: list[str]) -> tuple[str, str]:
+    """Find the most recently modified log file and return (path, content)."""
+    if not logs:
+        return "", ""
+
+    valid_logs = [(log, Path(log).stat().st_mtime) for log in logs if log and Path(log).exists()]
+    if not valid_logs:
+        return "", ""
+
+    hottest = max(valid_logs, key=lambda x: x[1])[0]
+    return hottest, tail_log(hottest, 15)
+
+
 def tail_log(path: str, lines: int = 10) -> str:
     r = subprocess.run(["tail", "-n", str(lines), path], capture_output=True, text=True)
     return r.stdout[:2000] if r.returncode == 0 else "(log not found)"
@@ -207,27 +270,112 @@ def update_page(token: str, page_id: str, props: dict) -> dict:
     return notion("PATCH", f"pages/{page_id}", token, {"properties": props})
 
 
-def update_content(token: str, page_id: str, log: str) -> dict:
-    # First, get existing blocks and delete log-related ones
+def clear_page_content(token: str, page_id: str):
+    """Remove all content blocks from the page."""
     resp = notion("GET", f"blocks/{page_id}/children", token)
     if "results" in resp:
         for block in resp["results"]:
-            # Delete heading_2 with "Last Log Output" or code blocks
-            block_type = block.get("type")
-            if block_type == "code":
-                notion("DELETE", f"blocks/{block['id']}", token)
-            elif block_type == "heading_2":
-                text = block.get("heading_2", {}).get("rich_text", [])
-                if text and "Last Log" in text[0].get("plain_text", ""):
-                    notion("DELETE", f"blocks/{block['id']}", token)
+            notion("DELETE", f"blocks/{block['id']}", token)
 
-    # Add fresh log content
+
+def update_content_simple(token: str, page_id: str, log: str) -> dict:
+    """Simple content update with just log output (for non-tree tracking)."""
+    clear_page_content(token, page_id)
     return notion("PATCH", f"blocks/{page_id}/children", token, {
         "children": [
             {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Last Log Output"}}]}},
             {"type": "code", "code": {"rich_text": [{"text": {"content": log}}], "language": "plain text"}},
         ]
     })
+
+
+def update_content_tree(token: str, page_id: str, info: dict) -> dict:
+    """Enhanced content update with progress, active processes, and hottest log."""
+    clear_page_content(token, page_id)
+
+    pid = info["pid"]
+    seen_children = set(info.get("seen_children", []))
+    completed = info.get("completed_children", 0)
+    failed = info.get("failed_children", 0)
+
+    # Get current children info
+    children = get_children_info(pid)
+    current_pids = {c["pid"] for c in children}
+
+    # Update seen children
+    seen_children.update(current_pids)
+    info["seen_children"] = list(seen_children)
+
+    # Calculate progress
+    total_seen = len(seen_children)
+    running = len(current_pids)
+
+    # Build content blocks
+    blocks = []
+
+    # Progress section
+    if total_seen > 0 or completed > 0:
+        progress_text = f"{completed}/{total_seen} completed"
+        if running > 0:
+            progress_text += f" ({running} running"
+            if failed > 0:
+                progress_text += f", {failed} failed"
+            progress_text += ")"
+        elif failed > 0:
+            progress_text += f" ({failed} failed)"
+
+        blocks.extend([
+            {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Progress"}}]}},
+            {"type": "paragraph", "paragraph": {"rich_text": [{"text": {"content": progress_text}}]}},
+        ])
+
+    # Active processes section
+    if children:
+        blocks.append({"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": f"Active Processes ({len(children)})"}}]}})
+        for child in children[:10]:  # Limit to 10 to avoid clutter
+            # Shorten command for display
+            cmd_short = child["cmd"]
+            if len(cmd_short) > 100:
+                cmd_short = cmd_short[:100] + "..."
+            bullet = f"PID {child['pid']}: {cmd_short}"
+            blocks.append({
+                "type": "bulleted_list_item",
+                "bulleted_list_item": {"rich_text": [{"text": {"content": bullet}}]}
+            })
+        if len(children) > 10:
+            blocks.append({
+                "type": "paragraph",
+                "paragraph": {"rich_text": [{"text": {"content": f"... and {len(children) - 10} more"}}]}
+            })
+
+    # Latest activity section - find hottest log
+    all_logs = [info.get("log", "")] + [c["log"] for c in children]
+    hottest_path, hottest_content = get_hottest_log(all_logs)
+
+    if hottest_content:
+        # Identify which process the log belongs to
+        log_source = "parent"
+        for child in children:
+            if child["log"] == hottest_path:
+                log_source = f"PID {child['pid']}"
+                break
+
+        blocks.extend([
+            {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": f"Latest Activity ({log_source})"}}]}},
+            {"type": "code", "code": {"rich_text": [{"text": {"content": hottest_content}}], "language": "plain text"}},
+        ])
+    elif info.get("log"):
+        # Fall back to parent log
+        parent_log = tail_log(info["log"], 15)
+        if parent_log:
+            blocks.extend([
+                {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Last Log Output"}}]}},
+                {"type": "code", "code": {"rich_text": [{"text": {"content": parent_log}}], "language": "plain text"}},
+            ])
+
+    if blocks:
+        return notion("PATCH", f"blocks/{page_id}/children", token, {"children": blocks})
+    return {}
 
 
 def add_comment(token: str, page_id: str, msg: str) -> dict:
@@ -241,29 +389,104 @@ def add_comment(token: str, page_id: str, msg: str) -> dict:
 
 
 # === Commands ===
-def check_experiment(token: str, page_id: str, info: dict) -> bool:
-    """Check a single experiment. Returns True if still running, False if finished."""
+def check_child_logs_for_failures(children_logs: list[str]) -> int:
+    """Check log files for failure indicators. Returns count of failed."""
+    failed = 0
+    for log in children_logs:
+        if log and Path(log).exists():
+            content = tail_log(log, 30)
+            if re.search(r"error|exception|traceback|failed|killed|oom", content, re.I):
+                failed += 1
+    return failed
+
+
+def check_experiment(token: str, page_id: str, info: dict) -> tuple[bool, dict]:
+    """Check a single experiment. Returns (still_running, updated_info)."""
     pid, log, cmd = info["pid"], info.get("log", ""), info.get("cmd", "?")[:40]
 
-    if is_running(pid):
-        if log:
-            update_content(token, page_id, tail_log(log))
-        return True  # Still running
+    # Initialize child tracking if not present
+    if "seen_children" not in info:
+        info["seen_children"] = []
+        info["completed_children"] = 0
+        info["failed_children"] = 0
+        info["children_logs"] = {}  # pid -> log path
 
-    # Process finished
-    last_log = tail_log(log, 20) if log else ""
-    failed = bool(re.search(r"error|exception|traceback|failed|killed|oom", last_log, re.I))
-    status, emoji = ("Failed", "❌") if failed else ("Completed", "✅")
+    seen_children = set(info["seen_children"])
+    children_logs = info.get("children_logs", {})
+
+    # Get current children
+    current_children = get_children_info(pid)
+    current_pids = {c["pid"] for c in current_children}
+
+    # Track new children and their logs
+    for child in current_children:
+        if child["pid"] not in seen_children:
+            seen_children.add(child["pid"])
+            if child["log"]:
+                children_logs[str(child["pid"])] = child["log"]
+
+    # Detect finished children (were seen before, not running now)
+    prev_seen = set(info["seen_children"])
+    newly_finished = prev_seen - current_pids
+
+    # Check finished children for failures
+    for finished_pid in newly_finished:
+        # Only count if we haven't already counted this one
+        log_path = children_logs.get(str(finished_pid), "")
+        if log_path and Path(log_path).exists():
+            content = tail_log(log_path, 30)
+            if re.search(r"error|exception|traceback|failed|killed|oom", content, re.I):
+                info["failed_children"] = info.get("failed_children", 0) + 1
+        info["completed_children"] = info.get("completed_children", 0) + 1
+
+    # Update info
+    info["seen_children"] = list(seen_children)
+    info["children_logs"] = children_logs
+
+    # Check if tree is still running
+    if is_tree_running(pid):
+        update_content_tree(token, page_id, info)
+        return True, info  # Still running
+
+    # Process tree finished - final check for any remaining failures
+    # Count failures for children that finished in this final check
+    final_running = current_pids
+    for child_pid in seen_children - final_running:
+        # These already got counted above via newly_finished, skip
+        pass
+
+    # Build completion summary
+    total_children = len(seen_children)
+    completed = info.get("completed_children", 0)
+    failed = info.get("failed_children", 0)
+    succeeded = completed - failed
+
+    # Determine overall status
+    if failed > 0:
+        status, emoji = "Failed", "❌"
+    else:
+        status, emoji = "Completed", "✅"
 
     update_page(token, page_id, {
         "Status": {"select": {"name": status}},
         "Finished": {"date": {"start": now_iso()}},
     })
-    if log:
-        update_content(token, page_id, last_log)
-    add_comment(token, page_id, f"{emoji} {status} on {hostname()}: {cmd}...")
 
-    return False  # Finished
+    # Final content update
+    update_content_tree(token, page_id, info)
+
+    # Build notification message
+    if total_children > 0:
+        summary = f"{emoji} {status} on {hostname()}: {cmd}... ({total_children} children: {succeeded} succeeded"
+        if failed > 0:
+            summary += f", {failed} failed"
+        summary += ")"
+    else:
+        summary = f"{emoji} {status} on {hostname()}: {cmd}..."
+
+    add_comment(token, page_id, summary)
+
+    return False, info  # Finished
 
 
 def cmd_init(args):
@@ -293,11 +516,11 @@ def cmd_track(args):
 
     # Clean up stale entries and check if already tracked
     tracker = load_tracker()
-    stale = [p for p, info in tracker.items() if not is_running(info["pid"])]
+    stale = [p for p, info in tracker.items() if not is_tree_running(info["pid"])]
     if stale:
         for page_id in stale:
             info = tracker[page_id]
-            check_experiment(token, page_id, info)  # Updates Notion
+            check_experiment(token, page_id, info)  # Updates Notion with final status
             del tracker[page_id]
         save_tracker(tracker)
         print(f"{YELLOW}Cleaned up {len(stale)} finished experiment(s){NC}")
@@ -392,7 +615,15 @@ def cmd_watch_internal(args):
     info = tracker[page_id]
     while True:
         time.sleep(interval)
-        if not check_experiment(token, page_id, info):
+        still_running, info = check_experiment(token, page_id, info)
+
+        # Persist updated info (child tracking state)
+        tracker = load_tracker()
+        if page_id in tracker:
+            tracker[page_id] = info
+            save_tracker(tracker)
+
+        if not still_running:
             tracker = load_tracker()
             tracker.pop(page_id, None)
             save_tracker(tracker)
