@@ -410,8 +410,10 @@ def check_experiment(token: str, page_id: str, info: dict) -> tuple[bool, dict]:
         info["completed_children"] = 0
         info["failed_children"] = 0
         info["children_logs"] = {}  # pid -> log path
+        info["counted_children"] = []  # children already counted as completed
 
     seen_children = set(info["seen_children"])
+    counted_children = set(info.get("counted_children", []))
     children_logs = info.get("children_logs", {})
 
     # Get current children
@@ -425,22 +427,24 @@ def check_experiment(token: str, page_id: str, info: dict) -> tuple[bool, dict]:
             if child["log"]:
                 children_logs[str(child["pid"])] = child["log"]
 
-    # Detect finished children (were seen before, not running now)
+    # Detect finished children (were seen before, not running now, not yet counted)
     prev_seen = set(info["seen_children"])
-    newly_finished = prev_seen - current_pids
+    finished_pids = prev_seen - current_pids
+    newly_finished = finished_pids - counted_children  # Only count new completions
 
     # Check finished children for failures
     for finished_pid in newly_finished:
-        # Only count if we haven't already counted this one
         log_path = children_logs.get(str(finished_pid), "")
         if log_path and Path(log_path).exists():
             content = tail_log(log_path, 30)
             if re.search(r"error|exception|traceback|failed|killed|oom", content, re.I):
                 info["failed_children"] = info.get("failed_children", 0) + 1
         info["completed_children"] = info.get("completed_children", 0) + 1
+        counted_children.add(finished_pid)
 
     # Update info
     info["seen_children"] = list(seen_children)
+    info["counted_children"] = list(counted_children)
     info["children_logs"] = children_logs
 
     # Check if tree is still running
