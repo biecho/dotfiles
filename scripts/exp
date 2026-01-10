@@ -1,0 +1,430 @@
+#!/usr/bin/env python3
+"""
+exp - Experiment Tracker for Notion
+
+Track experiments across servers with automatic status updates and notifications.
+
+Usage:
+    exp init <token>              Initialize with Notion token
+    exp track [OPTIONS]           Track experiment (fzf select if no pid)
+    exp list                      List tracked experiments
+    exp untrack <pid>             Stop tracking a process
+
+Track options:
+    --pid, -p PID                 Process ID (or use fzf to select)
+    --log, -l PATH                Log file path (auto-detected if not provided)
+    --interval, -i SECONDS        Check interval in seconds (default: 30)
+    --no-watch                    Don't watch, just register and exit
+
+Examples:
+    # Fuzzy select process with fzf (easiest)
+    # Forks to background and monitors automatically
+    exp track
+
+    # Or specify PID directly (log auto-detected)
+    nohup python train.py &> logs/exp.log &
+    exp track --pid $!
+
+    # Track with custom interval
+    exp track --interval 60
+
+    # Track without background watcher
+    exp track --no-watch
+"""
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+
+# === Configuration ===
+CONFIG_FILE = Path(os.environ.get("EXP_CONFIG_FILE", Path.home() / ".exp_tracker_config"))
+TRACKER_FILE = Path(os.environ.get("EXP_TRACKER_FILE", Path.home() / ".exp_tracker.json"))
+DATABASE_ID = "f4e81a8f973c4af594df0928b528c6fa"
+NOTIFY_USER_ID = "2e4d872b-594c-81ea-93d4-0002614d2be3"
+
+# === Colors ===
+RED, GREEN, YELLOW, BLUE, NC = "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[0m"
+
+
+# === Helpers ===
+def load_token() -> str:
+    """Load Notion token from config or environment."""
+    if CONFIG_FILE.exists():
+        match = re.search(r'NOTION_TOKEN="([^"]+)"', CONFIG_FILE.read_text())
+        if match:
+            return match.group(1)
+    if token := os.environ.get("NOTION_TOKEN"):
+        return token
+    print(f"{RED}Error: NOTION_TOKEN not set. Run: exp init <token>{NC}")
+    sys.exit(1)
+
+
+def load_tracker() -> dict:
+    return json.loads(TRACKER_FILE.read_text()) if TRACKER_FILE.exists() else {}
+
+
+def save_tracker(data: dict):
+    TRACKER_FILE.write_text(json.dumps(data, indent=2))
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+
+def hostname() -> str:
+    return subprocess.run(["hostname"], capture_output=True, text=True).stdout.strip()
+
+
+def get_command(pid: int) -> str:
+    """Get command line from PID."""
+    proc_cmdline = Path(f"/proc/{pid}/cmdline")
+    if proc_cmdline.exists():
+        return proc_cmdline.read_text().replace("\0", " ")[:500]
+    r = subprocess.run(["ps", "-p", str(pid), "-o", "args="], capture_output=True, text=True)
+    return r.stdout.strip()[:500] if r.returncode == 0 else "unknown"
+
+
+def is_running(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+
+def tail_log(path: str, lines: int = 10) -> str:
+    r = subprocess.run(["tail", "-n", str(lines), path], capture_output=True, text=True)
+    return r.stdout[:2000] if r.returncode == 0 else "(log not found)"
+
+
+def select_process_fzf() -> int | None:
+    """Use fzf to interactively select a process to track."""
+    try:
+        # Get process list (exclude kernel threads and this script)
+        ps = subprocess.run(
+            ["ps", "axo", "pid,user,pcpu,pmem,start,command"],
+            capture_output=True, text=True
+        )
+        if ps.returncode != 0:
+            return None
+
+        # Filter out header and run through fzf
+        lines = ps.stdout.strip().split("\n")
+        header = lines[0]
+        processes = "\n".join(lines[1:])
+
+        fzf = subprocess.run(
+            ["fzf", "--header", f"Select process to track\n{header}",
+             "--reverse", "--height=40%", "--border"],
+            input=processes,
+            capture_output=True, text=True
+        )
+
+        if fzf.returncode == 0 and fzf.stdout.strip():
+            # PID is first column
+            return int(fzf.stdout.split()[0])
+    except FileNotFoundError:
+        print(f"{YELLOW}fzf not found. Install it or use --pid{NC}")
+    except Exception as e:
+        print(f"{RED}Error selecting process: {e}{NC}")
+    return None
+
+
+def detect_log_file(pid: int) -> str:
+    """Auto-detect log file from process stdout/stderr file descriptors."""
+    # Try /proc/PID/fd/ first (Linux)
+    for fd in [1, 2]:  # stdout, stderr
+        fd_path = Path(f"/proc/{pid}/fd/{fd}")
+        if fd_path.exists():
+            try:
+                target = os.readlink(fd_path)
+                # Skip pipes, sockets, terminals
+                if not target.startswith(("pipe:", "socket:", "/dev/")):
+                    return target
+            except OSError:
+                pass
+
+    # Fall back to lsof (macOS + Linux)
+    try:
+        r = subprocess.run(["lsof", "-p", str(pid)], capture_output=True, text=True)
+        for line in r.stdout.splitlines()[1:]:  # Skip header
+            parts = line.split()
+            if len(parts) >= 9:
+                fd_col = parts[3]  # e.g., "1w", "2w", "3u"
+                # Look for stdout(1), stderr(2), or files open for write
+                if fd_col in ("1w", "2w", "1u", "2u") or (fd_col.endswith(("w", "u")) and fd_col[:-1].isdigit()):
+                    filepath = parts[-1]
+                    if filepath.startswith("/") and not filepath.startswith("/dev/"):
+                        return filepath
+    except Exception:
+        pass
+
+    return ""
+
+
+# === Notion API ===
+def notion(method: str, endpoint: str, token: str, data: dict = None) -> dict:
+    req = Request(
+        f"https://api.notion.com/v1/{endpoint}",
+        data=json.dumps(data).encode() if data else None,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Notion-Version": "2022-06-28",
+        },
+        method=method,
+    )
+    try:
+        with urlopen(req) as resp:
+            return json.loads(resp.read())
+    except HTTPError as e:
+        return {"error": json.loads(e.read()).get("message", str(e))}
+
+
+def create_page(token: str, cmd: str, server: str, pid: int, log: str) -> dict:
+    return notion("POST", "pages", token, {
+        "parent": {"database_id": DATABASE_ID},
+        "properties": {
+            "Command": {"title": [{"text": {"content": cmd[:200]}, "annotations": {"code": True}}]},
+            "Server": {"rich_text": [{"text": {"content": server}, "annotations": {"code": True}}]},
+            "Status": {"select": {"name": "Running"}},
+            "PID": {"number": pid},
+            "Log File": {"rich_text": [{"text": {"content": log}, "annotations": {"code": True}}]},
+            "Started": {"date": {"start": now_iso()}},
+        },
+    })
+
+
+def update_page(token: str, page_id: str, props: dict) -> dict:
+    return notion("PATCH", f"pages/{page_id}", token, {"properties": props})
+
+
+def update_content(token: str, page_id: str, log: str) -> dict:
+    # First, get existing blocks and delete log-related ones
+    resp = notion("GET", f"blocks/{page_id}/children", token)
+    if "results" in resp:
+        for block in resp["results"]:
+            # Delete heading_2 with "Last Log Output" or code blocks
+            block_type = block.get("type")
+            if block_type == "code":
+                notion("DELETE", f"blocks/{block['id']}", token)
+            elif block_type == "heading_2":
+                text = block.get("heading_2", {}).get("rich_text", [])
+                if text and "Last Log" in text[0].get("plain_text", ""):
+                    notion("DELETE", f"blocks/{block['id']}", token)
+
+    # Add fresh log content
+    return notion("PATCH", f"blocks/{page_id}/children", token, {
+        "children": [
+            {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Last Log Output"}}]}},
+            {"type": "code", "code": {"rich_text": [{"text": {"content": log}}], "language": "plain text"}},
+        ]
+    })
+
+
+def add_comment(token: str, page_id: str, msg: str) -> dict:
+    return notion("POST", "comments", token, {
+        "parent": {"page_id": page_id},
+        "rich_text": [
+            {"type": "mention", "mention": {"user": {"id": NOTIFY_USER_ID}}},
+            {"type": "text", "text": {"content": f" {msg}"}},
+        ],
+    })
+
+
+# === Commands ===
+def check_experiment(token: str, page_id: str, info: dict) -> bool:
+    """Check a single experiment. Returns True if still running, False if finished."""
+    pid, log, cmd = info["pid"], info.get("log", ""), info.get("cmd", "?")[:40]
+
+    if is_running(pid):
+        if log:
+            update_content(token, page_id, tail_log(log))
+        return True  # Still running
+
+    # Process finished
+    last_log = tail_log(log, 20) if log else ""
+    failed = bool(re.search(r"error|exception|traceback|failed|killed|oom", last_log, re.I))
+    status, emoji = ("Failed", "❌") if failed else ("Completed", "✅")
+
+    update_page(token, page_id, {
+        "Status": {"select": {"name": status}},
+        "Finished": {"date": {"start": now_iso()}},
+    })
+    if log:
+        update_content(token, page_id, last_log)
+    add_comment(token, page_id, f"{emoji} {status} on {hostname()}: {cmd}...")
+
+    return False  # Finished
+
+
+def cmd_init(args):
+    if not args.token:
+        print(f"{RED}Usage: exp init <token>{NC}")
+        sys.exit(1)
+    CONFIG_FILE.write_text(f'NOTION_TOKEN="{args.token}"\n')
+    CONFIG_FILE.chmod(0o600)
+    save_tracker({})
+    print(f"{GREEN}Initialized!{NC} Config: {CONFIG_FILE}")
+
+
+def cmd_track(args):
+    token = load_token()
+
+    # If no PID provided, use fzf to select
+    pid = args.pid
+    if not pid:
+        pid = select_process_fzf()
+        if not pid:
+            print(f"{RED}No process selected{NC}")
+            sys.exit(1)
+
+    if not is_running(pid):
+        print(f"{RED}Error: PID {pid} not running{NC}")
+        sys.exit(1)
+
+    # Clean up stale entries and check if already tracked
+    tracker = load_tracker()
+    stale = [p for p, info in tracker.items() if not is_running(info["pid"])]
+    if stale:
+        for page_id in stale:
+            info = tracker[page_id]
+            check_experiment(token, page_id, info)  # Updates Notion
+            del tracker[page_id]
+        save_tracker(tracker)
+        print(f"{YELLOW}Cleaned up {len(stale)} finished experiment(s){NC}")
+
+    for page_id, info in tracker.items():
+        if info["pid"] == pid:
+            print(f"{YELLOW}Already tracking PID {pid}{NC}")
+            print(f"  https://notion.so/{page_id.replace('-', '')}")
+            sys.exit(0)
+
+    cmd = get_command(pid)
+    server = hostname()
+
+    # Auto-detect log file if not provided
+    if args.log:
+        log = str(Path(args.log).resolve())
+    else:
+        log = detect_log_file(pid)
+        if log:
+            print(f"{GREEN}Auto-detected log:{NC} {log}")
+
+    print(f"{BLUE}Tracking:{NC} {cmd[:60]}...")
+    print(f"  Server: {server}, PID: {pid}, Log: {log or '(none)'}")
+
+    resp = create_page(token, cmd, server, pid, log)
+    if "error" in resp:
+        print(f"{RED}Error: {resp['error']}{NC}")
+        sys.exit(1)
+
+    page_id = resp["id"]
+    info = {"pid": pid, "log": log, "cmd": cmd[:60]}
+    tracker = load_tracker()
+    tracker[page_id] = info
+    save_tracker(tracker)
+
+    url = f"https://notion.so/{page_id.replace('-', '')}"
+    print(f"{GREEN}Tracked!{NC} {url}")
+
+    # Watch mode (default): spawn background watcher
+    if not args.no_watch:
+        interval = args.interval
+        print(f"{BLUE}Watching in background{NC} (checking every {interval}s)...")
+
+        # Spawn detached subprocess to watch
+        subprocess.Popen(
+            [sys.executable, __file__, "_watch", page_id, str(interval)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+
+
+def cmd_list(args):
+    tracker = load_tracker()
+    if not tracker:
+        print("No experiments tracked.")
+        return
+    print(f"{BLUE}Tracked experiments:{NC}")
+    for page_id, info in tracker.items():
+        pid = info["pid"]
+        status = f"{GREEN}running{NC}" if is_running(pid) else f"{RED}stopped{NC}"
+        log = info.get("log") or "(none)"
+        print(f"  {info.get('cmd', '?')[:50]}...")
+        print(f"    PID: {pid} ({status})  Log: {log}")
+
+
+def cmd_untrack(args):
+    if not args.pid:
+        print(f"{RED}Usage: exp untrack <pid>{NC}")
+        sys.exit(1)
+    tracker = load_tracker()
+    for page_id, info in list(tracker.items()):
+        if info["pid"] == args.pid:
+            del tracker[page_id]
+            save_tracker(tracker)
+            print(f"{GREEN}Removed PID {args.pid}{NC}")
+            return
+    print(f"{YELLOW}PID {args.pid} not tracked{NC}")
+
+
+def cmd_watch_internal(args):
+    """Internal: background watcher process."""
+    token = load_token()
+    page_id = args.page_id
+    interval = args.interval
+    tracker = load_tracker()
+
+    if page_id not in tracker:
+        return
+
+    info = tracker[page_id]
+    while True:
+        time.sleep(interval)
+        if not check_experiment(token, page_id, info):
+            tracker = load_tracker()
+            tracker.pop(page_id, None)
+            save_tracker(tracker)
+            break
+
+
+# === Main ===
+def main():
+    p = argparse.ArgumentParser(prog="exp", description="Experiment Tracker for Notion")
+    sub = p.add_subparsers(dest="cmd")
+
+    sub.add_parser("init", help="Initialize with Notion token").add_argument("token", nargs="?")
+
+    t = sub.add_parser("track", help="Track an experiment (uses fzf if no --pid)")
+    t.add_argument("--pid", "-p", type=int, help="Process ID (or use fzf to select)")
+    t.add_argument("--log", "-l", help="Log file path (auto-detected if not provided)")
+    t.add_argument("--no-watch", action="store_true", help="Don't watch, just register and exit")
+    t.add_argument("--interval", "-i", type=int, default=30, help="Check interval in seconds (default: 30)")
+
+    sub.add_parser("list", help="List tracked experiments")
+    sub.add_parser("untrack", help="Stop tracking an experiment").add_argument("pid", type=int, nargs="?", help="Process ID to untrack")
+
+    # Internal command for background watcher
+    w = sub.add_parser("_watch")
+    w.add_argument("page_id")
+    w.add_argument("interval", type=int)
+
+    args = p.parse_args()
+    {"init": cmd_init, "track": cmd_track, "list": cmd_list, "untrack": cmd_untrack, "_watch": cmd_watch_internal}.get(
+        args.cmd, lambda _: p.print_help()
+    )(args)
+
+
+if __name__ == "__main__":
+    main()
