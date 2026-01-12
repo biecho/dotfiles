@@ -118,6 +118,15 @@ install_bins() {
             | tar xz -C "$LOCAL_BIN" tldr
     fi
 
+    # cloc (count lines of code)
+    if ! command -v cloc &> /dev/null; then
+        echo "   Installing cloc..."
+        CLOC_VERSION=$(curl -s https://api.github.com/repos/AlDanial/cloc/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -sL "https://github.com/AlDanial/cloc/releases/download/v${CLOC_VERSION}/cloc-${CLOC_VERSION}.pl" \
+            -o "$LOCAL_BIN/cloc"
+        chmod +x "$LOCAL_BIN/cloc"
+    fi
+
     # yazi (file manager) and ya (plugin manager)
     if ! command -v yazi &> /dev/null; then
         echo "   Installing yazi..."
