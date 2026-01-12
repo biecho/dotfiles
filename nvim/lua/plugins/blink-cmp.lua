@@ -2,10 +2,10 @@ return {
   "saghen/blink.cmp",
   opts = {
     completion = {
+      -- Disable automatic completion popup - only show when manually triggered
       trigger = {
-        -- Disable automatic completion popup
         show_on_insert_on_trigger_character = false,
-        show_on_x_blocked_trigger_characters = {},
+        show_on_keyword = false,
       },
     },
   },

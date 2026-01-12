@@ -28,8 +28,10 @@ return {
       opts.move.keys = opts.move.keys or {}
       opts.move.keys.goto_next_start = opts.move.keys.goto_next_start or {}
       opts.move.keys.goto_next_start["]="] = "@assignment.outer"
+      opts.move.keys.goto_next_start["]s"] = "@statement.outer"
       opts.move.keys.goto_previous_start = opts.move.keys.goto_previous_start or {}
       opts.move.keys.goto_previous_start["[="] = "@assignment.outer"
+      opts.move.keys.goto_previous_start["[s"] = "@statement.outer"
     end,
   },
 
