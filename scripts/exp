@@ -100,6 +100,39 @@ def is_running(pid: int) -> bool:
         return False
 
 
+def format_elapsed(seconds: float) -> str:
+    """Format elapsed time as human-readable string."""
+    seconds = int(seconds)
+    if seconds < 60:
+        return f"{seconds}s"
+    elif seconds < 3600:
+        m, s = divmod(seconds, 60)
+        return f"{m}m{s}s"
+    else:
+        h, rem = divmod(seconds, 3600)
+        m = rem // 60
+        return f"{h}h{m}m"
+
+
+def get_process_start_time(pid: int) -> float | None:
+    """Get process start time as Unix timestamp."""
+    try:
+        # Use ps to get process start time
+        r = subprocess.run(
+            ["ps", "-o", "lstart=", "-p", str(pid)],
+            capture_output=True, text=True
+        )
+        if r.returncode == 0 and r.stdout.strip():
+            # Parse the lstart format: "Wed Jan  8 14:30:00 2025"
+            from datetime import datetime
+            start_str = r.stdout.strip()
+            start_dt = datetime.strptime(start_str, "%a %b %d %H:%M:%S %Y")
+            return start_dt.timestamp()
+    except Exception:
+        pass
+    return None
+
+
 def get_descendants(pid: int) -> list[int]:
     """Get all descendant PIDs of a process (children, grandchildren, etc.)."""
     descendants = []
@@ -312,6 +345,15 @@ def update_content_tree(token: str, page_id: str, info: dict) -> dict:
 
     # Build content blocks
     blocks = []
+
+    # Running time
+    start_time = get_process_start_time(pid)
+    if start_time:
+        elapsed = format_elapsed(time.time() - start_time)
+        blocks.extend([
+            {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Status"}}]}},
+            {"type": "paragraph", "paragraph": {"rich_text": [{"text": {"content": f"Running for {elapsed}"}}]}},
+        ])
 
     # Progress section
     if total_seen > 0 or completed > 0:
@@ -555,7 +597,7 @@ def cmd_track(args):
         sys.exit(1)
 
     page_id = resp["id"]
-    info = {"pid": pid, "log": log, "cmd": cmd[:60]}
+    info = {"pid": pid, "log": log, "cmd": cmd[:60], "started_at": time.time()}
     tracker = load_tracker()
     tracker[page_id] = info
     save_tracker(tracker)
@@ -586,7 +628,15 @@ def cmd_list(args):
     print(f"{BLUE}Tracked experiments:{NC}")
     for page_id, info in tracker.items():
         pid = info["pid"]
-        status = f"{GREEN}running{NC}" if is_running(pid) else f"{RED}stopped{NC}"
+        running = is_running(pid)
+        if running:
+            elapsed = ""
+            start_time = get_process_start_time(pid)
+            if start_time:
+                elapsed = f", {format_elapsed(time.time() - start_time)}"
+            status = f"{GREEN}running{elapsed}{NC}"
+        else:
+            status = f"{RED}stopped{NC}"
         log = info.get("log") or "(none)"
         print(f"  {info.get('cmd', '?')[:50]}...")
         print(f"    PID: {pid} ({status})  Log: {log}")
@@ -599,9 +649,14 @@ def cmd_untrack(args):
     tracker = load_tracker()
     for page_id, info in list(tracker.items()):
         if info["pid"] == args.pid:
+            # Update Notion page status to Cancelled
+            token = load_token()
+            update_page(token, page_id, {
+                "Status": {"select": {"name": "Cancelled"}},
+            })
             del tracker[page_id]
             save_tracker(tracker)
-            print(f"{GREEN}Removed PID {args.pid}{NC}")
+            print(f"{GREEN}Removed PID {args.pid} (marked as Cancelled in Notion){NC}")
             return
     print(f"{YELLOW}PID {args.pid} not tracked{NC}")
 
