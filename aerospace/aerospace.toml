@@ -7,12 +7,12 @@
 #
 # Navigation:
 #   alt+h/j/k/l          Focus window left/down/up/right
-#   alt+1-9              Switch to workspace (press again to toggle back)
+#   alt+1-9,0            Switch to workspace (press again to toggle back)
 #   alt+tab              Toggle between last two workspaces
 #
 # Window Management:
 #   alt+shift+h/j/k/l    Move window left/down/up/right
-#   alt+shift+1-9        Move window to workspace 1-9
+#   alt+shift+1-9,0      Move window to workspace 1-9,0
 #   alt+p                Move workspace to next monitor
 #   alt+shift+p          Move window to next monitor + follow
 #   alt+f                Toggle fullscreen
@@ -76,25 +76,25 @@ PATH = '/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}'
 # Workspace to Monitor Assignment
 # =============================================================================
 # Assign workspaces to specific monitors to prevent random workspace numbers
-# Monitor 1: Built-in Retina Display (Left)
-# Monitor 2: DELL E2425HS (Middle - Main work monitor)
-# Monitor 3: DELL P2412H (Right)
+#
+# 2-Monitor Setup:
+# Monitor 1: Built-in M1 Laptop Display
+# Monitor 2: External monitor
 
 [workspace-to-monitor-force-assignment]
-# Left monitor (Built-in Retina)
-1 = 1  # Browser
-2 = 1  # Communication (Slack, Teams, Discord)
-3 = 1  # Notes (Obsidian)
+# External monitor
+1 = 2
+2 = 2
+3 = 2
+4 = 2
+5 = 2
 
-# Middle monitor (DELL E2425HS) - Main work area
-4 = 2  # Terminal (Kitty)
-5 = 2  # Code/Editor (VSCode/IntelliJ)
-6 = 2  # Database tools
-
-# Right monitor (DELL P2412H) - Background/Utilities
-7 = 3  # Music (Spotify)
-8 = 3  # Mail (Outlook)
-9 = 3  # Free/Misc
+# M1 Laptop (Built-in Display)
+6 = 1
+7 = 1
+8 = 1
+9 = 1
+0 = 1
 
 # =============================================================================
 # Main keybindings
@@ -151,7 +151,7 @@ alt-shift-right = 'move right'
 alt-minus = 'resize smart -50'
 alt-equal = 'resize smart +50'
 
-# Workspace navigation (1-9) - auto-back-and-forth: press same key to toggle back
+# Workspace navigation (1-9, 0) - auto-back-and-forth: press same key to toggle back
 alt-1 = 'workspace --auto-back-and-forth 1'
 alt-2 = 'workspace --auto-back-and-forth 2'
 alt-3 = 'workspace --auto-back-and-forth 3'
@@ -161,6 +161,7 @@ alt-6 = 'workspace --auto-back-and-forth 6'
 alt-7 = 'workspace --auto-back-and-forth 7'
 alt-8 = 'workspace --auto-back-and-forth 8'
 alt-9 = 'workspace --auto-back-and-forth 9'
+alt-0 = 'workspace --auto-back-and-forth 0'
 
 # Move window to workspace
 alt-shift-1 = 'move-node-to-workspace 1'
@@ -172,6 +173,7 @@ alt-shift-6 = 'move-node-to-workspace 6'
 alt-shift-7 = 'move-node-to-workspace 7'
 alt-shift-8 = 'move-node-to-workspace 8'
 alt-shift-9 = 'move-node-to-workspace 9'
+alt-shift-0 = 'move-node-to-workspace 0'
 
 # Quick workspace switching
 alt-tab = 'workspace-back-and-forth'
