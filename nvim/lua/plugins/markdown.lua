@@ -8,4 +8,14 @@ return {
       },
     },
   },
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    opts = {
+      html = {
+        comment = {
+          conceal = false, -- Don't hide HTML comments
+        },
+      },
+    },
+  },
 }
