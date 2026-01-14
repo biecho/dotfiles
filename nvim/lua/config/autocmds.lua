@@ -6,3 +6,22 @@
 --
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
+
+-- Persist colorscheme choice across restarts
+local colorscheme_file = vim.fn.stdpath("config") .. "/.colorscheme"
+
+-- Load saved colorscheme (runs on VeryLazy, after plugins are loaded)
+if vim.fn.filereadable(colorscheme_file) == 1 then
+  local scheme = vim.fn.readfile(colorscheme_file)[1]
+  if scheme and scheme ~= "" then
+    pcall(vim.cmd.colorscheme, scheme)
+  end
+end
+
+-- Save colorscheme when changed
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("persist_colorscheme", { clear = true }),
+  callback = function(event)
+    vim.fn.writefile({ event.match }, colorscheme_file)
+  end,
+})
