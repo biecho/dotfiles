@@ -55,6 +55,12 @@ view = [
     { run = 'open "$@"', orphan = true, desc = "Open with Preview" },
 ]
 
+# PDFs
+pdf = [
+    { run = 'open -a "Skim" "$@"', orphan = true, desc = "Open with Skim" },
+    { run = 'open "$@"', orphan = true, desc = "Open with default app" },
+]
+
 # Extract archives
 extract = [
     { run = 'unar "$1"', desc = "Extract here" },
@@ -88,6 +94,9 @@ rules = [
     { mime = "application/x-bzip2", use = [ "extract" ] },
     { mime = "application/x-7z-compressed", use = [ "extract" ] },
     { mime = "application/x-rar", use = [ "extract" ] },
+
+    # PDFs
+    { mime = "application/pdf", use = [ "pdf" ] },
 
     # Fallback
     { name = "*", use = [ "edit", "code" ] },
