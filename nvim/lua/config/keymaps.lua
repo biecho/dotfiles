@@ -72,3 +72,7 @@ vim.keymap.set("n", "<leader>co", "<cmd>Telescope lsp_outgoing_calls<cr>", { des
 -- Remap macro recording to Q to prevent accidental triggers
 vim.keymap.set("n", "q", "<Nop>")
 vim.keymap.set("n", "Q", "q", { desc = "Record macro" })
+
+-- Remove LazyVim's <leader>- (horizontal split) to use for yazi
+-- Use <C-w>s for horizontal splits instead (vim default)
+vim.keymap.del("n", "<leader>-")
