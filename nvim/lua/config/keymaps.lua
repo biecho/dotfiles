@@ -71,6 +71,4 @@ end, { desc = "Yank diagnostics in selection" })
 vim.keymap.set("n", "q", "<Nop>")
 vim.keymap.set("n", "Q", "q", { desc = "Record macro" })
 
--- Remove LazyVim's <leader>- (horizontal split) to use for yazi
--- Use <C-w>s for horizontal splits instead (vim default)
-vim.keymap.del("n", "<leader>-")
+-- Note: <leader>- for Yazi is set in plugins/yazi.lua (overrides LazyVim's split)
