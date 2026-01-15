@@ -70,5 +70,3 @@ end, { desc = "Yank diagnostics in selection" })
 -- Remap macro recording to Q to prevent accidental triggers
 vim.keymap.set("n", "q", "<Nop>")
 vim.keymap.set("n", "Q", "q", { desc = "Record macro" })
-
--- Note: <leader>- for Yazi is set in plugins/yazi.lua (overrides LazyVim's split)
