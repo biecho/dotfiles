@@ -1,0 +1,6 @@
+#!/bin/bash
+# mpv-kitty-tab - Launch mpv in a new Kitty tab
+#
+# Used by youtube-tui to play videos in a dedicated tab
+
+kitty @ launch --type=tab --title="mpv" --hold --env PATH="/opt/homebrew/bin:$PATH" -- mpv --vo=kitty --vo-kitty-width=640 --vo-kitty-height=360 "$@"
