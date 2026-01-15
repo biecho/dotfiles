@@ -1,0 +1,14 @@
+mouse_support: true
+images: Sixels
+provider: YouTube
+search_provider: RustyPipe
+
+limits:
+  watch_history: 50
+  search_history: 75
+
+env:
+  video-player: mpv-kitty-tab
+  youtube-downloader: yt-dlp
+  browser: open
+  terminal-emulator: kitty @ launch --type=tab --
