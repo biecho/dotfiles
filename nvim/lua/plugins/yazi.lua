@@ -5,8 +5,7 @@ return {
   dependencies = { "nvim-lua/plenary.nvim" },
   event = "VeryLazy",
   keys = {
-    -- `-` is the classic vim-vinegar pattern for "go to directory"
-    { "-", "<cmd>Yazi<cr>", desc = "Yazi (current file)" },
+    { "<leader>.", "<cmd>Yazi<cr>", desc = "Yazi (current file)" },
     { "<leader>-", "<cmd>Yazi cwd<cr>", desc = "Yazi (cwd)" },
     { "<c-up>", "<cmd>Yazi toggle<cr>", desc = "Yazi (resume)" },
   },
