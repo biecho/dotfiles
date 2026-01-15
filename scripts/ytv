@@ -1,0 +1,14 @@
+#!/bin/bash
+# ytv - YouTube TUI launcher
+#
+# Usage:
+#   ytv [options]
+#
+# Examples:
+#   ytv              # Launch the TUI
+#   ytv --help       # Show youtube-tui help
+#
+# See also:
+#   ytq, ytd, ytls   # Queue-based audio download workflow
+
+exec youtube-tui "$@"

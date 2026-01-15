@@ -116,6 +116,11 @@ create_symlinks() {
     # JankyBorders (window borders)
     ln -sfn "$DOTFILES_DIR/borders" "$HOME/.config/borders"
     echo "   ~/.config/borders"
+
+    # YouTube TUI
+    mkdir -p "$HOME/.config/youtube-tui"
+    ln -sf "$DOTFILES_DIR/youtube-tui/main.yml" "$HOME/.config/youtube-tui/main.yml"
+    echo "   ~/.config/youtube-tui/main.yml"
 }
 
 # -----------------------------------------------------------------------------
