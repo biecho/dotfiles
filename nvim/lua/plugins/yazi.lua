@@ -6,7 +6,7 @@ return {
   event = "VeryLazy",
   keys = {
     { "<leader>.", "<cmd>Yazi<cr>", desc = "Yazi (current file)" },
-    { "<leader>-", "<cmd>Yazi cwd<cr>", desc = "Yazi (cwd)" },
+    { "<leader>cw", "<cmd>Yazi cwd<cr>", desc = "Yazi (cwd)" },
     { "<c-up>", "<cmd>Yazi toggle<cr>", desc = "Yazi (resume)" },
   },
   opts = {
