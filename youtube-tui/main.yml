@@ -1,14 +1,28 @@
 mouse_support: true
+invidious_instance: https://invidious.f5.si
+write_config: Try
+allow_unicode: true
+message_bar_default: All good :)
 images: Sixels
-provider: YouTube
-search_provider: RustyPipe
-
+refresh_after_modifying_search_filters: true
+syncing:
+  download_images: true
+  sync_channel_info: true
+  sync_channel_cooldown_secs: 86400
+  sync_videos_cooldown_secs: 600
 limits:
   watch_history: 50
   search_history: 75
-
+  commands_history: 75
+textbar_scroll_behaviour: History
+image_index: 4
+provider: YouTube
+search_provider: RustyPipe
+api_key: YOUR API KEY HERE
+shell: sh
+legacy_input_handling: false
 env:
   video-player: mpv-kitty-tab
+  terminal-emulator: kitty @ launch --type=tab --
   youtube-downloader: yt-dlp
   browser: open
-  terminal-emulator: kitty @ launch --type=tab --
