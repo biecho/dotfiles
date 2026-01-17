@@ -70,3 +70,6 @@ end, { desc = "Yank diagnostics in selection" })
 -- Remap macro recording to Q to prevent accidental triggers
 vim.keymap.set("n", "q", "<Nop>")
 vim.keymap.set("n", "Q", "q", { desc = "Record macro" })
+
+-- Trim trailing whitespace in visual selection
+vim.keymap.set("v", "<leader>tw", [[:s/\s\+$//g<CR>]], { desc = "Trim trailing whitespace" })
