@@ -54,6 +54,35 @@ NOTIFY_USER_ID = "2e4d872b-594c-81ea-93d4-0002614d2be3"
 RED, GREEN, YELLOW, BLUE, NC = "\033[31m", "\033[32m", "\033[33m", "\033[34m", "\033[0m"
 
 
+def format_command(cmd: str) -> str:
+    """Format command with line breaks for readability."""
+    if len(cmd) < 80:
+        return cmd
+
+    # First, break before each flag
+    formatted = re.sub(r' (-{1,2}[a-zA-Z])', r' \\\n    \1', cmd)
+
+    # Then, break long lines (> 100 chars) at space boundaries
+    lines = formatted.split('\n')
+    result = []
+    for line in lines:
+        if len(line) <= 100:
+            result.append(line)
+        else:
+            indent = '        '
+            parts = line.split(' ')
+            current = parts[0]
+            for part in parts[1:]:
+                if len(current) + len(part) + 1 > 100:
+                    result.append(current + ' \\')
+                    current = indent + part
+                else:
+                    current += ' ' + part
+            result.append(current)
+
+    return '\n'.join(result)
+
+
 # === Helpers ===
 def load_token() -> str:
     """Load Notion token from config or environment."""
@@ -87,9 +116,9 @@ def get_command(pid: int) -> str:
     """Get command line from PID."""
     proc_cmdline = Path(f"/proc/{pid}/cmdline")
     if proc_cmdline.exists():
-        return proc_cmdline.read_text().replace("\0", " ")[:500]
+        return proc_cmdline.read_text().replace("\0", " ").strip()
     r = subprocess.run(["ps", "-p", str(pid), "-o", "args="], capture_output=True, text=True)
-    return r.stdout.strip()[:500] if r.returncode == 0 else "unknown"
+    return r.stdout.strip() if r.returncode == 0 else "unknown"
 
 
 def is_running(pid: int) -> bool:
@@ -286,17 +315,48 @@ def notion(method: str, endpoint: str, token: str, data: dict = None) -> dict:
 
 
 def create_page(token: str, cmd: str, server: str, pid: int, log: str) -> dict:
-    return notion("POST", "pages", token, {
+    # Extract a short name from command for the title (e.g., "python train.py")
+    parts = cmd.split() if cmd else []
+    exe = parts[0].split("/")[-1] if parts else "experiment"
+    # Find first script file in arguments
+    script = ""
+    for part in parts[1:]:
+        if any(part.endswith(ext) for ext in ('.py', '.sh', '.bash', '.rb', '.pl', '.js')):
+            script = part.split("/")[-1]
+            break
+    name = f"{exe} {script}".strip()[:50] if script else exe[:50]
+
+    # Get actual process start time
+    start_time = get_process_start_time(pid)
+    if start_time:
+        started_iso = datetime.fromtimestamp(start_time, timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    else:
+        started_iso = now_iso()
+
+    # Create page without Command column (command goes in page body)
+    resp = notion("POST", "pages", token, {
         "parent": {"database_id": DATABASE_ID},
         "properties": {
-            "Command": {"title": [{"text": {"content": cmd[:200]}, "annotations": {"code": True}}]},
+            "Name": {"title": [{"text": {"content": name}}]},
             "Server": {"rich_text": [{"text": {"content": server}, "annotations": {"code": True}}]},
             "Status": {"select": {"name": "Running"}},
             "PID": {"number": pid},
             "Log File": {"rich_text": [{"text": {"content": log}, "annotations": {"code": True}}]},
-            "Started": {"date": {"start": now_iso()}},
+            "Started": {"date": {"start": started_iso}},
+            "Running Time": {"rich_text": [{"text": {"content": format_elapsed(time.time() - start_time) if start_time else "0s"}}]},
         },
     })
+
+    # Add command as code block in page body
+    if "id" in resp:
+        notion("PATCH", f"blocks/{resp['id']}/children", token, {
+            "children": [
+                {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Command"}}]}},
+                {"type": "code", "code": {"rich_text": [{"text": {"content": format_command(cmd)}}], "language": "shell"}},
+            ]
+        })
+
+    return resp
 
 
 def update_page(token: str, page_id: str, props: dict) -> dict:
@@ -311,11 +371,15 @@ def clear_page_content(token: str, page_id: str):
             notion("DELETE", f"blocks/{block['id']}", token)
 
 
-def update_content_simple(token: str, page_id: str, log: str) -> dict:
+def update_content_simple(token: str, page_id: str, info: dict) -> dict:
     """Simple content update with just log output (for non-tree tracking)."""
     clear_page_content(token, page_id)
+    cmd = info.get("cmd", "")
+    log = tail_log(info.get("log", ""), 15)
     return notion("PATCH", f"blocks/{page_id}/children", token, {
         "children": [
+            {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Command"}}]}},
+            {"type": "code", "code": {"rich_text": [{"text": {"content": format_command(cmd)}}], "language": "shell"}},
             {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Last Log Output"}}]}},
             {"type": "code", "code": {"rich_text": [{"text": {"content": log}}], "language": "plain text"}},
         ]
@@ -327,6 +391,7 @@ def update_content_tree(token: str, page_id: str, info: dict) -> dict:
     clear_page_content(token, page_id)
 
     pid = info["pid"]
+    cmd = info.get("cmd", "")
     seen_children = set(info.get("seen_children", []))
     completed = info.get("completed_children", 0)
     failed = info.get("failed_children", 0)
@@ -343,17 +408,11 @@ def update_content_tree(token: str, page_id: str, info: dict) -> dict:
     total_seen = len(seen_children)
     running = len(current_pids)
 
-    # Build content blocks
-    blocks = []
-
-    # Running time
-    start_time = get_process_start_time(pid)
-    if start_time:
-        elapsed = format_elapsed(time.time() - start_time)
-        blocks.extend([
-            {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Status"}}]}},
-            {"type": "paragraph", "paragraph": {"rich_text": [{"text": {"content": f"Running for {elapsed}"}}]}},
-        ])
+    # Build content blocks - start with Command
+    blocks = [
+        {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Command"}}]}},
+        {"type": "code", "code": {"rich_text": [{"text": {"content": format_command(cmd)}}], "language": "shell"}},
+    ]
 
     # Progress section
     if total_seen > 0 or completed > 0:
@@ -491,6 +550,12 @@ def check_experiment(token: str, page_id: str, info: dict) -> tuple[bool, dict]:
 
     # Check if tree is still running
     if is_tree_running(pid):
+        # Update running time property
+        start_time = get_process_start_time(pid)
+        if start_time:
+            update_page(token, page_id, {
+                "Running Time": {"rich_text": [{"text": {"content": format_elapsed(time.time() - start_time)}}]},
+            })
         update_content_tree(token, page_id, info)
         return True, info  # Still running
 
@@ -513,9 +578,14 @@ def check_experiment(token: str, page_id: str, info: dict) -> tuple[bool, dict]:
     else:
         status, emoji = "Completed", "✅"
 
+    # Calculate final running time
+    start_time = get_process_start_time(pid) or info.get("started_at")
+    running_time = format_elapsed(time.time() - start_time) if start_time else ""
+
     update_page(token, page_id, {
         "Status": {"select": {"name": status}},
         "Finished": {"date": {"start": now_iso()}},
+        "Running Time": {"rich_text": [{"text": {"content": running_time}}]},
     })
 
     # Final content update
@@ -597,7 +667,7 @@ def cmd_track(args):
         sys.exit(1)
 
     page_id = resp["id"]
-    info = {"pid": pid, "log": log, "cmd": cmd[:60], "started_at": time.time()}
+    info = {"pid": pid, "log": log, "cmd": cmd, "started_at": time.time()}
     tracker = load_tracker()
     tracker[page_id] = info
     save_tracker(tracker)
@@ -642,23 +712,65 @@ def cmd_list(args):
         print(f"    PID: {pid} ({status})  Log: {log}")
 
 
+def select_experiment_fzf(tracker: dict) -> tuple[str, dict] | None:
+    """Use fzf to select a tracked experiment. Returns (page_id, info) or None."""
+    if not tracker:
+        print(f"{YELLOW}No experiments tracked{NC}")
+        return None
+
+    # Build list for fzf
+    lines = []
+    for page_id, info in tracker.items():
+        pid = info["pid"]
+        status = "running" if is_running(pid) else "stopped"
+        cmd = info.get("cmd", "?")[:60]
+        lines.append(f"{pid}\t{status}\t{cmd}\t{page_id}")
+
+    try:
+        fzf = subprocess.run(
+            ["fzf", "--header", "Select experiment to untrack\nPID\tSTATUS\tCOMMAND",
+             "--reverse", "--height=40%", "--border", "--delimiter=\t", "--with-nth=1,2,3"],
+            input="\n".join(lines),
+            capture_output=True, text=True
+        )
+        if fzf.returncode == 0 and fzf.stdout.strip():
+            parts = fzf.stdout.strip().split("\t")
+            page_id = parts[-1]
+            return page_id, tracker[page_id]
+    except FileNotFoundError:
+        print(f"{YELLOW}fzf not found. Install it or provide PID directly{NC}")
+    except Exception as e:
+        print(f"{RED}Error selecting experiment: {e}{NC}")
+    return None
+
+
 def cmd_untrack(args):
-    if not args.pid:
-        print(f"{RED}Usage: exp untrack <pid>{NC}")
-        sys.exit(1)
     tracker = load_tracker()
-    for page_id, info in list(tracker.items()):
-        if info["pid"] == args.pid:
-            # Update Notion page status to Cancelled
-            token = load_token()
-            update_page(token, page_id, {
-                "Status": {"select": {"name": "Cancelled"}},
-            })
-            del tracker[page_id]
-            save_tracker(tracker)
-            print(f"{GREEN}Removed PID {args.pid} (marked as Cancelled in Notion){NC}")
+
+    # Use fzf if no PID provided
+    if not args.pid:
+        result = select_experiment_fzf(tracker)
+        if not result:
+            sys.exit(1)
+        page_id, info = result
+        pid = info["pid"]
+    else:
+        pid = args.pid
+        page_id = None
+        for p_id, info in tracker.items():
+            if info["pid"] == pid:
+                page_id = p_id
+                break
+        if not page_id:
+            print(f"{YELLOW}PID {pid} not tracked{NC}")
             return
-    print(f"{YELLOW}PID {args.pid} not tracked{NC}")
+
+    # Delete from Notion (archive the page)
+    token = load_token()
+    notion("PATCH", f"pages/{page_id}", token, {"archived": True})
+    del tracker[page_id]
+    save_tracker(tracker)
+    print(f"{GREEN}Removed PID {pid} (deleted from Notion){NC}")
 
 
 def cmd_watch_internal(args):
