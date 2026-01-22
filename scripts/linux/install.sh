@@ -12,11 +12,52 @@ echo "Installing dotfiles for Linux..."
 echo ""
 
 # -----------------------------------------------------------------------------
+# Helper: Get latest GitHub release version (uses gh CLI if available for auth)
+# Usage: gh_version "owner/repo" [strip_v]
+# Examples: gh_version "junegunn/fzf"        -> "0.46.0" (strips v prefix)
+#           gh_version "casey/just" "no"     -> "1.46.0" (no v prefix in tag)
+# -----------------------------------------------------------------------------
+gh_version() {
+    local repo="$1"
+    local strip_v="${2:-yes}"
+    local version=""
+
+    # Try gh CLI first (authenticated, higher rate limit)
+    if command -v gh &> /dev/null; then
+        version=$(gh api "repos/$repo/releases/latest" --jq '.tag_name' 2>/dev/null || true)
+    fi
+
+    # Fallback to curl
+    if [[ -z "$version" ]]; then
+        version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*' || true)
+    fi
+
+    # Strip 'v' prefix if requested
+    if [[ "$strip_v" == "yes" && "$version" == v* ]]; then
+        version="${version#v}"
+    fi
+
+    echo "$version"
+}
+
+# -----------------------------------------------------------------------------
 # Install binaries to ~/.local/bin
 # -----------------------------------------------------------------------------
 install_bins() {
     echo "==> Installing binaries to ~/.local/bin..."
     mkdir -p "$LOCAL_BIN"
+
+    # gh (GitHub CLI) - install FIRST since gh_version uses it for authenticated API calls
+    if ! command -v gh &> /dev/null; then
+        echo "   Installing gh..."
+        GH_VERSION=$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep -Po '"tag_name": "v\K[^"]*' || true)
+        if [[ -n "$GH_VERSION" ]]; then
+            curl -sL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" \
+                | tar xz --strip-components=2 -C "$LOCAL_BIN" --wildcards '*/bin/gh'
+        else
+            echo "   Warning: Could not fetch gh version, skipping"
+        fi
+    fi
 
     # Neovim
     if ! command -v nvim &> /dev/null; then
@@ -29,41 +70,61 @@ install_bins() {
     # fzf
     if ! command -v fzf &> /dev/null; then
         echo "   Installing fzf..."
-        FZF_VERSION=$(curl -s https://api.github.com/repos/junegunn/fzf/releases/latest | grep -Po '"tag_name": "v?\K[^"]*')
-        curl -sL "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
-            | tar xz -C "$LOCAL_BIN"
+        FZF_VERSION=$(gh_version "junegunn/fzf")
+        if [[ -n "$FZF_VERSION" ]]; then
+            curl -sL "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
+                | tar xz -C "$LOCAL_BIN"
+        else
+            echo "   Warning: Could not fetch fzf version (rate limited?), skipping"
+        fi
     fi
 
     # ripgrep
     if ! command -v rg &> /dev/null; then
         echo "   Installing ripgrep..."
-        RG_VERSION=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep -Po '"tag_name": "\K[^"]*')
-        curl -sL "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/rg'
+        RG_VERSION=$(gh_version "BurntSushi/ripgrep" "no")
+        if [[ -n "$RG_VERSION" ]]; then
+            curl -sL "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/rg'
+        else
+            echo "   Warning: Could not fetch ripgrep version, skipping"
+        fi
     fi
 
     # fd
     if ! command -v fd &> /dev/null; then
         echo "   Installing fd..."
-        FD_VERSION=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/fd'
+        FD_VERSION=$(gh_version "sharkdp/fd")
+        if [[ -n "$FD_VERSION" ]]; then
+            curl -sL "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/fd'
+        else
+            echo "   Warning: Could not fetch fd version, skipping"
+        fi
     fi
 
     # eza
     if ! command -v eza &> /dev/null; then
         echo "   Installing eza..."
-        EZA_VERSION=$(curl -s https://api.github.com/repos/eza-community/eza/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz -C "$LOCAL_BIN"
+        EZA_VERSION=$(gh_version "eza-community/eza")
+        if [[ -n "$EZA_VERSION" ]]; then
+            curl -sL "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz -C "$LOCAL_BIN"
+        else
+            echo "   Warning: Could not fetch eza version, skipping"
+        fi
     fi
 
     # lazygit
     if ! command -v lazygit &> /dev/null; then
         echo "   Installing lazygit..."
-        LAZYGIT_VERSION=$(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
-            | tar xz -C "$LOCAL_BIN" lazygit
+        LAZYGIT_VERSION=$(gh_version "jesseduffield/lazygit")
+        if [[ -n "$LAZYGIT_VERSION" ]]; then
+            curl -sL "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
+                | tar xz -C "$LOCAL_BIN" lazygit
+        else
+            echo "   Warning: Could not fetch lazygit version, skipping"
+        fi
     fi
 
     # starship
@@ -75,15 +136,25 @@ install_bins() {
     # zoxide
     if ! command -v zoxide &> /dev/null; then
         echo "   Installing zoxide..."
-        curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+        ZOXIDE_VERSION=$(gh_version "ajeetdsouza/zoxide")
+        if [[ -n "$ZOXIDE_VERSION" ]]; then
+            curl -sL "https://github.com/ajeetdsouza/zoxide/releases/download/v${ZOXIDE_VERSION}/zoxide-${ZOXIDE_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz -C "$LOCAL_BIN" zoxide
+        else
+            echo "   Warning: Could not fetch zoxide version, skipping"
+        fi
     fi
 
     # git-delta
     if ! command -v delta &> /dev/null; then
         echo "   Installing git-delta..."
-        DELTA_VERSION=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep -Po '"tag_name": "\K[^"]*')
-        curl -sL "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/delta'
+        DELTA_VERSION=$(gh_version "dandavison/delta" "no")
+        if [[ -n "$DELTA_VERSION" ]]; then
+            curl -sL "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/delta'
+        else
+            echo "   Warning: Could not fetch delta version, skipping"
+        fi
     fi
 
     # atuin (better shell history)
@@ -95,87 +166,111 @@ install_bins() {
     # bat (modern cat with syntax highlighting)
     if ! command -v bat &> /dev/null; then
         echo "   Installing bat..."
-        BAT_VERSION=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/bat'
+        BAT_VERSION=$(gh_version "sharkdp/bat")
+        if [[ -n "$BAT_VERSION" ]]; then
+            curl -sL "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/bat'
+        else
+            echo "   Warning: Could not fetch bat version, skipping"
+        fi
     fi
 
     # btop (modern top/htop)
     if ! command -v btop &> /dev/null; then
         echo "   Installing btop..."
-        BTOP_VERSION=$(curl -s https://api.github.com/repos/aristocratos/btop/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/aristocratos/btop/releases/download/v${BTOP_VERSION}/btop-x86_64-linux-musl.tbz" -o /tmp/btop.tbz
-        cd /tmp && tar xjf btop.tbz
-        cp /tmp/btop/bin/btop "$LOCAL_BIN/"
-        rm -rf /tmp/btop /tmp/btop.tbz
+        BTOP_VERSION=$(gh_version "aristocratos/btop")
+        if [[ -n "$BTOP_VERSION" ]]; then
+            curl -sL "https://github.com/aristocratos/btop/releases/download/v${BTOP_VERSION}/btop-x86_64-unknown-linux-musl.tbz" -o /tmp/btop.tbz
+            cd /tmp && tar xjf btop.tbz
+            cp /tmp/btop/bin/btop "$LOCAL_BIN/"
+            rm -rf /tmp/btop /tmp/btop.tbz
+        else
+            echo "   Warning: Could not fetch btop version, skipping"
+        fi
     fi
 
     # tlrc (tldr pages - simplified man pages)
     if ! command -v tldr &> /dev/null; then
         echo "   Installing tlrc..."
-        TLRC_VERSION=$(curl -s https://api.github.com/repos/tldr-pages/tlrc/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/tldr-pages/tlrc/releases/download/v${TLRC_VERSION}/tlrc-v${TLRC_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz -C "$LOCAL_BIN" tldr
+        TLRC_VERSION=$(gh_version "tldr-pages/tlrc")
+        if [[ -n "$TLRC_VERSION" ]]; then
+            curl -sL "https://github.com/tldr-pages/tlrc/releases/download/v${TLRC_VERSION}/tlrc-v${TLRC_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz -C "$LOCAL_BIN" tldr
+        else
+            echo "   Warning: Could not fetch tlrc version, skipping"
+        fi
     fi
 
     # cloc (count lines of code)
     if ! command -v cloc &> /dev/null; then
         echo "   Installing cloc..."
-        CLOC_VERSION=$(curl -s https://api.github.com/repos/AlDanial/cloc/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/AlDanial/cloc/releases/download/v${CLOC_VERSION}/cloc-${CLOC_VERSION}.pl" \
-            -o "$LOCAL_BIN/cloc"
-        chmod +x "$LOCAL_BIN/cloc"
+        CLOC_VERSION=$(gh_version "AlDanial/cloc")
+        if [[ -n "$CLOC_VERSION" ]]; then
+            curl -sL "https://github.com/AlDanial/cloc/releases/download/v${CLOC_VERSION}/cloc-${CLOC_VERSION}.pl" \
+                -o "$LOCAL_BIN/cloc"
+            chmod +x "$LOCAL_BIN/cloc"
+        else
+            echo "   Warning: Could not fetch cloc version, skipping"
+        fi
     fi
 
     # yazi (file manager) and ya (plugin manager)
     if ! command -v yazi &> /dev/null; then
         echo "   Installing yazi..."
-        YAZI_VERSION=$(curl -s https://api.github.com/repos/sxyazi/yazi/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/yazi-x86_64-unknown-linux-musl.zip" \
-            -o /tmp/yazi.zip
-        unzip -q -o /tmp/yazi.zip -d /tmp/yazi
-        cp /tmp/yazi/yazi-x86_64-unknown-linux-musl/yazi "$LOCAL_BIN/"
-        cp /tmp/yazi/yazi-x86_64-unknown-linux-musl/ya "$LOCAL_BIN/"
-        rm -rf /tmp/yazi /tmp/yazi.zip
+        YAZI_VERSION=$(gh_version "sxyazi/yazi")
+        if [[ -n "$YAZI_VERSION" ]]; then
+            curl -sL "https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/yazi-x86_64-unknown-linux-musl.zip" \
+                -o /tmp/yazi.zip
+            unzip -q -o /tmp/yazi.zip -d /tmp/yazi
+            cp /tmp/yazi/yazi-x86_64-unknown-linux-musl/yazi "$LOCAL_BIN/"
+            cp /tmp/yazi/yazi-x86_64-unknown-linux-musl/ya "$LOCAL_BIN/"
+            rm -rf /tmp/yazi /tmp/yazi.zip
+        else
+            echo "   Warning: Could not fetch yazi version, skipping"
+        fi
     fi
 
     # ImageMagick (required for image.nvim)
     if ! command -v magick &> /dev/null && ! command -v convert &> /dev/null; then
         echo "   Installing ImageMagick..."
-        curl -sL https://imagemagick.org/archive/binaries/magick -o "$LOCAL_BIN/magick"
+        curl -sL --http1.1 --retry 3 https://imagemagick.org/archive/binaries/magick -o "$LOCAL_BIN/magick"
         chmod +x "$LOCAL_BIN/magick"
     fi
 
     # just (command runner)
     if ! command -v just &> /dev/null; then
         echo "   Installing just..."
-        JUST_VERSION=$(curl -s https://api.github.com/repos/casey/just/releases/latest | grep -Po '"tag_name": "\K[^"]*')
-        curl -sL "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz -C "$LOCAL_BIN" just
+        JUST_VERSION=$(gh_version "casey/just" "no")
+        if [[ -n "$JUST_VERSION" ]]; then
+            curl -sL "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz -C "$LOCAL_BIN" just
+        else
+            echo "   Warning: Could not fetch just version, skipping"
+        fi
     fi
 
     # dust (modern du - disk usage analyzer)
     if ! command -v dust &> /dev/null; then
         echo "   Installing dust..."
-        DUST_VERSION=$(curl -s https://api.github.com/repos/bootandy/dust/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/bootandy/dust/releases/download/v${DUST_VERSION}/dust-v${DUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/dust'
+        DUST_VERSION=$(gh_version "bootandy/dust")
+        if [[ -n "$DUST_VERSION" ]]; then
+            curl -sL "https://github.com/bootandy/dust/releases/download/v${DUST_VERSION}/dust-v${DUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/dust'
+        else
+            echo "   Warning: Could not fetch dust version, skipping"
+        fi
     fi
 
     # duf (modern df - disk free overview)
     if ! command -v duf &> /dev/null; then
         echo "   Installing duf..."
-        # Note: duf uses linux_x86_64 naming convention, not linux_amd64
-        curl -sSL "https://github.com/muesli/duf/releases/download/v0.8.1/duf_0.8.1_linux_x86_64.tar.gz" \
-            | tar xz -C "$LOCAL_BIN" duf
-    fi
-
-    # gh (GitHub CLI)
-    if ! command -v gh &> /dev/null; then
-        echo "   Installing gh..."
-        GH_VERSION=$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -sL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" \
-            | tar xz --strip-components=2 -C "$LOCAL_BIN" --wildcards '*/bin/gh'
+        DUF_VERSION=$(gh_version "muesli/duf")
+        if [[ -n "$DUF_VERSION" ]]; then
+            curl -sSL "https://github.com/muesli/duf/releases/download/v${DUF_VERSION}/duf_${DUF_VERSION}_linux_x86_64.tar.gz" \
+                | tar xz -C "$LOCAL_BIN" duf
+        else
+            echo "   Warning: Could not fetch duf version, skipping"
+        fi
     fi
 
     # abduco (session persistence - detach/reattach like tmux)
@@ -308,7 +403,7 @@ create_symlinks() {
     # Install yazi plugins (use full path since ~/.local/bin may not be in PATH yet)
     if [[ -x "$LOCAL_BIN/ya" ]]; then
         echo "   Installing yazi plugins..."
-        "$LOCAL_BIN/ya" pack -i
+        "$LOCAL_BIN/ya" pkg install
     fi
 }
 
@@ -337,9 +432,8 @@ set_default_shell() {
         sudo chsh -s "$zsh_path" "$(whoami)"
         echo "   Default shell changed to zsh"
     else
-        echo "   Changing shell requires sudo. Running: sudo chsh -s $zsh_path $(whoami)"
-        sudo chsh -s "$zsh_path" "$(whoami)"
-        echo "   Default shell changed to zsh"
+        echo "   Sudo requires password. To change shell manually, run:"
+        echo "   sudo chsh -s $zsh_path $(whoami)"
     fi
     echo ""
 }
@@ -367,13 +461,14 @@ main() {
     set_default_shell
 
     # Register Neovim remote plugins (required for molten-nvim)
+    # Note: This may fail on first run before Lazy installs plugins - that's OK
     echo "==> Registering Neovim remote plugins..."
     if command -v nvim &> /dev/null; then
-        nvim --headless \
+        timeout 30 nvim --headless \
             -c "Lazy load molten-nvim" \
             -c "UpdateRemotePlugins" \
-            -c "q" 2>/dev/null
-        echo "   Remote plugins registered"
+            -c "q" 2>/dev/null || true
+        echo "   Remote plugins registered (or skipped if Lazy not installed yet)"
     else
         echo "   Skipping (nvim not found)"
     fi
