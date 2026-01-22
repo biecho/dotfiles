@@ -85,9 +85,15 @@ install_bins() {
     if ! command -v nvim &> /dev/null; then
         if check_glibc "2.28"; then
             echo "   Installing neovim..."
-            curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim.appimage \
-                -o "$LOCAL_BIN/nvim"
-            chmod +x "$LOCAL_BIN/nvim"
+            local nvim_version
+            nvim_version=$(gh_version "neovim/neovim")
+            if [[ -n "$nvim_version" ]]; then
+                curl -sL "https://github.com/neovim/neovim/releases/download/v${nvim_version}/nvim-linux-x86_64.tar.gz" \
+                    | tar xz -C "$HOME/.local"
+                ln -sf "$HOME/.local/nvim-linux-x86_64/bin/nvim" "$LOCAL_BIN/nvim"
+            else
+                echo "   Warning: Could not fetch neovim version, skipping"
+            fi
         else
             echo "   Skipping neovim: requires glibc 2.28+ (Ubuntu 20.04+)"
             echo "   Upgrade your OS with: sudo do-release-upgrade"
@@ -501,11 +507,10 @@ main() {
     fi
 
     # Install tree-sitter-cli (required for nvim-treesitter)
-    # Pin to 0.23.0 - newer versions require GLIBC 2.39
     if command -v npm &> /dev/null; then
         if ! command -v tree-sitter &> /dev/null; then
-            echo "==> Installing tree-sitter-cli 0.23.0..."
-            npm install -g tree-sitter-cli@0.23.0 --silent
+            echo "==> Installing tree-sitter-cli..."
+            npm install -g tree-sitter-cli --silent
         fi
     fi
 
