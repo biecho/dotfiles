@@ -41,6 +41,28 @@ gh_version() {
 }
 
 # -----------------------------------------------------------------------------
+# Helper: Check glibc version meets minimum requirement
+# Usage: check_glibc "2.28" && echo "OK" || echo "Too old"
+# -----------------------------------------------------------------------------
+check_glibc() {
+    local required="$1"
+    local current
+    current=$(ldd --version 2>&1 | head -1 | grep -oP '\d+\.\d+$' || echo "0.0")
+
+    # Compare versions (works for X.Y format)
+    local req_major req_minor cur_major cur_minor
+    req_major="${required%%.*}"
+    req_minor="${required##*.}"
+    cur_major="${current%%.*}"
+    cur_minor="${current##*.}"
+
+    if (( cur_major > req_major )) || { (( cur_major == req_major )) && (( cur_minor >= req_minor )); }; then
+        return 0
+    fi
+    return 1
+}
+
+# -----------------------------------------------------------------------------
 # Install binaries to ~/.local/bin
 # -----------------------------------------------------------------------------
 install_bins() {
@@ -59,12 +81,17 @@ install_bins() {
         fi
     fi
 
-    # Neovim
+    # Neovim (requires glibc 2.28+ / Ubuntu 20.04+)
     if ! command -v nvim &> /dev/null; then
-        echo "   Installing neovim..."
-        curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.appimage \
-            -o "$LOCAL_BIN/nvim"
-        chmod +x "$LOCAL_BIN/nvim"
+        if check_glibc "2.28"; then
+            echo "   Installing neovim..."
+            curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim.appimage \
+                -o "$LOCAL_BIN/nvim"
+            chmod +x "$LOCAL_BIN/nvim"
+        else
+            echo "   Skipping neovim: requires glibc 2.28+ (Ubuntu 20.04+)"
+            echo "   Upgrade your OS with: sudo do-release-upgrade"
+        fi
     fi
 
     # fzf
