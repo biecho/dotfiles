@@ -343,13 +343,14 @@ function serve_files() {
 }
 
 # -----------------------------------------------------------------------------
-# Conda (lazy load - only init when you run 'conda')
+# Conda (lazy load - binary in PATH, full init on first use)
 # -----------------------------------------------------------------------------
+export PATH="/opt/miniconda3/bin:$PATH"
+
+# Full init (for conda activate) happens on first conda command
 conda() {
     unfunction conda 2>/dev/null
-    if [ -f "/opt/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/opt/miniconda3/etc/profile.d/conda.sh"
-    fi
+    . "/opt/miniconda3/etc/profile.d/conda.sh"
     conda "$@"
 }
 

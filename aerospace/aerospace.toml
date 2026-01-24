@@ -27,7 +27,7 @@
 # Modes:
 #   alt+r                Resize mode (h/j/k/l to resize, esc to exit)
 #   alt+g                Join mode (h/j/k/l to join with window)
-#   alt+shift+;          Service mode (r=reset, backspace=close others)
+#   alt+shift+;          Service mode (r=reset, esc=reload config, backspace=close others)
 #
 # Other:
 #   alt+enter            Open Kitty terminal
@@ -222,80 +222,42 @@ backspace = ['close-all-windows-but-current', 'mode main']
 # =============================================================================
 # App-to-workspace rules (auto-route apps to specific workspaces)
 # =============================================================================
-# Left monitor (1-3):
-# 1 = Browser
-# 2 = Communication (Teams, Slack, Discord)
-# 3 = Notes (Obsidian)
+# To find an app's bundle ID, run: aerospace list-apps
+# (the app must be running to appear in the list)
 #
-# Middle monitor (4-6):
-# 4 = Terminal (kitty)
-# 5 = Code/Editor
-# 6 = Database/Tools
-#
-# Right monitor (7-9):
-# 7 = Music (Spotify)
-# 8 = Mail
-# 9 = (free)
+# 1 = Terminal (kitty)
+# 2 = Browser
+# 3 = Notes (Notion)
+# 4 = Anki
 
 [[on-window-detected]]
 if.app-id = 'net.kovidgoyal.kitty'
-run = 'move-node-to-workspace 4'
-
-[[on-window-detected]]
-if.app-id = 'com.microsoft.VSCode'
-run = 'move-node-to-workspace 5'
-
-[[on-window-detected]]
-if.app-id = 'com.jetbrains.intellij'
-run = 'move-node-to-workspace 5'
+run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
-run = 'move-node-to-workspace 1'
+run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Safari'
-run = 'move-node-to-workspace 1'
+run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'org.mozilla.firefox'
-run = 'move-node-to-workspace 1'
+run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
 if.app-id = 'org.qutebrowser.qutebrowser'
-run = ['layout tiling', 'move-node-to-workspace 1']
+run = ['layout tiling', 'move-node-to-workspace 2']
 
 [[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap'
-run = 'move-node-to-workspace 2'
-
-[[on-window-detected]]
-if.app-id = 'com.microsoft.teams2'
-run = 'move-node-to-workspace 2'
-
-[[on-window-detected]]
-if.app-id = 'com.hnc.Discord'
-run = 'move-node-to-workspace 2'
-
-[[on-window-detected]]
-if.app-id = 'md.obsidian'
-run = ['layout tiling', 'move-node-to-workspace 3']
-
-[[on-window-detected]]
-if.app-id = 'com.apple.Notes'
+if.app-id = 'notion.id'
 run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
-if.app-id = 'org.jkiss.dbeaver.core.product'
-run = 'move-node-to-workspace 6'
+if.app-id = 'net.ankiweb.launcher'
+run = 'move-node-to-workspace 4'
 
-[[on-window-detected]]
-if.app-id = 'com.spotify.client'
-run = 'move-node-to-workspace 7'
-
-[[on-window-detected]]
-if.app-id = 'com.microsoft.Outlook'
-run = 'move-node-to-workspace 8'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.finder'
