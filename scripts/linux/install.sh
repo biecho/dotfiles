@@ -328,6 +328,13 @@ install_bins() {
         pip install --user --quiet huggingface_hub
     fi
 
+    # rsync (file synchronization - typically pre-installed, warn if missing)
+    if ! command -v rsync &> /dev/null; then
+        echo "   Warning: rsync not found. Install via your package manager:"
+        echo "     Ubuntu/Debian: sudo apt install rsync"
+        echo "     Fedora/RHEL:   sudo dnf install rsync"
+    fi
+
     echo ""
 }
 
