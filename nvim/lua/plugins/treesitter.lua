@@ -20,7 +20,7 @@ return {
     },
   },
 
-  -- Add ]=/[= to jump between assignments (class fields, variables, etc.)
+  -- Add ]=/[= to jump between assignments, ]j/[j for code cells (notebooks)
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
     opts = function(_, opts)
@@ -29,13 +29,15 @@ return {
       opts.move.keys.goto_next_start = opts.move.keys.goto_next_start or {}
       opts.move.keys.goto_next_start["]="] = "@assignment.outer"
       opts.move.keys.goto_next_start["]s"] = "@statement.outer"
+      opts.move.keys.goto_next_start["]j"] = "@code_cell.inner" -- notebook cells (j=jupyter)
       opts.move.keys.goto_previous_start = opts.move.keys.goto_previous_start or {}
       opts.move.keys.goto_previous_start["[="] = "@assignment.outer"
       opts.move.keys.goto_previous_start["[s"] = "@statement.outer"
+      opts.move.keys.goto_previous_start["[j"] = "@code_cell.inner" -- notebook cells
     end,
   },
 
-  -- Add a=/i= textobjects for assignments
+  -- Add a=/i= textobjects for assignments, aj/ij for code cells (notebooks)
   {
     "nvim-mini/mini.ai",
     opts = function(_, opts)
@@ -44,6 +46,10 @@ return {
       opts.custom_textobjects["="] = ai.gen_spec.treesitter({
         a = "@assignment.outer",
         i = "@assignment.inner",
+      })
+      opts.custom_textobjects["j"] = ai.gen_spec.treesitter({ -- jupyter cells
+        a = "@code_cell.outer",
+        i = "@code_cell.inner",
       })
     end,
   },

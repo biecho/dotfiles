@@ -22,7 +22,7 @@ api_key: YOUR API KEY HERE
 shell: sh
 legacy_input_handling: false
 env:
-  video-player: mpv-kitty-tab
-  terminal-emulator: kitty @ launch --type=tab --
-  youtube-downloader: yt-dlp
   browser: open
+  youtube-downloader: yt-dlp
+  terminal-emulator: kitty @ launch --type=tab --
+  video-player: mpv-kitty-tab
