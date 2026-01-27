@@ -1,0 +1,900 @@
+{
+  // ==========================================================================
+  // VSCODE SETTINGS - Configured to match nvim dotfiles
+  // ==========================================================================
+  // Install instructions:
+  //   1. Symlink this file: ln -sf ~/dotfiles/vscode/settings.json ~/Library/Application\ Support/Code/User/settings.json
+  //   2. Symlink keybindings: ln -sf ~/dotfiles/vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings.json
+  //   3. Install extensions: ~/dotfiles/vscode/install.sh
+  // ==========================================================================
+
+  // ---------------------------------------------------------------------------
+  // VIM EXTENSION
+  // ---------------------------------------------------------------------------
+  "vim.leader": "<space>",
+  "vim.useSystemClipboard": true,
+  "vim.hlsearch": true,
+  "vim.incsearch": true,
+  "vim.ignorecase": true,
+  "vim.smartcase": true,
+  "vim.timeout": 1000,
+  "vim.showMarksInGutter": true,
+
+  // Enable easymotion (matches flash.nvim)
+  "vim.easymotion": true,
+  "vim.easymotionKeys": "hklyuiopnm,qwertzxcvbasdgjf;",
+
+  // Enable which-key style popup (shows available keybindings)
+  "vim.whichkeyTimeout": 500,
+
+  // Enable sneak (2-char search, similar to flash.nvim)
+  "vim.sneak": true,
+  "vim.sneakUseIgnorecaseAndSmartcase": true,
+
+  // Enable surround (cs, ds, ys commands)
+  "vim.surround": true,
+
+  // Highlight yanked text (like yanky.nvim)
+  "vim.highlightedyank.enable": true,
+  "vim.highlightedyank.duration": 200,
+  "vim.highlightedyank.color": "rgba(250, 240, 170, 0.5)",
+
+  // Disable vim ctrl keys that conflict with VSCode
+  "vim.handleKeys": {
+    "<C-a>": false,
+    "<C-c>": false,
+    "<C-v>": false,
+    "<C-x>": false,
+    "<C-f>": false,
+    "<C-b>": false,
+    "<C-d>": true,
+    "<C-u>": true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // VIM NORMAL MODE KEYBINDINGS
+  // ---------------------------------------------------------------------------
+  "vim.normalModeKeyBindingsNonRecursive": [
+    // =========================================================================
+    // HOVER & DOCUMENTATION - K (matches lspsaga hover_doc)
+    // =========================================================================
+    {
+      "before": ["K"],
+      "commands": ["editor.action.showHover"],
+    },
+
+    // =========================================================================
+    // DEFINITIONS - gd, gp, gy, gP (matches lspsaga)
+    // =========================================================================
+    {
+      "before": ["g", "d"],
+      "commands": ["editor.action.revealDefinition"],
+    },
+    {
+      "before": ["g", "p"],
+      "commands": ["editor.action.peekDefinition"],
+    },
+    {
+      "before": ["g", "y"],
+      "commands": ["editor.action.goToTypeDefinition"],
+    },
+    {
+      "before": ["g", "P"],
+      "commands": ["editor.action.peekTypeDefinition"],
+    },
+    {
+      "before": ["g", "D"],
+      "commands": ["editor.action.revealDeclaration"],
+    },
+
+    // =========================================================================
+    // REFERENCES - gr (matches lspsaga finder)
+    // =========================================================================
+    {
+      "before": ["g", "r"],
+      "commands": ["editor.action.goToReferences"],
+    },
+    {
+      "before": ["g", "I"],
+      "commands": ["editor.action.goToImplementation"],
+    },
+
+    // =========================================================================
+    // CODE ACTIONS - <leader>ca (matches lspsaga code_action)
+    // =========================================================================
+    {
+      "before": ["<leader>", "c", "a"],
+      "commands": ["editor.action.quickFix"],
+    },
+    {
+      "before": ["<leader>", "c", "A"],
+      "commands": ["editor.action.sourceAction"],
+    },
+
+    // =========================================================================
+    // RENAME - <leader>cr, <leader>cR (matches lspsaga rename)
+    // =========================================================================
+    {
+      "before": ["<leader>", "c", "r"],
+      "commands": ["editor.action.rename"],
+    },
+    {
+      "before": ["<leader>", "c", "R"],
+      "commands": ["workbench.action.replaceInFiles"],
+    },
+
+    // =========================================================================
+    // DIAGNOSTICS - [d, ]d, <leader>cd, <leader>cD (matches lspsaga)
+    // =========================================================================
+    {
+      "before": ["[", "d"],
+      "commands": ["editor.action.marker.prev"],
+    },
+    {
+      "before": ["]", "d"],
+      "commands": ["editor.action.marker.next"],
+    },
+    {
+      "before": ["[", "e"],
+      "commands": ["editor.action.marker.prevInFiles"],
+    },
+    {
+      "before": ["]", "e"],
+      "commands": ["editor.action.marker.nextInFiles"],
+    },
+    {
+      "before": ["<leader>", "c", "d"],
+      "commands": ["editor.action.showHover"],
+    },
+    {
+      "before": ["<leader>", "c", "D"],
+      "commands": ["workbench.actions.view.problems"],
+    },
+
+    // =========================================================================
+    // CALL HIERARCHY - <leader>ci, <leader>co (matches lspsaga)
+    // =========================================================================
+    {
+      "before": ["<leader>", "c", "i"],
+      "commands": ["editor.showIncomingCalls"],
+    },
+    {
+      "before": ["<leader>", "c", "o"],
+      "commands": ["editor.showOutgoingCalls"],
+    },
+
+    // =========================================================================
+    // OUTLINE/SYMBOLS - <leader>cs (matches lspsaga outline)
+    // =========================================================================
+    // Document outline (sidebar) - like lspsaga outline
+    {
+      "before": ["<leader>", "c", "s"],
+      "commands": ["outline.focus"]
+    },
+    // Document symbols (quick picker) - like telescope
+    {
+      "before": ["<leader>", "c", "S"],
+      "commands": ["workbench.action.gotoSymbol"]
+    },
+    // Workspace symbols
+    {
+      "before": ["<leader>", "c", "W"],
+      "commands": ["workbench.action.showAllSymbols"]
+    },
+    // Breadcrumbs focus (navigate code context)
+    {
+      "before": ["<leader>", "c", "b"],
+      "commands": ["breadcrumbs.focusAndSelect"]
+    },
+
+    // =========================================================================
+    // REFACTORING - <leader>r* (matches refactoring.nvim)
+    // =========================================================================
+    {
+      "before": ["<leader>", "r", "s"],
+      "commands": ["editor.action.refactor"],
+    },
+    {
+      "before": ["<leader>", "r", "f"],
+      "commands": ["editor.action.extractMethod"],
+    },
+    {
+      "before": ["<leader>", "r", "x"],
+      "commands": ["editor.action.extractVariable"],
+    },
+    {
+      "before": ["<leader>", "r", "i"],
+      "commands": ["editor.action.inlineVariable"],
+    },
+    {
+      "before": ["<leader>", "r", "n"],
+      "commands": ["editor.action.rename"],
+    },
+
+    // =========================================================================
+    // GIT - <leader>g* (matches diffview.nvim + gitsigns)
+    // =========================================================================
+    {
+      "before": ["<leader>", "g", "g"],
+      "commands": ["workbench.view.scm"],
+    },
+    {
+      "before": ["<leader>", "g", "b"],
+      "commands": ["gitlens.toggleFileBlame"],
+    },
+    {
+      "before": ["<leader>", "g", "B"],
+      "commands": ["gitlens.toggleLineBlame"],
+    },
+    {
+      "before": ["<leader>", "g", "v"],
+      "commands": ["git.openChange"],
+    },
+    {
+      "before": ["<leader>", "g", "V"],
+      "commands": ["workbench.view.scm"],
+    },
+    {
+      "before": ["<leader>", "g", "F"],
+      "commands": ["gitlens.showFileHistoryView"],
+    },
+    {
+      "before": ["<leader>", "g", "R"],
+      "commands": ["git-graph.view"],
+    },
+    {
+      "before": ["<leader>", "g", "c"],
+      "commands": ["git.viewStagedChanges"],
+    },
+    {
+      "before": ["<leader>", "g", "d"],
+      "commands": ["gitlens.diffWithPrevious"],
+    },
+    {
+      "before": ["<leader>", "g", "h"],
+      "commands": ["gitlens.showQuickFileHistory"],
+    },
+    {
+      "before": ["<leader>", "g", "l"],
+      "commands": ["gitlens.showQuickCommitDetails"],
+    },
+    {
+      "before": ["<leader>", "g", "s"],
+      "commands": ["git.stageAll"],
+    },
+    {
+      "before": ["<leader>", "g", "u"],
+      "commands": ["git.unstageAll"],
+    },
+    // Hunk navigation (like gitsigns)
+    {
+      "before": ["]", "c"],
+      "commands": ["workbench.action.editor.nextChange"],
+    },
+    {
+      "before": ["[", "c"],
+      "commands": ["workbench.action.editor.previousChange"],
+    },
+    {
+      "before": ["<leader>", "h", "s"],
+      "commands": ["git.stageSelectedRanges"],
+    },
+    {
+      "before": ["<leader>", "h", "r"],
+      "commands": ["git.revertSelectedRanges"],
+    },
+    {
+      "before": ["<leader>", "h", "p"],
+      "commands": ["editor.action.dirtydiff.previous"],
+    },
+
+    // =========================================================================
+    // FILE PATH OPERATIONS - <leader>y* (matches keymaps.lua)
+    // =========================================================================
+    {
+      "before": ["<leader>", "y", "f"],
+      "commands": ["copyRelativeFilePath"],
+    },
+    {
+      "before": ["<leader>", "y", "F"],
+      "commands": ["copyFilePath"],
+    },
+    {
+      "before": ["<leader>", "y", "n"],
+      "commands": ["workbench.action.files.copyPathOfActiveFile"],
+    },
+
+    // =========================================================================
+    // MACRO RECORDING - Q instead of q (matches keymaps.lua)
+    // =========================================================================
+    {
+      "before": ["q"],
+      "after": [],
+    },
+    {
+      "before": ["Q"],
+      "commands": ["vim.remap"],
+      "after": ["q"],
+    },
+
+    // =========================================================================
+    // FILE EXPLORER - <leader>e, <leader>. (LazyVim + yazi)
+    // =========================================================================
+    {
+      "before": ["<leader>", "e"],
+      "commands": ["workbench.action.toggleSidebarVisibility"]
+    },
+    {
+      "before": ["<leader>", "."],
+      "commands": ["workbench.files.action.showActiveFileInExplorer"],
+    },
+
+    // =========================================================================
+    // BUFFER/TAB NAVIGATION - LazyVim defaults
+    // =========================================================================
+    {
+      "before": ["<leader>", "b", "d"],
+      "commands": ["workbench.action.closeActiveEditor"],
+    },
+    {
+      "before": ["<leader>", "b", "D"],
+      "commands": ["workbench.action.closeOtherEditors"],
+    },
+    {
+      "before": ["<leader>", "b", "o"],
+      "commands": ["workbench.action.closeOtherEditors"],
+    },
+    {
+      "before": ["<leader>", "b", "b"],
+      "commands": ["workbench.action.showAllEditors"],
+    },
+    {
+      "before": ["<leader>", "b", "p"],
+      "commands": ["workbench.action.pinEditor"],
+    },
+    {
+      "before": ["<leader>", "`"],
+      "commands": [
+        "workbench.action.quickOpenPreviousRecentlyUsedEditorInGroup",
+      ],
+    },
+    {
+      "before": ["H"],
+      "commands": ["workbench.action.previousEditor"],
+    },
+    {
+      "before": ["L"],
+      "commands": ["workbench.action.nextEditor"],
+    },
+    {
+      "before": ["[", "b"],
+      "commands": ["workbench.action.previousEditor"],
+    },
+    {
+      "before": ["]", "b"],
+      "commands": ["workbench.action.nextEditor"],
+    },
+
+    // =========================================================================
+    // SEARCH/FIND - LazyVim telescope equivalents
+    // =========================================================================
+    // File finders
+    {
+      "before": ["<leader>", "f", "f"],
+      "commands": ["workbench.action.quickOpen"]
+    },
+    {
+      "before": ["<leader>", "f", "r"],
+      "commands": ["workbench.action.openRecent"]
+    },
+    {
+      "before": ["<leader>", "f", "b"],
+      "commands": ["workbench.action.showAllEditors"]
+    },
+    {
+      "before": ["<leader>", "f", "n"],
+      "commands": ["workbench.action.files.newUntitledFile"]
+    },
+    {
+      "before": ["<leader>", "<leader>"],
+      "commands": ["workbench.action.quickOpen"]
+    },
+
+    // Grep/Search in files (telescope live_grep equivalents)
+    {
+      "before": ["<leader>", "f", "g"],
+      "commands": ["workbench.action.findInFiles"]
+    },
+    {
+      "before": ["<leader>", "f", "w"],
+      "commands": ["workbench.action.findInFiles"]
+    },
+    {
+      "before": ["<leader>", "/"],
+      "commands": ["workbench.action.findInFiles"]
+    },
+    {
+      "before": ["<leader>", "s", "g"],
+      "commands": ["workbench.action.findInFiles"]
+    },
+
+    // Search current word under cursor in files
+    {
+      "before": ["<leader>", "f", "c"],
+      "commands": ["editor.action.addSelectionToNextFindMatch", "workbench.action.findInFiles"]
+    },
+    {
+      "before": ["<leader>", "s", "w"],
+      "commands": ["editor.action.addSelectionToNextFindMatch", "workbench.action.findInFiles"]
+    },
+
+    // Search in current buffer/file
+    {
+      "before": ["<leader>", "f", "/"],
+      "commands": ["actions.find"]
+    },
+    {
+      "before": ["<leader>", "s", "b"],
+      "commands": ["actions.find"]
+    },
+
+    // Search buffers
+    {
+      "before": ["<leader>", "s", "B"],
+      "commands": ["workbench.action.showAllEditors"]
+    },
+
+    // Search symbols (document)
+    {
+      "before": ["<leader>", "f", "s"],
+      "commands": ["workbench.action.gotoSymbol"]
+    },
+    {
+      "before": ["<leader>", "s", "s"],
+      "commands": ["workbench.action.gotoSymbol"]
+    },
+
+    // Search symbols (workspace)
+    {
+      "before": ["<leader>", "f", "S"],
+      "commands": ["workbench.action.showAllSymbols"]
+    },
+    {
+      "before": ["<leader>", "s", "S"],
+      "commands": ["workbench.action.showAllSymbols"]
+    },
+
+    // Search diagnostics/problems
+    {
+      "before": ["<leader>", "s", "d"],
+      "commands": ["workbench.actions.view.problems"]
+    },
+
+    // Search commands
+    {
+      "before": ["<leader>", ":"],
+      "commands": ["workbench.action.showCommands"]
+    },
+    {
+      "before": ["<leader>", "s", "c"],
+      "commands": ["workbench.action.showCommands"]
+    },
+
+    // Search keymaps
+    {
+      "before": ["<leader>", "s", "k"],
+      "commands": ["workbench.action.openGlobalKeybindings"]
+    },
+
+    // Search help
+    {
+      "before": ["<leader>", "s", "h"],
+      "commands": ["workbench.action.showCommands"]
+    },
+
+    // Search marks/bookmarks
+    {
+      "before": ["<leader>", "s", "m"],
+      "commands": ["workbench.action.showAllEditors"]
+    },
+
+    // =========================================================================
+    // WINDOW/SPLIT NAVIGATION - smart-splits style
+    // =========================================================================
+    {
+      "before": ["<C-h>"],
+      "commands": ["workbench.action.focusLeftGroup"],
+    },
+    {
+      "before": ["<C-l>"],
+      "commands": ["workbench.action.focusRightGroup"],
+    },
+    {
+      "before": ["<C-j>"],
+      "commands": ["workbench.action.focusBelowGroup"],
+    },
+    {
+      "before": ["<C-k>"],
+      "commands": ["workbench.action.focusAboveGroup"],
+    },
+
+    // =========================================================================
+    // SPLITS - LazyVim defaults
+    // =========================================================================
+    {
+      "before": ["<leader>", "w", "v"],
+      "commands": ["workbench.action.splitEditor"],
+    },
+    {
+      "before": ["<leader>", "w", "s"],
+      "commands": ["workbench.action.splitEditorDown"],
+    },
+    {
+      "before": ["<leader>", "w", "d"],
+      "commands": ["workbench.action.closeActiveEditor"],
+    },
+    {
+      "before": ["<leader>", "w", "o"],
+      "commands": ["workbench.action.closeOtherEditors"],
+    },
+    {
+      "before": ["<leader>", "w", "w"],
+      "commands": ["workbench.action.focusNextGroup"],
+    },
+    {
+      "before": ["<leader>", "w", "="],
+      "commands": ["workbench.action.evenEditorWidths"],
+    },
+    {
+      "before": ["<leader>", "-"],
+      "commands": ["workbench.action.splitEditorDown"],
+    },
+    {
+      "before": ["<leader>", "|"],
+      "commands": ["workbench.action.splitEditor"],
+    },
+
+    // =========================================================================
+    // TERMINAL - LazyVim defaults
+    // =========================================================================
+    {
+      "before": ["<leader>", "f", "t"],
+      "commands": ["workbench.action.terminal.toggleTerminal"],
+    },
+
+    // =========================================================================
+    // MARKDOWN PREVIEW - <leader>mp (matches markdown-preview.nvim)
+    // =========================================================================
+    {
+      "before": ["<leader>", "m", "p"],
+      "commands": ["markdown.showPreviewToSide"],
+    },
+
+    // =========================================================================
+    // TODO COMMENTS - <leader>xt (matches todo-comments.nvim)
+    // =========================================================================
+    {
+      "before": ["<leader>", "x", "t"],
+      "commands": ["todo-tree.showTree"],
+    },
+    {
+      "before": ["]", "t"],
+      "commands": ["todo-tree.goToNext"],
+    },
+    {
+      "before": ["[", "t"],
+      "commands": ["todo-tree.goToPrevious"],
+    },
+
+    // =========================================================================
+    // QUICKFIX/LOCATION LIST - LazyVim defaults
+    // =========================================================================
+    {
+      "before": ["<leader>", "x", "x"],
+      "commands": ["workbench.actions.view.problems"],
+    },
+    {
+      "before": ["<leader>", "x", "l"],
+      "commands": ["workbench.action.showErrorsWarnings"],
+    },
+    {
+      "before": ["[", "q"],
+      "commands": ["search.action.focusPreviousSearchResult"],
+    },
+    {
+      "before": ["]", "q"],
+      "commands": ["search.action.focusNextSearchResult"],
+    },
+
+    // =========================================================================
+    // UI TOGGLES - LazyVim defaults
+    // =========================================================================
+    {
+      "before": ["<leader>", "u", "w"],
+      "commands": ["editor.action.toggleWordWrap"],
+    },
+    {
+      "before": ["<leader>", "u", "l"],
+      "commands": ["editor.action.toggleRenderWhitespace"],
+    },
+    {
+      "before": ["<leader>", "u", "n"],
+      "commands": ["workbench.action.toggleSidebarVisibility"],
+    },
+    {
+      "before": ["<leader>", "u", "z"],
+      "commands": ["workbench.action.toggleZenMode"],
+    },
+    {
+      "before": ["<leader>", "u", "f"],
+      "commands": ["workbench.action.toggleFullScreen"],
+    },
+    {
+      "before": ["<leader>", "u", "m"],
+      "commands": ["editor.action.toggleMinimap"],
+    },
+
+    // =========================================================================
+    // FLASH/EASYMOTION - s for leap-style search (like flash.nvim)
+    // Press s, type 1 char, then jump labels appear
+    // =========================================================================
+    {
+      "before": ["s"],
+      "after": ["<leader>", "<leader>", "s"]
+    },
+    {
+      "before": ["S"],
+      "after": ["<leader>", "<leader>", "S"]
+    },
+
+    // =========================================================================
+    // MISC LAZYVIM KEYBINDINGS
+    // =========================================================================
+    {
+      "before": ["<leader>", "q", "q"],
+      "commands": ["workbench.action.closeWindow"],
+    },
+    {
+      "before": ["<leader>", "q", "a"],
+      "commands": ["workbench.action.closeAllEditors"],
+    },
+    {
+      "before": ["<leader>", "l"],
+      "commands": ["workbench.action.showCommands"],
+    },
+    {
+      "before": ["<leader>", "L"],
+      "commands": ["extension.open"],
+    },
+
+    // Center screen after jumps
+    {
+      "before": ["<C-d>"],
+      "after": ["<C-d>", "z", "z"],
+    },
+    {
+      "before": ["<C-u>"],
+      "after": ["<C-u>", "z", "z"],
+    },
+    {
+      "before": ["n"],
+      "after": ["n", "z", "z", "z", "v"],
+    },
+    {
+      "before": ["N"],
+      "after": ["N", "z", "z", "z", "v"],
+    },
+
+    // Better indenting (stay in visual mode)
+    {
+      "before": [">"],
+      "commands": ["editor.action.indentLines"],
+    },
+    {
+      "before": ["<"],
+      "commands": ["editor.action.outdentLines"],
+    },
+  ],
+
+  // ---------------------------------------------------------------------------
+  // VIM VISUAL MODE KEYBINDINGS
+  // ---------------------------------------------------------------------------
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "before": ["<leader>", "c", "a"],
+      "commands": ["editor.action.quickFix"],
+    },
+    {
+      "before": ["K"],
+      "commands": ["editor.action.showHover"],
+    },
+    // Refactoring in visual mode
+    {
+      "before": ["<leader>", "r", "f"],
+      "commands": ["editor.action.extractMethod"],
+    },
+    {
+      "before": ["<leader>", "r", "x"],
+      "commands": ["editor.action.extractVariable"],
+    },
+    {
+      "before": ["<leader>", "r", "s"],
+      "commands": ["editor.action.refactor"],
+    },
+    // Move lines (like LazyVim)
+    {
+      "before": ["J"],
+      "commands": ["editor.action.moveLinesDownAction"],
+    },
+    {
+      "before": ["K"],
+      "commands": ["editor.action.moveLinesUpAction"],
+    },
+    // Stay in visual mode when indenting
+    {
+      "before": [">"],
+      "commands": ["editor.action.indentLines"],
+      "after": ["g", "v"],
+    },
+    {
+      "before": ["<"],
+      "commands": ["editor.action.outdentLines"],
+      "after": ["g", "v"],
+    },
+    // Paste without overwriting register
+    {
+      "before": ["p"],
+      "after": ["p", "g", "v", "y"],
+    },
+    // Flash/easymotion in visual mode
+    {
+      "before": ["s"],
+      "after": ["<leader>", "<leader>", "2", "s"],
+    },
+  ],
+
+  // ---------------------------------------------------------------------------
+  // VIM INSERT MODE KEYBINDINGS
+  // ---------------------------------------------------------------------------
+  "vim.insertModeKeyBindingsNonRecursive": [
+    // Quick escape with jk/jj
+    {
+      "before": ["j", "k"],
+      "after": ["<Esc>"],
+    },
+  ],
+
+  // ---------------------------------------------------------------------------
+  // EDITOR
+  // ---------------------------------------------------------------------------
+  "editor.lineNumbers": "relative",
+  "editor.cursorSurroundingLines": 8,
+  "editor.minimap.enabled": false,
+  "editor.renderWhitespace": "trailing",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.smoothScrolling": true,
+  "editor.cursorBlinking": "solid",
+  "editor.fontFamily": "JetBrainsMono Nerd Font, Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontSize": 13,
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "off",
+  "editor.scrollBeyondLastLine": false,
+  "editor.stickyScroll.enabled": true,
+  "editor.linkedEditing": true,
+  "editor.inlayHints.enabled": "off",
+
+  // Match blink-cmp behavior: manual completion only (Ctrl+Space to trigger)
+  "editor.quickSuggestions": {
+    "other": "off",
+    "comments": "off",
+    "strings": "off",
+  },
+  "editor.suggestOnTriggerCharacters": false,
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "editor.parameterHints.enabled": true,
+
+  // ---------------------------------------------------------------------------
+  // BREADCRUMBS (matches lspsaga symbol_in_winbar)
+  // ---------------------------------------------------------------------------
+  "breadcrumbs.enabled": true,
+  "breadcrumbs.filePath": "on",
+  "breadcrumbs.symbolPath": "on",
+
+  // ---------------------------------------------------------------------------
+  // PYTHON
+  // ---------------------------------------------------------------------------
+  "python.defaultInterpreterPath": "/opt/miniconda3/envs/deeplearn_course/bin/python",
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.inlayHints.functionReturnTypes": false,
+  "python.analysis.inlayHints.variableTypes": false,
+  "python.terminal.activateEnvironment": true,
+
+  // ---------------------------------------------------------------------------
+  // JUPYTER NOTEBOOKS
+  // ---------------------------------------------------------------------------
+  "jupyter.askForKernelRestart": false,
+  "jupyter.interactiveWindow.creationMode": "perFile",
+  "notebook.lineNumbers": "on",
+  "notebook.output.scrolling": true,
+  "notebook.cellToolbarLocation": {
+    "default": "right",
+    "jupyter-notebook": "left",
+  },
+  "notebook.output.textLineLimit": 100,
+
+  // ---------------------------------------------------------------------------
+  // FILES
+  // ---------------------------------------------------------------------------
+  "files.autoSave": "onFocusChange",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/*.pyc": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/.ipynb_checkpoints": true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // TERMINAL
+  // ---------------------------------------------------------------------------
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.fontSize": 13,
+  "terminal.integrated.scrollback": 10000,
+  "terminal.integrated.inheritEnv": false,
+
+  // ---------------------------------------------------------------------------
+  // WORKBENCH
+  // ---------------------------------------------------------------------------
+  "workbench.colorTheme": "Tokyo Night",
+  "workbench.startupEditor": "none",
+  "workbench.editor.enablePreview": false,
+  "workbench.sideBar.location": "left",
+  "workbench.activityBar.location": "default",
+  "workbench.editor.showTabs": "multiple",
+  "workbench.editor.tabCloseButton": "right",
+
+  // ---------------------------------------------------------------------------
+  // GIT
+  // ---------------------------------------------------------------------------
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  "git.openRepositoryInParentFolders": "always",
+
+  // ---------------------------------------------------------------------------
+  // GITLENS (matches gitsigns.nvim)
+  // ---------------------------------------------------------------------------
+  "gitlens.currentLine.enabled": true,
+  "gitlens.hovers.currentLine.over": "line",
+  "gitlens.codeLens.enabled": false,
+  "gitlens.statusBar.enabled": true,
+
+  // ---------------------------------------------------------------------------
+  // TODO TREE (matches todo-comments.nvim)
+  // ---------------------------------------------------------------------------
+  "todo-tree.general.tags": [
+    "TODO",
+    "FIXME",
+    "BUG",
+    "HACK",
+    "NOTE",
+    "XXX",
+    "PERF",
+    "WARN",
+  ],
+  "todo-tree.highlights.defaultHighlight": {
+    "gutterIcon": true,
+  },
+
+  // ---------------------------------------------------------------------------
+  // TELEMETRY
+  // ---------------------------------------------------------------------------
+  "telemetry.telemetryLevel": "off",
+  "workbench.editor.tabActionLocation": "right",
+}

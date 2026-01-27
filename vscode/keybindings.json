@@ -1,0 +1,414 @@
+[
+  // ==========================================================================
+  // VSCODE KEYBINDINGS - Configured to match nvim dotfiles
+  // ==========================================================================
+  // These keybindings supplement the vim extension settings.
+  // Most vim-style keybindings are in settings.json under vim.normalModeKeyBindingsNonRecursive
+  // ==========================================================================
+
+  // ---------------------------------------------------------------------------
+  // ESCAPE FROM VARIOUS CONTEXTS
+  // ---------------------------------------------------------------------------
+  {
+    "key": "escape",
+    "command": "workbench.action.closeQuickOpen",
+    "when": "inQuickOpen"
+  },
+  {
+    "key": "escape",
+    "command": "closeFindWidget",
+    "when": "editorFocus && findWidgetVisible"
+  },
+  {
+    "key": "escape",
+    "command": "closeReferenceSearch",
+    "when": "referenceSearchVisible && !config.editor.stablePeek"
+  },
+  {
+    "key": "escape",
+    "command": "workbench.action.closePanel",
+    "when": "panelFocus"
+  },
+
+  // ---------------------------------------------------------------------------
+  // QUICK OPEN / FILE FINDER (Ctrl+P - standard, also space+ff in vim)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+p",
+    "command": "workbench.action.quickOpen"
+  },
+
+  // ---------------------------------------------------------------------------
+  // COMMAND PALETTE (Ctrl+Shift+P - standard)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+shift+p",
+    "command": "workbench.action.showCommands"
+  },
+
+  // ---------------------------------------------------------------------------
+  // GLOBAL SEARCH (Ctrl+Shift+F - standard)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+shift+f",
+    "command": "workbench.action.findInFiles"
+  },
+
+  // ---------------------------------------------------------------------------
+  // OUTLINE VIEW (Ctrl+Shift+O - go to symbol, like lspsaga outline)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+shift+o",
+    "command": "workbench.action.gotoSymbol",
+    "when": "editorFocus"
+  },
+  {
+    "key": "ctrl+shift+.",
+    "command": "outline.focus"
+  },
+
+  // ---------------------------------------------------------------------------
+  // BREADCRUMBS NAVIGATION (like lspsaga winbar)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+shift+;",
+    "command": "breadcrumbs.focusAndSelect",
+    "when": "editorFocus"
+  },
+  {
+    "key": "ctrl+left",
+    "command": "breadcrumbs.focusPrevious",
+    "when": "breadcrumbsActive && breadcrumbsVisible"
+  },
+  {
+    "key": "ctrl+right",
+    "command": "breadcrumbs.focusNext",
+    "when": "breadcrumbsActive && breadcrumbsVisible"
+  },
+
+  // ---------------------------------------------------------------------------
+  // NOTEBOOK SPECIFIC - Match nvim notebook navigation
+  // ---------------------------------------------------------------------------
+  // Navigate between cells with Ctrl+j/k (matches treesitter ]j/[j)
+  {
+    "key": "ctrl+j",
+    "command": "notebook.focusNextEditor",
+    "when": "notebookEditorFocused"
+  },
+  {
+    "key": "ctrl+k",
+    "command": "notebook.focusPreviousEditor",
+    "when": "notebookEditorFocused"
+  },
+  // Also support ] j and [ j style (space separated for vim)
+  {
+    "key": "alt+j",
+    "command": "notebook.focusNextEditor",
+    "when": "notebookEditorFocused"
+  },
+  {
+    "key": "alt+k",
+    "command": "notebook.focusPreviousEditor",
+    "when": "notebookEditorFocused"
+  },
+
+  // Execute cell and move to next (like Shift+Enter in Jupyter)
+  {
+    "key": "shift+enter",
+    "command": "notebook.cell.executeAndSelectBelow",
+    "when": "notebookEditorFocused && notebookCellType == 'code'"
+  },
+  // Execute cell without moving
+  {
+    "key": "ctrl+enter",
+    "command": "notebook.cell.execute",
+    "when": "notebookEditorFocused && notebookCellType == 'code'"
+  },
+  // Execute all cells
+  {
+    "key": "ctrl+shift+enter",
+    "command": "notebook.execute",
+    "when": "notebookEditorFocused"
+  },
+
+  // Add cell above/below (Jupyter style: a/b when not editing)
+  {
+    "key": "a",
+    "command": "notebook.cell.insertCodeCellAbove",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+  {
+    "key": "b",
+    "command": "notebook.cell.insertCodeCellBelow",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+  // Also with Alt for when in vim normal mode
+  {
+    "key": "alt+a",
+    "command": "notebook.cell.insertCodeCellAbove",
+    "when": "notebookEditorFocused"
+  },
+  {
+    "key": "alt+b",
+    "command": "notebook.cell.insertCodeCellBelow",
+    "when": "notebookEditorFocused"
+  },
+
+  // Delete cell (dd in vim style - use x x here, or just d d when not editing)
+  {
+    "key": "d d",
+    "command": "notebook.cell.delete",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+  {
+    "key": "x",
+    "command": "notebook.cell.delete",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+
+  // Change cell type (m for markdown, y for code)
+  {
+    "key": "m",
+    "command": "notebook.cell.changeToMarkdown",
+    "when": "notebookEditorFocused && !inputFocus && notebookCellType == 'code'"
+  },
+  {
+    "key": "y",
+    "command": "notebook.cell.changeToCode",
+    "when": "notebookEditorFocused && !inputFocus && notebookCellType == 'markup'"
+  },
+
+  // Copy/cut/paste cells
+  {
+    "key": "c",
+    "command": "notebook.cell.copy",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+  {
+    "key": "x x",
+    "command": "notebook.cell.cut",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+  {
+    "key": "v",
+    "command": "notebook.cell.paste",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+
+  // Undo/redo in notebook
+  {
+    "key": "z",
+    "command": "notebook.undo",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+  {
+    "key": "shift+z",
+    "command": "notebook.redo",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+
+  // Enter edit mode / Exit to command mode
+  {
+    "key": "enter",
+    "command": "notebook.cell.edit",
+    "when": "notebookEditorFocused && !inputFocus && notebookCellListFocused"
+  },
+  {
+    "key": "escape",
+    "command": "notebook.cell.quitEdit",
+    "when": "notebookEditorFocused && inputFocus"
+  },
+
+  // Move cells up/down
+  {
+    "key": "alt+up",
+    "command": "notebook.cell.moveUp",
+    "when": "notebookEditorFocused"
+  },
+  {
+    "key": "alt+down",
+    "command": "notebook.cell.moveDown",
+    "when": "notebookEditorFocused"
+  },
+
+  // Select cells
+  {
+    "key": "shift+j",
+    "command": "notebook.cell.focusOutOfOutput",
+    "when": "notebookEditorFocused"
+  },
+  {
+    "key": "shift+up",
+    "command": "notebook.cell.selectPreviousCell",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+  {
+    "key": "shift+down",
+    "command": "notebook.cell.selectNextCell",
+    "when": "notebookEditorFocused && !inputFocus"
+  },
+
+  // ---------------------------------------------------------------------------
+  // TERMINAL TOGGLE (Ctrl+` - standard, also space+ft in vim)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+`",
+    "command": "workbench.action.terminal.toggleTerminal"
+  },
+
+  // ---------------------------------------------------------------------------
+  // SIDEBAR TOGGLE (Ctrl+B - standard)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+b",
+    "command": "workbench.action.toggleSidebarVisibility"
+  },
+
+  // ---------------------------------------------------------------------------
+  // PANEL TOGGLE (bottom panel with terminal, problems, etc.)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+j",
+    "command": "workbench.action.togglePanel",
+    "when": "!notebookEditorFocused"
+  },
+
+  // ---------------------------------------------------------------------------
+  // TAB NAVIGATION (Ctrl+Tab as fallback)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+tab",
+    "command": "workbench.action.nextEditor"
+  },
+  {
+    "key": "ctrl+shift+tab",
+    "command": "workbench.action.previousEditor"
+  },
+  // Also gt/gT vim style (handled by vim extension, but adding fallback)
+  {
+    "key": "alt+l",
+    "command": "workbench.action.nextEditor"
+  },
+  {
+    "key": "alt+h",
+    "command": "workbench.action.previousEditor"
+  },
+
+  // ---------------------------------------------------------------------------
+  // TRIGGER SUGGESTIONS MANUALLY (Ctrl+Space - since auto is disabled)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+space",
+    "command": "editor.action.triggerSuggest",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+
+  // ---------------------------------------------------------------------------
+  // FORMAT DOCUMENT (matches conform.nvim behavior)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "alt+shift+f",
+    "command": "editor.action.formatDocument",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+
+  // ---------------------------------------------------------------------------
+  // GO TO NEXT/PREV PROBLEM (like ]d/[d but with Fn keys too)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "f8",
+    "command": "editor.action.marker.next",
+    "when": "editorFocus"
+  },
+  {
+    "key": "shift+f8",
+    "command": "editor.action.marker.prev",
+    "when": "editorFocus"
+  },
+
+  // ---------------------------------------------------------------------------
+  // PEEK/REFERENCES NAVIGATION
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+n",
+    "command": "editor.action.nextReference",
+    "when": "referenceSearchVisible"
+  },
+  {
+    "key": "ctrl+p",
+    "command": "editor.action.previousReference",
+    "when": "referenceSearchVisible"
+  },
+
+  // ---------------------------------------------------------------------------
+  // SPLIT NAVIGATION with Alt (backup for Ctrl)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "alt+left",
+    "command": "workbench.action.focusLeftGroup"
+  },
+  {
+    "key": "alt+right",
+    "command": "workbench.action.focusRightGroup"
+  },
+  {
+    "key": "alt+up",
+    "command": "workbench.action.focusAboveGroup",
+    "when": "!notebookEditorFocused"
+  },
+  {
+    "key": "alt+down",
+    "command": "workbench.action.focusBelowGroup",
+    "when": "!notebookEditorFocused"
+  },
+
+  // ---------------------------------------------------------------------------
+  // FILE EXPLORER (backup for vim <leader>e)
+  // ---------------------------------------------------------------------------
+  {
+    "key": "space e",
+    "command": "workbench.action.toggleSidebarVisibility",
+    "when": "vim.mode == 'Normal' && editorTextFocus"
+  },
+  {
+    "key": "space .",
+    "command": "workbench.files.action.showActiveFileInExplorer",
+    "when": "vim.mode == 'Normal' && editorTextFocus"
+  },
+
+  // ---------------------------------------------------------------------------
+  // SIDEBAR NAVIGATION (simple)
+  // ---------------------------------------------------------------------------
+  // Ctrl+Shift+h -> focus sidebar (doesn't conflict with vim Ctrl+h)
+  {
+    "key": "ctrl+shift+e",
+    "command": "workbench.action.focusSideBar"
+  },
+  // From sidebar, Escape goes back to editor
+  {
+    "key": "escape",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "sideBarFocus && !inputFocus"
+  },
+
+  // ---------------------------------------------------------------------------
+  // GIT SHORTCUTS
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+shift+g g",
+    "command": "workbench.view.scm"
+  },
+
+  // ---------------------------------------------------------------------------
+  // DISABLE SOME DEFAULTS THAT CONFLICT WITH VIM
+  // ---------------------------------------------------------------------------
+  {
+    "key": "ctrl+k",
+    "command": "-extension.vim_ctrl+k",
+    "when": "editorTextFocus && vim.active && vim.use<C-k> && !inDebugRepl"
+  },
+  {
+    "key": "ctrl+w",
+    "command": "-workbench.action.closeActiveEditor"
+  }
+]
