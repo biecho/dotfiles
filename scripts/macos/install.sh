@@ -69,7 +69,8 @@ create_symlinks() {
     ln -sf "$DOTFILES_DIR/kitty/current-theme.conf" "$HOME/.config/kitty/current-theme.conf"
     ln -sf "$DOTFILES_DIR/kitty/ssh.conf" "$HOME/.config/kitty/ssh.conf"
     ln -sf "$DOTFILES_DIR/kitty/tab_bar.py" "$HOME/.config/kitty/tab_bar.py"
-    echo "   ~/.config/kitty/{kitty.conf,current-theme.conf,ssh.conf,tab_bar.py}"
+    ln -sf "$DOTFILES_DIR/kitty/choose-files.conf" "$HOME/.config/kitty/choose-files.conf"
+    echo "   ~/.config/kitty/{kitty.conf,current-theme.conf,ssh.conf,tab_bar.py,choose-files.conf}"
 
     # Neovim config (backup existing, then symlink entire directory)
     if [[ -d "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
