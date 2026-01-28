@@ -245,6 +245,27 @@ alias gbdr='git branch -r --sort=-committerdate | grep -v HEAD | fzf --multi --h
 # Custom functions
 # -----------------------------------------------------------------------------
 
+# Choose files (kitty kitten) - fuzzy file picker with previews
+if [[ "$TERM" == "xterm-kitty" ]]; then
+    # Select file(s) - prints path(s) to stdout
+    cf() { kitten choose-files --mode=files "$@"; }
+
+    # Select directory - prints path to stdout
+    cfd() { kitten choose-files --mode=dir "$@"; }
+
+    # Open file(s) in nvim via picker
+    nvf() {
+        local files=$(kitten choose-files --mode=files)
+        [[ -n "$files" ]] && nvim $files
+    }
+
+    # Open directory in nvim via picker (oil.nvim / netrw)
+    nvd() {
+        local dir=$(kitten choose-files --mode=dir)
+        [[ -n "$dir" ]] && nvim "$dir"
+    }
+fi
+
 # Jump to project and open editor
 workon() { z "$1" && nvim . }
 
