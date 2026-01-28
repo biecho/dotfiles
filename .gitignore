@@ -3,3 +3,4 @@
 *.swo
 *~
 kitty/current-theme.conf
+nvim/lazy-lock.json
