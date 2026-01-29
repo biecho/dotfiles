@@ -266,6 +266,29 @@ if [[ "$TERM" == "xterm-kitty" ]]; then
     }
 fi
 
+# fzf file picker - works locally and over SSH (no kitty kitten needed)
+# Triggered by kitty shortcut (cmd+alt+o) via send_text
+_fzf_pick_file() {
+    local cmd preview
+    if command -v fd &>/dev/null; then
+        cmd="fd --type f --hidden --exclude .git"
+    else
+        cmd="find . -type f -not -path '*/.git/*'"
+    fi
+    if command -v bat &>/dev/null; then
+        preview="bat --style=numbers --color=always --line-range=:100 {}"
+    else
+        preview="head -100 {}"
+    fi
+    local file=$(eval "$cmd" | fzf --preview "$preview" --height=80% --border)
+    if [[ -n "$file" ]]; then
+        LBUFFER+="$file"
+    fi
+    zle redisplay
+}
+zle -N _fzf_pick_file
+bindkey '\e[pick-file' _fzf_pick_file
+
 # Jump to project and open editor
 workon() { z "$1" && nvim . }
 
