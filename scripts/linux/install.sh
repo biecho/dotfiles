@@ -222,6 +222,21 @@ install_bins() {
         fi
     fi
 
+    # procs (modern ps replacement)
+    if ! command -v procs &> /dev/null; then
+        echo "   Installing procs..."
+        PROCS_VERSION=$(gh_version "dalance/procs")
+        if [[ -n "$PROCS_VERSION" ]]; then
+            curl -sL "https://github.com/dalance/procs/releases/download/v${PROCS_VERSION}/procs-v${PROCS_VERSION}-x86_64-linux.zip" \
+                -o /tmp/procs.zip
+            unzip -q -o /tmp/procs.zip -d "$LOCAL_BIN"
+            chmod +x "$LOCAL_BIN/procs"
+            rm -f /tmp/procs.zip
+        else
+            echo "   Warning: Could not fetch procs version, skipping"
+        fi
+    fi
+
     # tlrc (tldr pages - simplified man pages)
     if ! command -v tldr &> /dev/null; then
         echo "   Installing tlrc..."

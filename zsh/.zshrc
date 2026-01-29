@@ -201,8 +201,23 @@ alias listenports="lsof -iTCP -sTCP:LISTEN -n"
 alias swisstime='TZ="Europe/Zurich" date "+%Y-%m-%d %H:%M:%S %Z"'
 alias sgtime='TZ="Asia/Singapore" date "+%Y-%m-%d %H:%M:%S %Z"'
 
-# Fuzzy kill processes
-alias fkill='ps -ef | fzf --multi | awk "{print \$2}" | xargs kill'
+# Fuzzy kill processes (with preview, sorted by CPU; optional signal: fkill 9)
+fkill() {
+  local pid sig=${1:-15}
+  pid=$(ps -eo pid,user,%cpu,%mem,etime,comm --sort=-%cpu \
+    | fzf --multi --header-lines=1 \
+          --preview='ps -p {1} -o pid,ppid,user,%cpu,%mem,etime,args 2>/dev/null' \
+          --preview-window=down:3:wrap \
+    | awk '{print $1}')
+  [ -n "$pid" ] && echo "$pid" | xargs kill -"$sig"
+}
+
+# Kill process on a specific port (usage: fkillport 8080)
+fkillport() {
+  local pid
+  pid=$(lsof -ti :"${1:?usage: fkillport PORT}" 2>/dev/null || ss -tlnp "sport = :$1" 2>/dev/null | awk 'NR>1{match($0,/pid=([0-9]+)/,a); print a[1]}')
+  [ -n "$pid" ] && echo "Killing PID $pid on port $1" && echo "$pid" | xargs kill -15 || echo "No process found on port $1"
+}
 
 # Utility aliases (inspired by mathiasbynens, jessfraz, paulirish dotfiles)
 alias reload='exec $SHELL -l'                       # reload shell config
