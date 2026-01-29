@@ -101,8 +101,26 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 eval "$(zoxide init zsh)"
 
 # -----------------------------------------------------------------------------
-# fzf - fuzzy finder (Ctrl+T for files, Alt+C for dirs)
+# fzf - fuzzy finder (Ctrl+T for files, Alt+C for dirs, also cmd+alt+o in kitty)
 # -----------------------------------------------------------------------------
+if command -v fd &>/dev/null; then
+    export FZF_CTRL_T_COMMAND="fd --type f --exclude .git"
+    _fzf_show_hidden="fd --type f --hidden --exclude .git"
+else
+    export FZF_CTRL_T_COMMAND="find . -type f -not -path '*/.*'"
+    _fzf_show_hidden="find . -type f -not -path '*/.git/*'"
+fi
+if command -v bat &>/dev/null; then
+    _fzf_preview="bat --style=numbers --color=always --line-range=:100 {}"
+else
+    _fzf_preview="head -100 {}"
+fi
+export FZF_CTRL_T_OPTS="
+    --preview '$_fzf_preview'
+    --header 'ctrl-/: toggle hidden files'
+    --bind 'ctrl-/:reload($_fzf_show_hidden)+unbind(ctrl-/)+rebind(ctrl-g)'
+    --bind 'ctrl-g:reload($FZF_CTRL_T_COMMAND)+unbind(ctrl-g)+rebind(ctrl-/)'"
+unset _fzf_preview _fzf_show_hidden
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # -----------------------------------------------------------------------------
