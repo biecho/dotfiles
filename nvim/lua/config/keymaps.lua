@@ -73,3 +73,22 @@ vim.keymap.set("n", "Q", "q", { desc = "Record macro" })
 
 -- Trim trailing whitespace in visual selection
 vim.keymap.set("v", "<leader>tw", [[:s/\s\+$//g<CR>]], { desc = "Trim trailing whitespace" })
+
+-- Toggle explorer with reveal current file (PyCharm-style)
+-- Reveal handles cwd adjustment automatically for files outside the project root.
+-- Hidden files are enabled so dotdirs (e.g. .ssh/) are visible.
+vim.keymap.set("n", "<leader>e", function()
+  local explorers = Snacks.picker.get({ source = "explorer" })
+  if #explorers > 0 then
+    explorers[1]:close()
+  else
+    -- Override default hidden=false so reveal works for dotfiles
+    local orig_open = Snacks.explorer.open
+    Snacks.explorer.open = function(opts)
+      opts = vim.tbl_deep_extend("force", opts or {}, { hidden = true })
+      return orig_open(opts)
+    end
+    Snacks.explorer.reveal()
+    Snacks.explorer.open = orig_open
+  end
+end, { desc = "Explorer (reveal)" })
