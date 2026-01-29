@@ -322,10 +322,27 @@ install_bins() {
         rm -rf "$abduco_tmp"
     fi
 
+    # Python CLI tools venv (Debian/Ubuntu block pip install --user for system Python)
+    local cli_venv="$HOME/.local/share/cli-tools/python"
+    if [[ ! -f "$cli_venv/bin/pip" ]]; then
+        echo "   Creating dedicated Python venv for CLI tools..."
+        rm -rf "$cli_venv"
+        mkdir -p "$(dirname "$cli_venv")"
+        python3 -m venv "$cli_venv"
+    fi
+
     # huggingface-cli (HuggingFace Hub CLI for dataset/model sync)
     if ! command -v huggingface-cli &> /dev/null; then
         echo "   Installing huggingface-cli..."
-        pip install --user --quiet huggingface_hub
+        "$cli_venv/bin/pip" install --quiet huggingface_hub
+        ln -sf "$cli_venv/bin/huggingface-cli" "$LOCAL_BIN/huggingface-cli"
+    fi
+
+    # nvitop (interactive NVIDIA GPU process viewer)
+    if ! command -v nvitop &> /dev/null; then
+        echo "   Installing nvitop..."
+        "$cli_venv/bin/pip" install --quiet nvitop
+        ln -sf "$cli_venv/bin/nvitop" "$LOCAL_BIN/nvitop"
     fi
 
     # Node.js (required for tree-sitter-cli and mason LSPs)
