@@ -2,8 +2,8 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
--- Python provider for Molten/nvim plugins (nvim-tools conda env)
-vim.g.python3_host_prog = "/opt/miniconda3/envs/nvim-tools/bin/python"
+-- Python provider for Molten/nvim plugins (dedicated venv created by install script)
+vim.g.python3_host_prog = vim.fn.expand("~/.local/share/nvim/python/bin/python")
 
 -- OSC 52 clipboard support for SSH sessions (copy to local Mac clipboard)
 if vim.env.SSH_CONNECTION then

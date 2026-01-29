@@ -328,6 +328,27 @@ install_bins() {
         pip install --user --quiet huggingface_hub
     fi
 
+    # Node.js (required for tree-sitter-cli and mason LSPs)
+    if ! command -v node &> /dev/null; then
+        echo "   Installing Node.js..."
+        NODE_VERSION=$(gh_version "nodejs/node" "yes")
+        # Fallback to known LTS if API fails
+        NODE_VERSION="${NODE_VERSION:-22.13.1}"
+        # Node tags include major version prefix, extract clean version
+        curl -sL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" \
+            -o /tmp/node.tar.xz
+        tar xJf /tmp/node.tar.xz -C "$HOME/.local" --strip-components=1
+        rm -f /tmp/node.tar.xz
+    fi
+
+    # tree-sitter-cli (required for nvim-treesitter, pinned to 0.23.x for glibc <2.39)
+    if ! command -v tree-sitter &> /dev/null; then
+        if command -v npm &> /dev/null; then
+            echo "   Installing tree-sitter-cli@0.23.2..."
+            npm install -g tree-sitter-cli@0.23.2 --silent
+        fi
+    fi
+
     # rsync (file synchronization - typically pre-installed, warn if missing)
     if ! command -v rsync &> /dev/null; then
         echo "   Warning: rsync not found. Install via your package manager:"
@@ -371,12 +392,35 @@ install_nvim_deps() {
         cairosvg pnglatex plotly kaleido pillow \
         --quiet
 
+    # Sync Lazy plugins (must happen before TSInstall or markdown-preview setup)
+    echo "   Syncing Neovim plugins (Lazy)..."
+    if command -v nvim &> /dev/null; then
+        timeout 120 nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+    fi
+
+    # Install treesitter parsers
+    if command -v nvim &> /dev/null && command -v tree-sitter &> /dev/null; then
+        echo "   Installing treesitter parsers..."
+        timeout 60 nvim --headless \
+            "+TSInstallSync python bash lua json yaml toml vim vimdoc markdown markdown_inline" \
+            +qa 2>/dev/null || true
+    fi
+
     # markdown-preview.nvim dependencies
     local mkdp_dir="$HOME/.local/share/nvim/lazy/markdown-preview.nvim/app"
     if [[ -d "$mkdp_dir" && ! -f "$mkdp_dir/bin/markdown-preview-linux" ]]; then
         echo "   Installing markdown-preview.nvim dependencies..."
         cd "$mkdp_dir" && ./install.sh
         cd - > /dev/null
+    fi
+
+    # Register Neovim remote plugins (required for molten-nvim)
+    echo "   Registering Neovim remote plugins..."
+    if command -v nvim &> /dev/null; then
+        timeout 30 nvim --headless \
+            -c "Lazy load molten-nvim" \
+            -c "UpdateRemotePlugins" \
+            -c "q" 2>/dev/null || true
     fi
 
     echo ""
@@ -499,39 +543,6 @@ main() {
 
     echo ""
     set_default_shell
-
-    # Register Neovim remote plugins (required for molten-nvim)
-    # Note: This may fail on first run before Lazy installs plugins - that's OK
-    echo "==> Registering Neovim remote plugins..."
-    if command -v nvim &> /dev/null; then
-        timeout 30 nvim --headless \
-            -c "Lazy load molten-nvim" \
-            -c "UpdateRemotePlugins" \
-            -c "q" 2>/dev/null || true
-        echo "   Remote plugins registered (or skipped if Lazy not installed yet)"
-    else
-        echo "   Skipping (nvim not found)"
-    fi
-
-    # Install tree-sitter-cli (required for nvim-treesitter)
-    if command -v npm &> /dev/null; then
-        if ! command -v tree-sitter &> /dev/null; then
-            echo "==> Installing tree-sitter-cli..."
-            npm install -g tree-sitter-cli --silent
-        fi
-    fi
-
-    # Install common treesitter parsers
-    echo "==> Installing treesitter parsers..."
-    if command -v nvim &> /dev/null && command -v tree-sitter &> /dev/null; then
-        nvim --headless \
-            -c "TSInstall python bash lua json yaml toml" \
-            -c "sleep 15" \
-            -c "q" 2>/dev/null || true
-        echo "   Treesitter parsers installed"
-    else
-        echo "   Skipping (nvim or tree-sitter not found)"
-    fi
 
     echo ""
     echo "============================================="
