@@ -31,6 +31,9 @@ install_deps() {
     if ! command -v huggingface-cli &> /dev/null; then
         pipx install huggingface_hub
     fi
+    if ! command -v nvitop &> /dev/null; then
+        pipx install nvitop
+    fi
 }
 
 # -----------------------------------------------------------------------------
