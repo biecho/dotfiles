@@ -63,6 +63,49 @@ check_glibc() {
 }
 
 # -----------------------------------------------------------------------------
+# Ensure a working Python with venv support is available
+# Falls back to uv-managed Python if system python3 lacks ensurepip/venv
+# -----------------------------------------------------------------------------
+ensure_python_venv() {
+    # Test if system python3 can create venvs
+    local test_dir
+    test_dir=$(mktemp -d)
+    if python3 -m venv "$test_dir/test" &> /dev/null; then
+        rm -rf "$test_dir"
+        return 0
+    fi
+    rm -rf "$test_dir"
+
+    echo "==> System python3 lacks venv support (missing ensurepip)."
+    echo "   Installing uv to manage a standalone Python..."
+
+    # Install uv (fast Python package manager with built-in Python management)
+    if ! command -v uv &> /dev/null; then
+        echo "   Installing uv..."
+        local uv_url="https://github.com/astral-sh/uv/releases/latest/download/uv-x86_64-unknown-linux-musl.tar.gz"
+        curl -sL "$uv_url" | tar xz --strip-components=1 -C "$LOCAL_BIN" --wildcards '*/uv' '*/uvx'
+        export PATH="$LOCAL_BIN:$PATH"
+    fi
+
+    if command -v uv &> /dev/null; then
+        # Install a managed Python via uv
+        uv python install 3.12 2>/dev/null
+        # Create a shim so python3 -m venv works
+        local uv_python
+        uv_python=$(uv python find 3.12 2>/dev/null)
+        if [[ -n "$uv_python" ]]; then
+            ln -sf "$uv_python" "$LOCAL_BIN/python3"
+            echo "   Installed Python 3.12 via uv at: $uv_python"
+            return 0
+        fi
+    fi
+
+    echo "   Warning: Could not set up a working Python with venv support."
+    echo "   Python-based tools (nvitop, huggingface-cli, pynvim) will be skipped."
+    return 1
+}
+
+# -----------------------------------------------------------------------------
 # Install binaries to ~/.local/bin
 # -----------------------------------------------------------------------------
 install_bins() {
@@ -343,18 +386,22 @@ install_bins() {
         echo "   Creating dedicated Python venv for CLI tools..."
         rm -rf "$cli_venv"
         mkdir -p "$(dirname "$cli_venv")"
-        python3 -m venv "$cli_venv"
+        if ! python3 -m venv "$cli_venv" 2>/dev/null; then
+            echo "   Warning: python3 -m venv failed. Install python3-venv:"
+            echo "     sudo apt install python3-venv"
+            cli_venv=""
+        fi
     fi
 
     # huggingface-cli (HuggingFace Hub CLI for dataset/model sync)
-    if ! command -v huggingface-cli &> /dev/null; then
+    if [[ -n "$cli_venv" ]] && ! command -v huggingface-cli &> /dev/null; then
         echo "   Installing huggingface-cli..."
         "$cli_venv/bin/pip" install --quiet huggingface_hub
         ln -sf "$cli_venv/bin/huggingface-cli" "$LOCAL_BIN/huggingface-cli"
     fi
 
     # nvitop (interactive NVIDIA GPU process viewer)
-    if ! command -v nvitop &> /dev/null; then
+    if [[ -n "$cli_venv" ]] && ! command -v nvitop &> /dev/null; then
         echo "   Installing nvitop..."
         "$cli_venv/bin/pip" install --quiet nvitop
         ln -sf "$cli_venv/bin/nvitop" "$LOCAL_BIN/nvitop"
@@ -415,14 +462,20 @@ install_nvim_deps() {
     if [[ ! -f "$nvim_python_dir/bin/pip" ]]; then
         echo "   Creating dedicated Python venv for Neovim..."
         rm -rf "$nvim_python_dir"
-        python3 -m venv "$nvim_python_dir"
+        if ! python3 -m venv "$nvim_python_dir" 2>/dev/null; then
+            echo "   Warning: python3 -m venv failed. Install python3-venv:"
+            echo "     sudo apt install python3-venv"
+            nvim_python_dir=""
+        fi
     fi
 
-    echo "   Installing pynvim and Jupyter dependencies..."
-    "$nvim_python_dir/bin/pip" install --upgrade pip pynvim \
-        jupyter_client jupyter_core \
-        cairosvg pnglatex plotly kaleido pillow \
-        --quiet
+    if [[ -n "$nvim_python_dir" ]]; then
+        echo "   Installing pynvim and Jupyter dependencies..."
+        "$nvim_python_dir/bin/pip" install --upgrade pip pynvim \
+            jupyter_client jupyter_core \
+            cairosvg pnglatex plotly kaleido pillow \
+            --quiet
+    fi
 
     # Sync Lazy plugins (must happen before TSInstall or markdown-preview setup)
     echo "   Syncing Neovim plugins (Lazy)..."
@@ -447,8 +500,8 @@ install_nvim_deps() {
     fi
 
     # Register Neovim remote plugins (required for molten-nvim)
-    echo "   Registering Neovim remote plugins..."
-    if command -v nvim &> /dev/null; then
+    if [[ -n "$nvim_python_dir" ]] && command -v nvim &> /dev/null; then
+        echo "   Registering Neovim remote plugins..."
         timeout 30 nvim --headless \
             -c "Lazy load molten-nvim" \
             -c "UpdateRemotePlugins" \
@@ -544,13 +597,8 @@ set_default_shell() {
     local zsh_path
     zsh_path=$(which zsh)
 
-    if sudo -n true 2>/dev/null; then
-        sudo chsh -s "$zsh_path" "$(whoami)"
-        echo "   Default shell changed to zsh"
-    else
-        echo "   Sudo requires password. To change shell manually, run:"
-        echo "   sudo chsh -s $zsh_path $(whoami)"
-    fi
+    echo "   To change your default shell, run:"
+    echo "   chsh -s $zsh_path"
     echo ""
 }
 
@@ -558,6 +606,8 @@ set_default_shell() {
 # Main
 # -----------------------------------------------------------------------------
 main() {
+    ensure_python_venv || true
+
     read -p "Install binaries to ~/.local/bin? [y/N] " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
