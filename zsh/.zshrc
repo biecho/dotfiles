@@ -480,3 +480,19 @@ ytls() {
 }
 
 [[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
+
+# Kitty shell integration
+if test -n "$KITTY_INSTALLATION_DIR"; then
+    export KITTY_SHELL_INTEGRATION="enabled"
+    autoload -Uz -- "$KITTY_INSTALLATION_DIR"/shell-integration/zsh/kitty-integration
+    kitty-integration
+    unfunction kitty-integration
+fi
+
+# Kitty shell integration for SSH (kitten ssh)
+if [[ -z "$KITTY_INSTALLATION_DIR" ]] && [[ -f "$HOME/.local/share/kitty-ssh-kitten/shell-integration/zsh/kitty-integration" ]]; then
+    export KITTY_SHELL_INTEGRATION="enabled"
+    autoload -Uz -- "$HOME/.local/share/kitty-ssh-kitten/shell-integration/zsh/kitty-integration"
+    kitty-integration
+    unfunction kitty-integration
+fi
