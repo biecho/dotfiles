@@ -1,0 +1,170 @@
+" =============================================================================
+" IdeaVim Configuration
+" =============================================================================
+
+" --- Options ---
+let mapleader=" "
+set relativenumber
+set number
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+set clipboard+=unnamedplus
+set scrolloff=8
+set showmode
+
+" --- Plugins ---
+set surround
+set easymotion
+set highlightedyank
+set commentary
+set NERDTree
+set argtextobj
+set textobj-entire
+set ReplaceWithRegister
+set which-key
+
+" --- Centered scrolling ---
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+" --- Visual indent stay ---
+vnoremap < <gv
+vnoremap > >gv
+
+" --- Paste without overwrite ---
+xnoremap p "_dP
+
+" --- Macro: disable q, use Q to record ---
+nnoremap q <Nop>
+nnoremap Q q
+
+" --- LSP / Code ---
+nmap K <Action>(QuickJavaDoc)
+nmap gd <Action>(GotoDeclaration)
+nmap gp <Action>(QuickImplementations)
+nmap gy <Action>(GotoTypeDeclaration)
+nmap gr <Action>(FindUsages)
+nmap gI <Action>(GotoImplementation)
+nmap <leader>ca <Action>(ShowIntentionActions)
+nmap <leader>cr <Action>(RenameElement)
+
+" --- Navigation history ---
+nmap <C-o> <Action>(Back)
+nmap <C-i> <Action>(Forward)
+nmap <leader>gl <Action>(JumpToLastChange)
+nmap <leader>gt <Action>(GotoTest)
+
+" --- Code generation ---
+nmap <leader>cg <Action>(Generate)
+nmap <leader>cm <Action>(OverrideMethods)
+nmap <leader>cI <Action>(ImplementMethods)
+
+" --- Format & imports ---
+nmap <leader>cf <Action>(ReformatCode)
+nmap <leader>cO <Action>(OptimizeImports)
+
+" --- Refactoring ---
+nmap <leader>rr <Action>(Refactorings.QuickListPopupAction)
+nmap <leader>rf <Action>(ExtractMethod)
+vmap <leader>rf <Action>(ExtractMethod)
+nmap <leader>rx <Action>(IntroduceVariable)
+vmap <leader>rx <Action>(IntroduceVariable)
+nmap <leader>ri <Action>(Inline)
+
+" --- Debugging ---
+nmap <leader>db <Action>(ToggleLineBreakpoint)
+nmap <leader>dB <Action>(EditBreakpoint)
+nmap <leader>dv <Action>(ViewBreakpoints)
+nmap <leader>dc <Action>(Resume)
+nmap <leader>ds <Action>(StepOver)
+nmap <leader>di <Action>(StepInto)
+nmap <leader>do <Action>(StepOut)
+nmap <leader>dt <Action>(Stop)
+nmap <leader>dr <Action>(RunClass)
+nmap <leader>dR <Action>(DebugClass)
+
+" --- Diagnostics ---
+nmap [d <Action>(GotoPreviousError)
+nmap ]d <Action>(GotoNextError)
+nmap <leader>cd <Action>(ShowErrorDescription)
+nmap <leader>cD <Action>(ActivateProblemsViewToolWindow)
+
+" --- Call hierarchy ---
+nmap <leader>ci <Action>(CallHierarchy)
+nmap <leader>co <Action>(CallHierarchy)
+
+" --- Symbols ---
+nmap <leader>cs <Action>(FileStructurePopup)
+nmap <leader>cS <Action>(GotoSymbol)
+nmap <leader>cW <Action>(GotoSymbol)
+
+" --- Git ---
+nmap <leader>gg <Action>(ActivateVersionControlToolWindow)
+nmap <leader>gb <Action>(Annotate)
+nmap <leader>gd <Action>(Compare.SameVersion)
+nmap <leader>gh <Action>(Vcs.ShowTabbedFileHistory)
+nmap [c <Action>(VcsShowPrevChangeMarker)
+nmap ]c <Action>(VcsShowNextChangeMarker)
+nmap <leader>hr <Action>(Vcs.RollbackChangedLines)
+
+" --- Search / Find ---
+nmap <leader>ff <Action>(GotoFile)
+nmap <leader><leader> <Action>(GotoFile)
+nmap <leader>fg <Action>(FindInPath)
+nmap <leader>/ <Action>(FindInPath)
+nmap <leader>fr <Action>(RecentFiles)
+nmap <leader>: <Action>(GotoAction)
+
+" --- Multiple cursors ---
+nmap <C-n> <Action>(SelectNextOccurrence)
+xmap <C-n> <Action>(SelectNextOccurrence)
+nmap <leader>sa <Action>(SelectAllOccurrences)
+
+" --- Bookmarks ---
+nmap <leader>mm <Action>(ToggleBookmark)
+nmap <leader>ml <Action>(ShowBookmarks)
+nmap [m <Action>(GotoPreviousBookmark)
+nmap ]m <Action>(GotoNextBookmark)
+
+" --- Buffers / Tabs ---
+nmap H <Action>(PreviousTab)
+nmap L <Action>(NextTab)
+nmap <leader>bd <Action>(CloseContent)
+nmap <leader>bD <Action>(CloseAllEditorsButActive)
+
+" --- Splits ---
+nmap <C-h> <C-w>h
+nmap <C-j> <C-w>j
+nmap <C-k> <C-w>k
+nmap <C-l> <C-w>l
+nmap <leader>wv <Action>(SplitVertically)
+nmap <leader>ws <Action>(SplitHorizontally)
+nmap <leader>wd <Action>(Unsplit)
+
+" --- Project tree ---
+nmap <leader>e :NERDTreeToggle<CR>
+nmap <leader>. <Action>(SelectInProjectView)
+
+" --- Yank paths ---
+nmap <leader>yf <Action>(CopyFileName)
+nmap <leader>yp <Action>(CopyPathFromRepositoryRootProvider)
+nmap <leader>yP <Action>(CopyAbsolutePath)
+nmap <leader>yr <Action>(CopyReference)
+
+" --- Misc ---
+nmap <leader>qq <Action>(CloseProject)
+nmap <leader>ft <Action>(ActivateTerminalToolWindow)
+nmap <leader>uw <Action>(EditorToggleUseSoftWraps)
+nmap <leader>uz <Action>(ToggleDistractionFreeMode)
+nmap <leader>uZ <Action>(ToggleZenMode)
+
+" --- EasyMotion / Leap-style ---
+nmap s <Plug>(easymotion-s2)
+nmap S <Plug>(easymotion-S2)
+
+" --- Clear search highlight with Escape ---
+nnoremap <Esc> :nohlsearch<CR>
