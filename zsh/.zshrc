@@ -230,6 +230,51 @@ fkill() {
   [ -n "$pid" ] && echo "$pid" | xargs kill -"$sig"
 }
 
+# Show files a process has open for writing (fzf picker or direct PID)
+# Usage: ffiles [PID]  — omit PID to fuzzy-pick a process
+ffiles() {
+  local preview_cmd pid
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    preview_cmd='lsof -p {1} 2>/dev/null | grep -E "REG.*[0-9]+w" | head -20'
+  else
+    preview_cmd='ls -l /proc/{1}/fd 2>/dev/null | head -30'
+  fi
+  pid=${1:-$(ps -eo pid,user,%cpu,%mem,args --sort=-%cpu \
+    | fzf --header-lines=1 --header "Select process to inspect" \
+          --preview="$preview_cmd" \
+          --preview-window=down:6:wrap \
+    | awk '{print $1}')}
+  [[ -z "$pid" ]] && return 1
+  echo "Files open for writing by PID $pid ($(ps -p $pid -o comm= 2>/dev/null)):"
+  typeset -A seen
+  local found=0
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    lsof -p "$pid" 2>/dev/null | awk '$4 ~ /w$/ && $5 == "REG" {print $9}' | while read -r target; do
+      [[ -n "${seen[$target]}" ]] && continue
+      seen[$target]=1
+      echo "  $target"
+      found=1
+    done
+  else
+    if [[ ! -d "/proc/$pid/fd" ]]; then
+      echo "  Process $pid not found (or no permission)"
+      return 1
+    fi
+    for fd in /proc/$pid/fd/*; do
+      local mode=$(cat /proc/$pid/fdinfo/${fd##*/} 2>/dev/null | awk '/^flags:/{print $2}')
+      if [[ -n "$mode" ]] && (( (0$mode & 3) > 0 )); then
+        local target=$(readlink "$fd" 2>/dev/null)
+        [[ "$target" == /proc/* || "$target" == pipe:* || "$target" == socket:* || "$target" == anon_inode:* ]] && continue
+        [[ -n "${seen[$target]}" ]] && continue
+        seen[$target]=1
+        echo "  $target"
+        found=1
+      fi
+    done
+  fi
+  (( ! found )) && echo "  (none — only reading or using pipes/sockets)"
+}
+
 # Kill process on a specific port (usage: fkillport 8080)
 fkillport() {
   local pid
