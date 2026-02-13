@@ -275,6 +275,34 @@ ffiles() {
   (( ! found )) && echo "  (none — only reading or using pipes/sockets)"
 }
 
+# Recently modified files (recursive, fzf preview)
+# Usage: frecent [-a] [count]   (-a = all files, no recency/hidden filter)
+frecent() {
+  local all=false
+  [[ "$1" == "-a" ]] && { all=true; shift; }
+  local count=${1:-20}
+  if command -v fd &>/dev/null; then
+    if $all; then
+      fd --type f --hidden --no-ignore --exclude .git
+    else
+      fd --type f --hidden --exclude .git --change-newer-than 4weeks
+    fi | xargs stat --format='%Y %n' 2>/dev/null \
+       | sort -rn | head -"$count" \
+       | while read -r epoch file; do
+           printf "%s  %s\n" "$(date -d @"$epoch" '+%Y-%m-%d %H:%M')" "$file"
+         done
+  else
+    find . -type f -not -path '*/.git/*' -printf '%T@ %p\n' \
+      | sort -rn | head -"$count" \
+      | while read -r epoch file; do
+          printf "%s  %s\n" "$(date -d @"${epoch%.*}" '+%Y-%m-%d %H:%M')" "$file"
+        done
+  fi | fzf --multi --with-nth=1,2,3 --nth=3 \
+       --preview "bat --style=numbers --color=always --line-range=:100 {3} 2>/dev/null || head -100 {3}" \
+       --header "Recently modified files (top $count)" \
+       --bind 'enter:become(nvim {+3})'
+}
+
 # Kill process on a specific port (usage: fkillport 8080)
 fkillport() {
   local pid
