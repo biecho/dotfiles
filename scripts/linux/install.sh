@@ -428,6 +428,12 @@ install_bins() {
         fi
     fi
 
+    # uv (fast Python package manager)
+    if ! command -v uv &> /dev/null; then
+        echo "   Installing uv..."
+        curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 sh
+    fi
+
     # rsync (file synchronization - typically pre-installed, warn if missing)
     if ! command -v rsync &> /dev/null; then
         echo "   Warning: rsync not found. Install via your package manager:"
