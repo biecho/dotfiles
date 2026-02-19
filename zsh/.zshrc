@@ -121,7 +121,7 @@ export FZF_CTRL_T_OPTS="
     --bind 'ctrl-/:reload($_fzf_show_hidden)+unbind(ctrl-/)+rebind(ctrl-g)'
     --bind 'ctrl-g:reload($FZF_CTRL_T_COMMAND)+unbind(ctrl-g)+rebind(ctrl-/)'"
 unset _fzf_preview _fzf_show_hidden
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+eval "$(fzf --zsh)"
 
 # -----------------------------------------------------------------------------
 # atuin - better shell history (Ctrl+R) - must be after fzf to override
