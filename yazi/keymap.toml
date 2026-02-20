@@ -22,9 +22,6 @@ prepend_keymap = [
     # Smart filter (better than default filter)
     { on = "F", run = "plugin smart-filter", desc = "Smart filter files" },
 
-    # Git: go to repo root
-    { on = ["g", "r"], run = "cd $(git rev-parse --show-toplevel 2>/dev/null || echo .)", desc = "Go to git root" },
-
     # Diff selected file with hovered
     { on = ["d", "d"], run = "plugin diff", desc = "Diff selected with hovered" },
 
@@ -47,9 +44,7 @@ prepend_keymap = [
     # Quick navigation
     { on = ["g", "h"], run = "cd ~", desc = "Go to home" },
     { on = ["g", "c"], run = "cd ~/.config", desc = "Go to config" },
-    { on = ["g", "d"], run = "cd ~/dotfiles", desc = "Go to dotfiles" },
     { on = ["g", "D"], run = "cd ~/Downloads", desc = "Go to downloads" },
-    { on = ["g", "p"], run = "cd ~/projects", desc = "Go to projects" },
 
     # Tabs
     { on = "t", run = "tab_create --current", desc = "New tab in current dir" },
