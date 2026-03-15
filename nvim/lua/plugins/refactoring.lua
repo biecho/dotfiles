@@ -8,6 +8,7 @@ return {
   keys = {
     -- Refactor menu
     { "<leader>r", "", desc = "+refactor", mode = { "n", "v" } },
+    { "<leader>rr", function() require("refactoring").select_refactor() end, mode = { "n", "v" }, desc = "Refactor" },
     { "<leader>rs", function() require("refactoring").select_refactor() end, mode = { "n", "v" }, desc = "Refactor" },
 
     -- Extract operations

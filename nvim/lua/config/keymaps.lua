@@ -49,6 +49,11 @@ vim.keymap.set("v", "<leader>xy", function()
   yank_diagnostics(diagnostics, "in selection")
 end, { desc = "Yank diagnostics in selection" })
 
+-- Organize imports (matches IdeaVim <leader>cO)
+vim.keymap.set("n", "<leader>cO", function()
+  vim.lsp.buf.code_action({ context = { only = { "source.organizeImports" } }, apply = true })
+end, { desc = "Organize imports" })
+
 -- Call hierarchy now handled by lspsaga (see plugins/lspsaga.lua)
 
 -- Remap macro recording to Q to prevent accidental triggers
