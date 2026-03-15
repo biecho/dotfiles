@@ -4,32 +4,22 @@
 
 " --- Options ---
 let mapleader=" "
-set relativenumber
 set number
 set hlsearch
 set incsearch
 set ignorecase
 set smartcase
 set clipboard+=unnamedplus
-set scrolloff=8
 set showmode
 
 " --- Plugins ---
 set surround
-set easymotion
 set highlightedyank
 set commentary
-set NERDTree
 set argtextobj
 set textobj-entire
 set ReplaceWithRegister
 set which-key
-
-" --- Centered scrolling ---
-nnoremap <C-d> <C-d>zz
-nnoremap <C-u> <C-u>zz
-nnoremap n nzzzv
-nnoremap N Nzzzv
 
 " --- Visual indent stay ---
 vnoremap < <gv
@@ -70,6 +60,7 @@ nmap <leader>cO <Action>(OptimizeImports)
 
 " --- Refactoring ---
 nmap <leader>rr <Action>(Refactorings.QuickListPopupAction)
+vmap <leader>rr <Action>(Refactorings.QuickListPopupAction)
 nmap <leader>rf <Action>(ExtractMethod)
 vmap <leader>rf <Action>(ExtractMethod)
 nmap <leader>rx <Action>(IntroduceVariable)
@@ -137,35 +128,3 @@ nmap L <Action>(NextTab)
 nmap <leader>bd <Action>(CloseContent)
 nmap <leader>bD <Action>(CloseAllEditorsButActive)
 
-" --- Splits ---
-nmap <C-h> <C-w>h
-nmap <C-j> <C-w>j
-nmap <C-k> <C-w>k
-nmap <C-l> <C-w>l
-nmap <leader>wv <Action>(SplitVertically)
-nmap <leader>ws <Action>(SplitHorizontally)
-nmap <leader>wd <Action>(Unsplit)
-
-" --- Project tree ---
-nmap <leader>e :NERDTreeToggle<CR>
-nmap <leader>. <Action>(SelectInProjectView)
-
-" --- Yank paths ---
-nmap <leader>yf <Action>(CopyFileName)
-nmap <leader>yp <Action>(CopyPathFromRepositoryRootProvider)
-nmap <leader>yP <Action>(CopyAbsolutePath)
-nmap <leader>yr <Action>(CopyReference)
-
-" --- Misc ---
-nmap <leader>qq <Action>(CloseProject)
-nmap <leader>ft <Action>(ActivateTerminalToolWindow)
-nmap <leader>uw <Action>(EditorToggleUseSoftWraps)
-nmap <leader>uz <Action>(ToggleDistractionFreeMode)
-nmap <leader>uZ <Action>(ToggleZenMode)
-
-" --- EasyMotion / Leap-style ---
-nmap s <Plug>(easymotion-s2)
-nmap S <Plug>(easymotion-S2)
-
-" --- Clear search highlight with Escape ---
-nnoremap <Esc> :nohlsearch<CR>
