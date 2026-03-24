@@ -1,0 +1,40 @@
+#!/bin/bash
+# Run GitHub Copilot code review on staged changes before committing.
+# Skippable with: git commit --no-verify
+# Disable globally with: COPILOT_REVIEW=0 git commit
+
+if [ "${COPILOT_REVIEW:-1}" = "0" ]; then
+    exit 0
+fi
+
+if ! command -v copilot &>/dev/null; then
+    exit 0
+fi
+
+diff=$(git diff --cached --diff-filter=ACMR)
+if [ -z "$diff" ]; then
+    exit 0
+fi
+
+echo "Running Copilot code review on staged changes..."
+echo ""
+
+review=$(echo "$diff" | copilot -p "Review this diff. Flag only real bugs, security issues, or logic errors. Be brief, no praise. If everything looks fine, say LGTM." 2>&1 | grep -v "^Total\|^API\|^Breakdown\|^  \|^$")
+
+echo "$review"
+echo ""
+
+if echo "$review" | grep -qi "LGTM"; then
+    echo "Copilot: LGTM. Proceeding with commit."
+    exit 0
+fi
+
+echo "Copilot flagged issues above. Proceed anyway? [y/N]"
+exec < /dev/tty
+read -r response
+if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
+    exit 0
+fi
+
+echo "Commit aborted."
+exit 1
