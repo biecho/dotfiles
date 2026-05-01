@@ -362,19 +362,10 @@
     "when": "!notebookEditorFocused"
   },
 
-  // ---------------------------------------------------------------------------
-  // FILE EXPLORER (backup for vim <leader>e)
-  // ---------------------------------------------------------------------------
-  {
-    "key": "space e",
-    "command": "workbench.action.toggleSidebarVisibility",
-    "when": "vim.mode == 'Normal' && editorTextFocus"
-  },
-  {
-    "key": "space .",
-    "command": "workbench.files.action.showActiveFileInExplorer",
-    "when": "vim.mode == 'Normal' && editorTextFocus"
-  },
+  // File explorer <leader>e and <leader>. are handled by the vim extension
+  // (settings.json). Do not register `space x` chords here — doing so makes
+  // VS Code intercept `space` as a chord prefix and the vim extension never
+  // sees `<leader>` in normal mode.
 
   // ---------------------------------------------------------------------------
   // SIDEBAR NAVIGATION (simple)
