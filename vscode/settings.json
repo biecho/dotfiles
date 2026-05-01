@@ -110,6 +110,10 @@
       "before": ["<leader>", "c", "A"],
       "commands": ["editor.action.sourceAction"],
     },
+    {
+      "before": ["<leader>", "c", "O"],
+      "commands": ["editor.action.organizeImports"],
+    },
 
     // =========================================================================
     // RENAME - <leader>cr, <leader>cR (matches lspsaga rename)
@@ -322,7 +326,7 @@
     // =========================================================================
     {
       "before": ["<leader>", "e"],
-      "commands": ["workbench.action.toggleSidebarVisibility"]
+      "commands": ["workbench.files.action.showActiveFileInExplorer"]
     },
     {
       "before": ["<leader>", "."],
@@ -389,7 +393,7 @@
     },
     {
       "before": ["<leader>", "f", "b"],
-      "commands": ["workbench.action.showAllEditors"]
+      "commands": ["workbench.action.showAllEditorsByMostRecentlyUsed"]
     },
     {
       "before": ["<leader>", "f", "n"],
@@ -404,6 +408,10 @@
     {
       "before": ["<leader>", "f", "g"],
       "commands": ["workbench.action.findInFiles"]
+    },
+    {
+      "before": ["<leader>", "f", "G"],
+      "commands": ["search.action.openNewEditor"]
     },
     {
       "before": ["<leader>", "f", "w"],
@@ -851,7 +859,7 @@
   // ---------------------------------------------------------------------------
   // WORKBENCH
   // ---------------------------------------------------------------------------
-  "workbench.colorTheme": "Tokyo Night",
+  "workbench.colorTheme": "Tokyo Night Light",
   "workbench.startupEditor": "none",
   "workbench.editor.enablePreview": false,
   "workbench.sideBar.location": "left",
@@ -904,4 +912,28 @@
   // ---------------------------------------------------------------------------
   "telemetry.telemetryLevel": "off",
   "workbench.editor.tabActionLocation": "right",
+  "claudeCode.preferredLocation": "panel",
+  "cSpell.userWords": [
+    "adversarials",
+    "AUROC",
+    "aurocs",
+    "casc",
+    "Embedder",
+    "façade",
+    "flatnonzero",
+    "gcgfp",
+    "kagglehub",
+    "memoises",
+    "mpdd",
+    "nomic",
+    "OVERSAMPLE",
+    "polyadic",
+    "Qwen",
+    "retarget",
+    "setdiff",
+    "subsampled",
+    "succ",
+    "toxigen",
+    "wildguardmix"
+  ],
 }
