@@ -913,6 +913,16 @@
   "telemetry.telemetryLevel": "off",
   "workbench.editor.tabActionLocation": "right",
   "claudeCode.preferredLocation": "panel",
+  // --- claude-code-router toggle -------------------------------------------
+  // ACTIVE  → routes Claude Code (VSCode) through ccr to Gemini 3.1 Pro.
+  // INACTIVE (comment the 4 lines below) → uses your Claude subscription.
+  // After flipping: fully quit VSCode (Cmd+Q) and reopen — reload won't do it.
+  // Also ensure `ccr start` is running (config: ~/.claude-code-router/config.json).
+  "claudeCode.environmentVariables": [
+    { "name": "ANTHROPIC_BASE_URL",   "value": "http://127.0.0.1:3456" },
+    { "name": "ANTHROPIC_AUTH_TOKEN", "value": "ccr-dummy-token" }
+  ],
+  // -------------------------------------------------------------------------
   "cSpell.userWords": [
     "adversarials",
     "AUROC",
