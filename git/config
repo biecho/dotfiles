@@ -15,12 +15,67 @@
 
 [push]
     default = current
+    autoSetupRemote = true
+    followTags = true
+
+[fetch]
+    prune = true
+    pruneTags = true
+    writeCommitGraph = true
+
+[rerere]
+    enabled = true
+    autoupdate = true
+
+[rebase]
+    autoStash = true
+    autoSquash = true
+    updateRefs = true
+
+[commit]
+    verbose = true
+
+[log]
+    date = iso
+    follow = true
+
+[grep]
+    lineNumber = true
+
+[help]
+    autocorrect = prompt
+
+[column]
+    ui = auto
+
+[branch]
+    sort = -committerdate
+
+[tag]
+    sort = version:refname
+
+[submodule]
+    recurse = true
+
+[gc]
+    writeCommitGraph = true
+
+# Integrity checks — verify object hashes on transfer (security-relevant)
+[transfer]
+    fsckObjects = true
+[fetch "fsck"]
+    zeroPaddedFilemode = ignore
+[receive]
+    fsckObjects = true
 
 [core]
     autocrlf = input
     editor = nvim
     hooksPath = ~/.config/git/hooks
     pager = delta
+    commitGraph = true
+    fsmonitor = true
+    untrackedCache = true
 
 [credential]
     helper = store
@@ -73,6 +128,28 @@
     # Show what I did yesterday
     yesterday = log --since=yesterday.midnight --until=midnight --author=\"$(git config user.name)\" --oneline
 
+    # Last commit (with stats)
+    last = log -1 HEAD --stat
+
+    # Unstage a file
+    unstage = reset HEAD --
+
+    # Safer force-push: refuses if remote moved AND if your local doesn't include
+    # the remote tip. Strictly better than --force.
+    force = push --force-with-lease --force-if-includes
+
+    # Quick WIP commit (everything, including untracked)
+    wip = !git add -A && git commit -m 'WIP'
+
+    # Stash including untracked files
+    stash-all = stash save --include-untracked
+
+    # Delete local branches whose upstream is gone (squash-merged, deleted PRs)
+    bclean = "!f() { git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs -r git branch -D; }; f"
+
+    # List all configured aliases
+    aliases = config --get-regexp '^alias\\.'
+
 [gui]
     encoding = utf-8
 
@@ -89,8 +166,10 @@
     hyperlinks = true
 
 [merge]
-    conflictstyle = diff3
+    conflictstyle = zdiff3
 
 [diff]
     colorMoved = default
     algorithm = histogram
+    renames = copies
+    mnemonicPrefix = true
