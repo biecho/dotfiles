@@ -220,11 +220,11 @@
     },
     {
       "before": ["<leader>", "g", "b"],
-      "commands": ["gitlens.toggleFileBlame"],
+      "commands": ["git.blame.toggleEditorDecoration"],
     },
     {
       "before": ["<leader>", "g", "B"],
-      "commands": ["gitlens.toggleLineBlame"],
+      "commands": ["git.blame.toggleStatusBarItem"],
     },
     {
       "before": ["<leader>", "g", "v"],
@@ -236,7 +236,7 @@
     },
     {
       "before": ["<leader>", "g", "F"],
-      "commands": ["gitlens.showFileHistoryView"],
+      "commands": ["timeline.focus"],
     },
     {
       "before": ["<leader>", "g", "R"],
@@ -248,15 +248,15 @@
     },
     {
       "before": ["<leader>", "g", "d"],
-      "commands": ["gitlens.diffWithPrevious"],
+      "commands": ["git.openChange"],
     },
     {
       "before": ["<leader>", "g", "h"],
-      "commands": ["gitlens.showQuickFileHistory"],
+      "commands": ["timeline.focus"],
     },
     {
       "before": ["<leader>", "g", "l"],
-      "commands": ["gitlens.showQuickCommitDetails"],
+      "commands": ["git-graph.view"],
     },
     {
       "before": ["<leader>", "g", "s"],
@@ -863,17 +863,24 @@
   // GIT
   // ---------------------------------------------------------------------------
   "git.autofetch": true,
+  "git.autofetchPeriod": 180,
+  "git.fetchOnPull": true,
+  "git.pruneOnFetch": true,
   "git.confirmSync": false,
   "git.enableSmartCommit": true,
   "git.openRepositoryInParentFolders": "always",
-
-  // ---------------------------------------------------------------------------
-  // GITLENS (matches gitsigns.nvim)
-  // ---------------------------------------------------------------------------
-  "gitlens.currentLine.enabled": true,
-  "gitlens.hovers.currentLine.over": "line",
-  "gitlens.codeLens.enabled": false,
-  "gitlens.statusBar.enabled": true,
+  "git.useForcePushWithLease": true,
+  "git.allowForcePush": true,
+  "git.rebaseWhenSync": true,
+  "git.branchProtection": ["main", "master"],
+  "git.branchProtectionPrompt": "alwaysPrompt",
+  "git.postCommitCommand": "none",
+  "git.blame.editorDecoration.enabled": false,
+  "git.blame.statusBarItem.enabled": false,
+  "diffEditor.experimental.showMoves": true,
+  "diffEditor.hideUnchangedRegions.enabled": true,
+  "scm.diffDecorationsGutterPattern": { "added": true, "modified": true },
+  "scm.inputFontFamily": "editor",
 
   // ---------------------------------------------------------------------------
   // TODO TREE (matches todo-comments.nvim)
