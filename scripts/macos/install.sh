@@ -86,7 +86,10 @@ create_symlinks() {
     # Git config (symlink entire config, hooks handled via hooksPath in config)
     ln -sf "$DOTFILES_DIR/git/config" "$HOME/.gitconfig"
     mkdir -p "$HOME/.config/git/hooks"
-    ln -sf "$DOTFILES_DIR/git/hooks/prepare-commit-msg" "$HOME/.config/git/hooks/prepare-commit-msg"
+    for hook in "$DOTFILES_DIR"/git/hooks/*; do
+        [[ -f "$hook" ]] || continue
+        ln -sf "$hook" "$HOME/.config/git/hooks/$(basename "$hook")"
+    done
     echo "   ~/.gitconfig"
     echo "   ~/.config/git/hooks (global git hooks)"
 

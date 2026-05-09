@@ -22,120 +22,102 @@
 
 set -e
 
-DOTFILES_DIR="$HOME/dotfiles/vscode"
-VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+EXTENSIONS_FILE="$DOTFILES_DIR/extensions.txt"
+BACKUP_SUFFIX="$(date +%Y%m%d_%H%M%S)"
+VSCODE_USER_DIRS=()
+
+case "$(uname -s)" in
+    Darwin)
+        VSCODE_USER_DIRS+=("$HOME/Library/Application Support/Code/User")
+        [[ -d "$HOME/Library/Application Support/Code - OSS" ]] && VSCODE_USER_DIRS+=("$HOME/Library/Application Support/Code - OSS/User")
+        [[ -d "$HOME/Library/Application Support/VSCodium" ]] && VSCODE_USER_DIRS+=("$HOME/Library/Application Support/VSCodium/User")
+        ;;
+    Linux)
+        VSCODE_USER_DIRS+=("$HOME/.config/Code/User")
+        [[ -d "$HOME/.vscode-server" ]] && VSCODE_USER_DIRS+=("$HOME/.vscode-server/data/User")
+        [[ -d "$HOME/.local/share/code-server" || -d "$HOME/.config/code-server" ]] && VSCODE_USER_DIRS+=("$HOME/.local/share/code-server/User")
+        [[ -d "$HOME/.config/Code - OSS" ]] && VSCODE_USER_DIRS+=("$HOME/.config/Code - OSS/User")
+        [[ -d "$HOME/.config/VSCodium" ]] && VSCODE_USER_DIRS+=("$HOME/.config/VSCodium/User")
+        ;;
+    *)
+        VSCODE_USER_DIRS+=("$HOME/.config/Code/User")
+        ;;
+esac
+
+find_code_cli() {
+    if command -v code &> /dev/null; then
+        command -v code
+    elif command -v codium &> /dev/null; then
+        command -v codium
+    elif command -v code-server &> /dev/null; then
+        command -v code-server
+    elif compgen -G "$HOME/.vscode-server/cli/servers/Stable-*/server/bin/code-server" > /dev/null; then
+        printf '%s\n' "$HOME"/.vscode-server/cli/servers/Stable-*/server/bin/code-server | sort | tail -n 1
+    elif compgen -G "$HOME/.vscode-server/bin/*/bin/code-server" > /dev/null; then
+        printf '%s\n' "$HOME"/.vscode-server/bin/*/bin/code-server | sort | tail -n 1
+    fi
+}
+
+link_config_file() {
+    local source="$1"
+    local target="$2"
+
+    if [[ -f "$target" && ! -L "$target" ]]; then
+        echo "Backing up existing $target to $target.backup.$BACKUP_SUFFIX"
+        mv "$target" "$target.backup.$BACKUP_SUFFIX"
+    fi
+
+    ln -sf "$source" "$target"
+    echo "  $target -> $source"
+}
+
+trim() {
+    local value="$1"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+    printf '%s' "$value"
+}
 
 echo "Installing VSCode configuration (nvim-compatible)..."
 echo ""
 
-# Create VSCode User directory if it doesn't exist
-mkdir -p "$VSCODE_USER_DIR"
-
-# Backup existing files if they exist and aren't symlinks
-for file in settings.json keybindings.json; do
-    target="$VSCODE_USER_DIR/$file"
-    if [ -f "$target" ] && [ ! -L "$target" ]; then
-        echo "Backing up existing $file to $file.backup"
-        mv "$target" "$target.backup"
-    fi
-done
-
 # Create symlinks
 echo "Creating symlinks..."
-ln -sf "$DOTFILES_DIR/settings.json" "$VSCODE_USER_DIR/settings.json"
-ln -sf "$DOTFILES_DIR/keybindings.json" "$VSCODE_USER_DIR/keybindings.json"
-
-echo "  $VSCODE_USER_DIR/settings.json -> $DOTFILES_DIR/settings.json"
-echo "  $VSCODE_USER_DIR/keybindings.json -> $DOTFILES_DIR/keybindings.json"
+for user_dir in "${VSCODE_USER_DIRS[@]}"; do
+    mkdir -p "$user_dir"
+    link_config_file "$DOTFILES_DIR/settings.json" "$user_dir/settings.json"
+    link_config_file "$DOTFILES_DIR/keybindings.json" "$user_dir/keybindings.json"
+done
 
 # Install extensions
 echo ""
-echo "Installing VSCode extensions..."
+CODE_CLI="$(find_code_cli || true)"
 
-extensions=(
-    # =========================================================================
-    # CORE: Vim keybindings (essential - replaces neovim)
-    # =========================================================================
-    "vscodevim.vim"
-
-    # =========================================================================
-    # PYTHON: Language support (matches LazyVim lang.python extra)
-    # =========================================================================
-    "ms-python.python"
-    "ms-python.vscode-pylance"
-    "ms-python.debugpy"
-
-    # =========================================================================
-    # JUPYTER: Notebook support (matches jupytext.nvim + otter.nvim)
-    # =========================================================================
-    "ms-toolsai.jupyter"
-    "ms-toolsai.jupyter-keymap"
-    "ms-toolsai.jupyter-renderers"
-
-    # =========================================================================
-    # GIT: Version control (matches diffview.nvim + gitsigns.nvim)
-    # =========================================================================
-    "eamodio.gitlens"           # Inline blame, file history, etc.
-    "mhutchie.git-graph"        # Visual git log (matches diffview repo history)
-
-    # =========================================================================
-    # NAVIGATION: File management (matches yazi.nvim + telescope.nvim)
-    # =========================================================================
-    "patbenatar.advanced-new-file"  # Quick file creation
-
-    # =========================================================================
-    # CODE QUALITY: Linting and formatting (matches conform.nvim + nvim-lint)
-    # =========================================================================
-    "esbenp.prettier-vscode"    # Formatter for JS/JSON/etc.
-    "ms-python.black-formatter" # Python formatter
-
-    # =========================================================================
-    # TODO COMMENTS (matches todo-comments.nvim)
-    # =========================================================================
-    "gruntfuggly.todo-tree"
-
-    # =========================================================================
-    # COLORSCHEMES (matches nvim colorschemes.lua)
-    # =========================================================================
-    "enkia.tokyo-night"         # Default theme (tokyonight.nvim)
-    "sainnhe.gruvbox-material"  # gruvbox.nvim
-    "catppuccin.catppuccin-vsc" # catppuccin
-    "mvllow.rose-pine"          # rose-pine
-    "sainnhe.everforest"        # everforest
-    "github.github-vscode-theme" # github-nvim-theme
-
-    # =========================================================================
-    # MARKDOWN (matches render-markdown.nvim + markdown-preview.nvim)
-    # =========================================================================
-    "yzhang.markdown-all-in-one"
-    "bierner.markdown-mermaid"  # Mermaid diagram support
-    "bierner.markdown-preview-github-styles"
-
-    # =========================================================================
-    # UTILITIES
-    # =========================================================================
-    "streetsidesoftware.code-spell-checker"  # Spell checking
-    "editorconfig.editorconfig"              # EditorConfig support
-    "usernamehw.errorlens"                   # Inline error display (like lspsaga)
-)
-
-for ext in "${extensions[@]}"; do
-    # Skip comments
-    [[ "$ext" =~ ^#.* ]] && continue
-    echo "  Installing $ext..."
-    code --install-extension "$ext" --force 2>/dev/null || echo "    (may already be installed or failed)"
-done
+if [[ -n "$CODE_CLI" ]]; then
+    echo "Installing VSCode extensions with $CODE_CLI..."
+    while IFS= read -r ext || [[ -n "$ext" ]]; do
+        ext="$(trim "${ext%%#*}")"
+        [[ -z "$ext" ]] && continue
+        echo "  Installing $ext..."
+        "$CODE_CLI" --install-extension "$ext" --force 2>/dev/null || echo "    (may already be installed or failed)"
+    done < "$EXTENSIONS_FILE"
+else
+    echo "Skipping VSCode extension install: no code, codium, or code-server CLI found in PATH."
+fi
 
 # Remove conflicting extensions
 echo ""
-echo "Removing conflicting extensions..."
 conflicting=(
     "asvetliakov.vscode-neovim"  # Conflicts with vscodevim
 )
 
-for ext in "${conflicting[@]}"; do
-    code --uninstall-extension "$ext" 2>/dev/null && echo "  Removed $ext" || true
-done
+if [[ -n "$CODE_CLI" ]]; then
+    echo "Removing conflicting extensions..."
+    for ext in "${conflicting[@]}"; do
+        "$CODE_CLI" --uninstall-extension "$ext" 2>/dev/null && echo "  Removed $ext" || true
+    done
+fi
 
 echo ""
 echo "============================================================================="

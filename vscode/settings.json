@@ -3,9 +3,7 @@
   // VSCODE SETTINGS - Configured to match nvim dotfiles
   // ==========================================================================
   // Install instructions:
-  //   1. Symlink this file: ln -sf ~/dotfiles/vscode/settings.json ~/Library/Application\ Support/Code/User/settings.json
-  //   2. Symlink keybindings: ln -sf ~/dotfiles/vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings.json
-  //   3. Install extensions: ~/dotfiles/vscode/install.sh
+  //   Run: ~/dotfiles/vscode/install.sh
   // ==========================================================================
 
   // ---------------------------------------------------------------------------
