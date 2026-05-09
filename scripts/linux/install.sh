@@ -570,6 +570,10 @@ create_symlinks() {
     ln -sf "$DOTFILES_DIR/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
     echo "   ~/.config/lazygit/config.yml"
 
+    # Tmux
+    ln -sf "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+    echo "   ~/.tmux.conf"
+
     # Yazi config (file manager)
     mkdir -p "$HOME/.config/yazi"
     ln -sf "$DOTFILES_DIR/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
