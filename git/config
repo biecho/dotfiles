@@ -74,7 +74,7 @@
     hooksPath = ~/.config/git/hooks
     pager = delta
     commitGraph = true
-    fsmonitor = true
+    fsmonitor = false
     untrackedCache = true
 
 [credential]
@@ -166,7 +166,7 @@
     hyperlinks = true
 
 [merge]
-    conflictstyle = zdiff3
+    conflictstyle = diff3
 
 [diff]
     colorMoved = default

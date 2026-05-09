@@ -1,0 +1,44 @@
+# Core
+vscodevim.vim
+
+# Python
+ms-python.python
+ms-python.vscode-pylance
+ms-python.debugpy
+
+# Jupyter
+ms-toolsai.jupyter
+ms-toolsai.jupyter-keymap
+ms-toolsai.jupyter-renderers
+
+# Git
+eamodio.gitlens
+mhutchie.git-graph
+
+# Navigation
+patbenatar.advanced-new-file
+
+# Code quality
+esbenp.prettier-vscode
+ms-python.black-formatter
+
+# Todo comments
+gruntfuggly.todo-tree
+
+# Colorschemes
+enkia.tokyo-night
+sainnhe.gruvbox-material
+catppuccin.catppuccin-vsc
+mvllow.rose-pine
+sainnhe.everforest
+github.github-vscode-theme
+
+# Markdown
+yzhang.markdown-all-in-one
+bierner.markdown-mermaid
+bierner.markdown-preview-github-styles
+
+# Utilities
+streetsidesoftware.code-spell-checker
+editorconfig.editorconfig
+usernamehw.errorlens

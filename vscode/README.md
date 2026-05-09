@@ -8,6 +8,12 @@ This VSCode configuration replicates the nvim dotfiles setup as closely as possi
 ~/dotfiles/vscode/install.sh
 ```
 
+## Extensions
+
+Extension IDs live in `extensions.txt`. The installer reads that file and installs each non-empty, non-comment line when a `code`, `codium`, or `code-server` CLI is available.
+
+Run the installer locally and on each SSH host where you want the same extension set. VS Code keeps local/UI extensions and remote/SSH extensions separately.
+
 ## Feature Mapping: nvim → VSCode
 
 | nvim Plugin | VSCode Equivalent |
