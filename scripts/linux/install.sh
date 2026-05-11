@@ -6,6 +6,7 @@
 set -e
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 LOCAL_BIN="$HOME/.local/bin"
 
 echo "Installing dotfiles for Linux..."
@@ -256,10 +257,8 @@ install_bins() {
         echo "   Installing btop..."
         BTOP_VERSION=$(gh_version "aristocratos/btop")
         if [[ -n "$BTOP_VERSION" ]]; then
-            curl -sL "https://github.com/aristocratos/btop/releases/download/v${BTOP_VERSION}/btop-x86_64-unknown-linux-musl.tbz" -o /tmp/btop.tbz
-            cd /tmp && tar xjf btop.tbz
-            cp /tmp/btop/bin/btop "$LOCAL_BIN/"
-            rm -rf /tmp/btop /tmp/btop.tbz
+            curl -sL "https://github.com/aristocratos/btop/releases/download/v${BTOP_VERSION}/btop-x86_64-unknown-linux-musl.tar.gz" \
+                | tar xz --strip-components=2 -C "$LOCAL_BIN" --wildcards '*/bin/btop'
         else
             echo "   Warning: Could not fetch btop version, skipping"
         fi
@@ -475,7 +474,7 @@ install_nvim_deps() {
         fi
     fi
 
-    if [[ -n "$nvim_python_dir" ]]; then
+    if [[ -n "$nvim_python_dir" ]] && ! "$nvim_python_dir/bin/python" -c "import pynvim" 2>/dev/null; then
         echo "   Installing pynvim and Jupyter dependencies..."
         "$nvim_python_dir/bin/pip" install --upgrade pip pynvim \
             jupyter_client jupyter_core \
@@ -484,17 +483,27 @@ install_nvim_deps() {
     fi
 
     # Sync Lazy plugins (must happen before TSInstall or markdown-preview setup)
-    echo "   Syncing Neovim plugins (Lazy)..."
     if command -v nvim &> /dev/null; then
-        timeout 120 nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+        local lazy_dir="$HOME/.local/share/nvim/lazy"
+        if [[ ! -d "$lazy_dir" ]] || [[ -z "$(ls -A "$lazy_dir" 2>/dev/null)" ]]; then
+            echo "   Syncing Neovim plugins (Lazy)..."
+            timeout 120 nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+        else
+            echo "   Lazy plugins already installed, skipping sync"
+        fi
     fi
 
     # Install treesitter parsers
     if command -v nvim &> /dev/null && command -v tree-sitter &> /dev/null; then
-        echo "   Installing treesitter parsers..."
-        timeout 60 nvim --headless \
-            "+TSInstallSync python bash lua json yaml toml vim vimdoc markdown markdown_inline" \
-            +qa 2>/dev/null || true
+        local parser_dir="$HOME/.local/share/nvim/lazy/nvim-treesitter/parser"
+        if [[ ! -f "$parser_dir/python.so" ]]; then
+            echo "   Installing treesitter parsers..."
+            timeout 60 nvim --headless \
+                "+TSInstallSync python bash lua json yaml toml vim vimdoc markdown markdown_inline" \
+                +qa 2>/dev/null || true
+        else
+            echo "   Treesitter parsers already installed, skipping"
+        fi
     fi
 
     # markdown-preview.nvim dependencies
@@ -507,11 +516,13 @@ install_nvim_deps() {
 
     # Register Neovim remote plugins (required for molten-nvim)
     if [[ -n "$nvim_python_dir" ]] && command -v nvim &> /dev/null; then
-        echo "   Registering Neovim remote plugins..."
-        timeout 30 nvim --headless \
-            -c "Lazy load molten-nvim" \
-            -c "UpdateRemotePlugins" \
-            -c "q" 2>/dev/null || true
+        if [[ ! -f "$HOME/.local/share/nvim/rplugin.vim" ]]; then
+            echo "   Registering Neovim remote plugins..."
+            timeout 30 nvim --headless \
+                -c "Lazy load molten-nvim" \
+                -c "UpdateRemotePlugins" \
+                -c "q" 2>/dev/null || true
+        fi
     fi
 
     echo ""
@@ -523,14 +534,21 @@ install_nvim_deps() {
 backup_existing() {
     echo "==> Backing up existing configs..."
     local backup_dir="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
-    mkdir -p "$backup_dir"
+    local needs_backup=false
 
-    [[ -f "$HOME/.zshrc" ]] && cp "$HOME/.zshrc" "$backup_dir/"
-    [[ -f "$HOME/.bashrc" ]] && cp "$HOME/.bashrc" "$backup_dir/"
-    [[ -f "$HOME/.config/starship.toml" ]] && cp "$HOME/.config/starship.toml" "$backup_dir/"
-    [[ -f "$HOME/.gitconfig" ]] && cp "$HOME/.gitconfig" "$backup_dir/"
+    for f in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.config/starship.toml" "$HOME/.gitconfig"; do
+        [[ -f "$f" && ! -L "$f" ]] && needs_backup=true && break
+    done
 
-    echo "   Backup saved to: $backup_dir"
+    if $needs_backup; then
+        mkdir -p "$backup_dir"
+        for f in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.config/starship.toml" "$HOME/.gitconfig"; do
+            [[ -f "$f" && ! -L "$f" ]] && cp "$f" "$backup_dir/"
+        done
+        echo "   Backup saved to: $backup_dir"
+    else
+        echo "   Nothing to back up (already symlinked or absent)"
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -581,6 +599,17 @@ create_symlinks() {
     ln -sf "$DOTFILES_DIR/yazi/init.lua" "$HOME/.config/yazi/init.lua"
     ln -sf "$DOTFILES_DIR/yazi/package.toml" "$HOME/.config/yazi/package.toml"
     echo "   ~/.config/yazi/{yazi.toml,keymap.toml,init.lua,package.toml}"
+
+    # IdeaVim (JetBrains Vim emulation)
+    if [[ -f "$DOTFILES_DIR/ideavim/ideavimrc" ]]; then
+        ln -sf "$DOTFILES_DIR/ideavim/ideavimrc" "$HOME/.ideavimrc"
+        echo "   ~/.ideavimrc"
+    fi
+
+    # YouTube TUI
+    mkdir -p "$HOME/.config/youtube-tui"
+    ln -sf "$DOTFILES_DIR/youtube-tui/main.yml" "$HOME/.config/youtube-tui/main.yml"
+    echo "   ~/.config/youtube-tui/main.yml"
 
     # Install yazi plugins (use full path since ~/.local/bin may not be in PATH yet)
     if [[ -x "$LOCAL_BIN/ya" ]]; then
@@ -638,6 +667,27 @@ main() {
 
     echo ""
     set_default_shell
+
+    # Optional: VSCode config
+    read -p "Install VSCode configuration? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        "$DOTFILES_DIR/vscode/install.sh"
+    fi
+
+    # Optional: Termusic config
+    read -p "Install Termusic configuration? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        "$DOTFILES_DIR/termusic/install.sh"
+    fi
+
+    # Optional: Claude Code
+    read -p "Install Claude Code (Node.js + fnm)? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        "$SCRIPTS_DIR/install-claude.sh"
+    fi
 
     echo ""
     echo "============================================="

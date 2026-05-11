@@ -6,6 +6,7 @@
 set -e
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+SCRIPTS_DIR="$DOTFILES_DIR/scripts"
 
 echo "Installing dotfiles for macOS..."
 echo ""
@@ -42,15 +43,23 @@ install_deps() {
 backup_existing() {
     echo "==> Backing up existing configs..."
     local backup_dir="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
-    mkdir -p "$backup_dir"
+    local needs_backup=false
 
-    [[ -f "$HOME/.zshrc" ]] && cp "$HOME/.zshrc" "$backup_dir/"
-    [[ -f "$HOME/.config/starship.toml" ]] && cp "$HOME/.config/starship.toml" "$backup_dir/"
-    [[ -d "$HOME/.config/kitty" ]] && cp -r "$HOME/.config/kitty" "$backup_dir/"
-    [[ -f "$HOME/.config/karabiner/karabiner.json" ]] && cp "$HOME/.config/karabiner/karabiner.json" "$backup_dir/"
-    [[ -f "$HOME/.gitconfig" ]] && cp "$HOME/.gitconfig" "$backup_dir/"
+    for f in "$HOME/.zshrc" "$HOME/.config/starship.toml" "$HOME/.config/karabiner/karabiner.json" "$HOME/.gitconfig"; do
+        [[ -f "$f" && ! -L "$f" ]] && needs_backup=true && break
+    done
+    [[ -d "$HOME/.config/kitty" && ! -L "$HOME/.config/kitty/kitty.conf" ]] && needs_backup=true
 
-    echo "   Backup saved to: $backup_dir"
+    if $needs_backup; then
+        mkdir -p "$backup_dir"
+        for f in "$HOME/.zshrc" "$HOME/.config/starship.toml" "$HOME/.config/karabiner/karabiner.json" "$HOME/.gitconfig"; do
+            [[ -f "$f" && ! -L "$f" ]] && cp "$f" "$backup_dir/"
+        done
+        [[ -d "$HOME/.config/kitty" && ! -L "$HOME/.config/kitty/kitty.conf" ]] && cp -r "$HOME/.config/kitty" "$backup_dir/"
+        echo "   Backup saved to: $backup_dir"
+    else
+        echo "   Nothing to back up (already symlinked or absent)"
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -120,13 +129,11 @@ create_symlinks() {
     ln -sf "$DOTFILES_DIR/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
     echo "   ~/.config/karabiner/karabiner.json"
 
-    # AeroSpace (tiling window manager)
-    ln -sfn "$DOTFILES_DIR/aerospace" "$HOME/.config/aerospace"
-    echo "   ~/.config/aerospace"
-
-    # JankyBorders (window borders)
-    ln -sfn "$DOTFILES_DIR/borders" "$HOME/.config/borders"
-    echo "   ~/.config/borders"
+    # IdeaVim (JetBrains Vim emulation)
+    if [[ -f "$DOTFILES_DIR/ideavim/ideavimrc" ]]; then
+        ln -sf "$DOTFILES_DIR/ideavim/ideavimrc" "$HOME/.ideavimrc"
+        echo "   ~/.ideavimrc"
+    fi
 
     # YouTube TUI
     mkdir -p "$HOME/.config/youtube-tui"
@@ -170,6 +177,27 @@ main() {
     echo ""
     install_nvim_deps
 
+    # Optional: VSCode config
+    read -p "Install VSCode configuration? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        "$DOTFILES_DIR/vscode/install.sh"
+    fi
+
+    # Optional: Termusic config
+    read -p "Install Termusic configuration? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        "$DOTFILES_DIR/termusic/install.sh"
+    fi
+
+    # Optional: Claude Code
+    read -p "Install Claude Code (Node.js + fnm)? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        "$SCRIPTS_DIR/install-claude.sh"
+    fi
+
     echo ""
     echo "============================================="
     echo "  Done!"
@@ -178,8 +206,6 @@ main() {
     echo "Next steps:"
     echo "  1. Restart your terminal (or: source ~/.zshrc)"
     echo "  2. Zinit will auto-install plugins on first run"
-    echo "  3. Start borders: brew services start borders"
-    echo "  4. Log out and back in to start AeroSpace"
     echo ""
 }
 
