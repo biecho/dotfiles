@@ -125,10 +125,10 @@ install_bins() {
         fi
     fi
 
-    # Neovim (requires glibc 2.28+ / Ubuntu 20.04+)
+    # Neovim (pre-built binaries require glibc 2.34+; build from source otherwise)
     if ! command -v nvim &> /dev/null; then
-        if check_glibc "2.28"; then
-            echo "   Installing neovim..."
+        if check_glibc "2.34"; then
+            echo "   Installing neovim (pre-built binary)..."
             local nvim_version
             nvim_version=$(gh_version "neovim/neovim")
             if [[ -n "$nvim_version" ]]; then
@@ -139,8 +139,18 @@ install_bins() {
                 echo "   Warning: Could not fetch neovim version, skipping"
             fi
         else
-            echo "   Skipping neovim: requires glibc 2.28+ (Ubuntu 20.04+)"
-            echo "   Upgrade your OS with: sudo do-release-upgrade"
+            echo "   Building neovim from source (glibc <2.34)..."
+            local nvim_build_dir
+            nvim_build_dir=$(mktemp -d)
+            git clone --depth 1 --branch stable https://github.com/neovim/neovim.git "$nvim_build_dir" 2>/dev/null
+            if command -v cmake &> /dev/null || uv tool install cmake &> /dev/null; then
+                make -C "$nvim_build_dir" CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX="$HOME/.local/nvim-built" 2>&1 | tail -1
+                make -C "$nvim_build_dir" CMAKE_INSTALL_PREFIX="$HOME/.local/nvim-built" install 2>&1 | tail -1
+                ln -sf "$HOME/.local/nvim-built/bin/nvim" "$LOCAL_BIN/nvim"
+            else
+                echo "   Warning: cmake not available and uv not found, cannot build neovim"
+            fi
+            rm -rf "$nvim_build_dir"
         fi
     fi
 
