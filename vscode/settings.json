@@ -3,7 +3,7 @@
   // VSCODE SETTINGS - Configured to match nvim dotfiles
   // ==========================================================================
   // Install instructions:
-  //   Run: ~/dotfiles/scripts/install.sh -e dotfiles_install_vscode=true
+  //   Run: ansible-playbook ansible/playbook.yml -e dotfiles_install_vscode=true
   // ==========================================================================
   // ---------------------------------------------------------------------------
   // VIM EXTENSION

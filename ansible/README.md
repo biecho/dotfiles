@@ -10,19 +10,19 @@ setup are opt-in.
 ## Local Install
 
 ```sh
-./scripts/install.sh
+ansible-playbook ansible/playbook.yml
 ```
 
 Install packages as well:
 
 ```sh
-./scripts/install.sh -e dotfiles_install_packages=true
+ansible-playbook ansible/playbook.yml -e dotfiles_install_packages=true
 ```
 
 Enable optional setup:
 
 ```sh
-./scripts/install.sh \
+ansible-playbook ansible/playbook.yml \
   -e dotfiles_install_packages=true \
   -e dotfiles_install_nvim_deps=true \
   -e dotfiles_install_vscode=true \
@@ -53,12 +53,6 @@ Run against an SSH config alias:
 ansible-playbook ansible/playbook.yml -e dotfiles_target=my-ssh-alias
 ```
 
-The root installer script is only a convenience wrapper around this playbook:
-
-```sh
-./scripts/install.sh -e dotfiles_target=my-ssh-alias
-```
-
 Example one-off inventory:
 
 ```yaml
@@ -73,12 +67,6 @@ Run against that host:
 
 ```sh
 ansible-playbook -i inventory.yml ansible/playbook.yml -e dotfiles_target=my-host
-```
-
-Or through the wrapper:
-
-```sh
-./scripts/install.sh -i inventory.yml -e dotfiles_target=my-host
 ```
 
 With package installation:
