@@ -131,6 +131,8 @@ credentials on the target. For one-off machines, keep the default copy mode.
   default true.
 - `dotfiles_tailscale_authkey`: Tailscale auth key for unattended
   registration, default `$TAILSCALE_AUTHKEY` from the controller environment.
+- `dotfiles_tailscale_hostname`: Tailscale device name, default
+  `<machine-hostname>-ts`.
 - `dotfiles_tailscale_up_args`: extra arguments appended to `tailscale up`,
   default empty.
 - `dotfiles_install_vscode`: link VSCode settings and keybindings, default true.

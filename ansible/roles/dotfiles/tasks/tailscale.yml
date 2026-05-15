@@ -72,16 +72,46 @@
         if dotfiles_tailscale_status.rc == 0 and dotfiles_tailscale_status.stdout | length > 0
         else "Unknown"
       }}
+    dotfiles_tailscale_current_hostname: >-
+      {{
+        (
+          dotfiles_tailscale_status.stdout | from_json
+        ).Self.HostName
+        if dotfiles_tailscale_status.rc == 0 and dotfiles_tailscale_status.stdout | length > 0
+        else ""
+      }}
 
 - name: Bring Tailscale up with auth key
   ansible.builtin.command:
-    argv: "{{ ['tailscale', 'up', '--auth-key=' + dotfiles_tailscale_authkey] + dotfiles_tailscale_up_args }}"
+    argv: >-
+      {{
+        ['tailscale', 'up', '--auth-key=' + dotfiles_tailscale_authkey]
+        + (
+          ['--hostname=' + dotfiles_tailscale_hostname]
+          if dotfiles_tailscale_hostname | length > 0
+          else []
+        )
+        + dotfiles_tailscale_up_args
+      }}
   become: true
   no_log: true
   when:
     - dotfiles_tailscale_up | bool
     - dotfiles_tailscale_backend_state != "Running"
     - dotfiles_tailscale_authkey | length > 0
+
+- name: Set Tailscale hostname
+  ansible.builtin.command:
+    argv:
+      - tailscale
+      - set
+      - "--hostname={{ dotfiles_tailscale_hostname }}"
+  become: true
+  when:
+    - dotfiles_tailscale_up | bool
+    - dotfiles_tailscale_backend_state == "Running"
+    - dotfiles_tailscale_hostname | length > 0
+    - dotfiles_tailscale_current_hostname != dotfiles_tailscale_hostname
 
 - name: Explain pending Tailscale registration
   ansible.builtin.debug:
