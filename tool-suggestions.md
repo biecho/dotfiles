@@ -113,5 +113,5 @@ echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
 ## Notes
 
 - All installed tools configured in `~/dotfiles/`
-- Install: `scripts/install.sh`
+- Install: `ansible-playbook ansible/playbook.yml`
 - Philosophy: Terminal-first, keyboard-driven, modern Rust tools

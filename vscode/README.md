@@ -5,7 +5,8 @@ This VSCode configuration replicates the nvim dotfiles setup as closely as possi
 ## Quick Install
 
 ```bash
-~/dotfiles/scripts/install.sh -e dotfiles_install_vscode=true -e dotfiles_install_vscode_extensions=true
+cd ~/dotfiles
+ansible-playbook ansible/playbook.yml -e dotfiles_install_vscode=true -e dotfiles_install_vscode_extensions=true
 ```
 
 ## Extensions
