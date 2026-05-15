@@ -8,5 +8,6 @@ dotfiles_install_claude: true
 dotfiles_install_tailscale: true
 dotfiles_tailscale_up: true
 dotfiles_tailscale_authkey: "{{ lookup('env', 'TAILSCALE_AUTHKEY') }}"
+dotfiles_tailscale_hostname: "{{ ansible_facts.hostname }}-ts"
 dotfiles_tailscale_up_args: []
 dotfiles_set_default_shell: true
