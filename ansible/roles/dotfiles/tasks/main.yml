@@ -29,6 +29,14 @@
     - ansible_facts.system == "Linux"
     - dotfiles_install_packages | bool
 
+- name: Set default shell
+  ansible.builtin.include_tasks: shell.yml
+  when: dotfiles_set_default_shell | bool
+
+- name: Configure Tailscale
+  ansible.builtin.include_tasks: tailscale.yml
+  when: dotfiles_install_tailscale | bool
+
 - name: Ensure GitHub CLI is available
   ansible.builtin.include_tasks: github-cli.yml
   when:
@@ -59,10 +67,3 @@
 - name: Install Claude Code
   ansible.builtin.include_tasks: claude.yml
   when: dotfiles_install_claude | bool
-
-- name: Print Linux shell change hint
-  ansible.builtin.debug:
-    msg: "To switch your login shell, run: chsh -s $(command -v zsh)"
-  when:
-    - ansible_facts.system == "Linux"
-    - dotfiles_set_default_shell | bool

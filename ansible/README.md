@@ -4,8 +4,9 @@ This is the Ansible entry point for provisioning this dotfiles repo on the
 current machine or on an SSH-accessible host.
 
 The playbook installs the full workstation setup by default: platform packages,
-dotfile symlinks, Neovim dependencies, VSCode config, Termusic config, and
-Claude Code. Existing non-symlink files are backed up before replacement.
+zsh as the login shell, Tailscale, dotfile symlinks, Neovim dependencies, VSCode
+config, Termusic config, and Claude Code. Existing non-symlink files are backed
+up before replacement.
 
 ## Local Install
 
@@ -19,6 +20,19 @@ Disable specific setup areas when needed:
 ansible-playbook ansible/playbook.yml \
   -e dotfiles_install_vscode=false \
   -e dotfiles_install_claude=false
+```
+
+Register Tailscale non-interactively by supplying an auth key:
+
+```sh
+TAILSCALE_AUTHKEY=tskey-auth-... ansible-playbook ansible/playbook.yml
+```
+
+Without an auth key, the playbook installs Tailscale and leaves registration for
+manual login:
+
+```sh
+sudo tailscale up
 ```
 
 ## Remote Install
@@ -111,6 +125,14 @@ credentials on the target. For one-off machines, keep the default copy mode.
 - `dotfiles_install_github_cli`: install GitHub CLI when using `remote_gh`,
   default true for that auth mode.
 - `dotfiles_install_packages`: install platform packages, default true.
+- `dotfiles_set_default_shell`: change the login shell to zsh, default true.
+- `dotfiles_install_tailscale`: install Tailscale, default true.
+- `dotfiles_tailscale_up`: run `tailscale up` when an auth key is available,
+  default true.
+- `dotfiles_tailscale_authkey`: Tailscale auth key for unattended
+  registration, default `$TAILSCALE_AUTHKEY` from the controller environment.
+- `dotfiles_tailscale_up_args`: extra arguments appended to `tailscale up`,
+  default empty.
 - `dotfiles_install_vscode`: link VSCode settings and keybindings, default true.
 - `dotfiles_install_vscode_extensions`: install VSCode extensions, default true.
 - `dotfiles_install_nvim_deps`: install Neovim Python/plugin dependencies,
