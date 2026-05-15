@@ -22,6 +22,36 @@
     state: directory
     mode: "0755"
 
+- name: Check Debian fd executable
+  ansible.builtin.stat:
+    path: /usr/bin/fdfind
+  register: dotfiles_fdfind
+  when: ansible_facts.os_family == "Debian"
+
+- name: Link Debian fd executable name
+  ansible.builtin.file:
+    src: /usr/bin/fdfind
+    dest: "{{ dotfiles_local_bin }}/fd"
+    state: link
+  when:
+    - ansible_facts.os_family == "Debian"
+    - dotfiles_fdfind.stat.exists
+
+- name: Check Debian bat executable
+  ansible.builtin.stat:
+    path: /usr/bin/batcat
+  register: dotfiles_batcat
+  when: ansible_facts.os_family == "Debian"
+
+- name: Link Debian bat executable name
+  ansible.builtin.file:
+    src: /usr/bin/batcat
+    dest: "{{ dotfiles_local_bin }}/bat"
+    state: link
+  when:
+    - ansible_facts.os_family == "Debian"
+    - dotfiles_batcat.stat.exists
+
 - name: Warn when Linux package installation is disabled
   ansible.builtin.debug:
     msg: "Linux package installation is disabled; only dotfile links will be managed."
