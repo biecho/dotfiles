@@ -1,0 +1,49 @@
+---
+- name: Check GitHub CLI
+  ansible.builtin.command:
+    argv:
+      - gh
+      - --version
+  register: dotfiles_gh_check
+  failed_when: false
+  changed_when: false
+
+- name: Install GitHub CLI with Homebrew
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_brew | default('brew') }}"
+      - install
+      - gh
+  environment:
+    PATH: "/opt/homebrew/bin:/usr/local/bin:{{ ansible_facts.env.PATH }}"
+  when:
+    - dotfiles_install_github_cli | bool
+    - ansible_facts.system == "Darwin"
+    - dotfiles_gh_check.rc != 0
+
+- name: Install GitHub CLI with system package manager
+  ansible.builtin.package:
+    name: gh
+    state: present
+  become: "{{ dotfiles_linux_package_become | bool }}"
+  when:
+    - dotfiles_install_github_cli | bool
+    - ansible_facts.system == "Linux"
+    - dotfiles_gh_check.rc != 0
+
+- name: Recheck GitHub CLI
+  ansible.builtin.command:
+    argv:
+      - gh
+      - --version
+  register: dotfiles_gh_recheck
+  failed_when: false
+  changed_when: false
+  when: dotfiles_install_github_cli | bool
+
+- name: Fail when GitHub CLI is unavailable
+  ansible.builtin.fail:
+    msg: "GitHub CLI is required for dotfiles_repo_auth=remote_gh. Install gh or set dotfiles_install_github_cli=true."
+  when:
+    - dotfiles_repo_auth == "remote_gh"
+    - (dotfiles_gh_recheck.rc | default(dotfiles_gh_check.rc)) != 0

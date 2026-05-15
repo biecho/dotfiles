@@ -76,13 +76,50 @@ ansible-playbook -i inventory.yml ansible/playbook.yml -e dotfiles_target=my-hos
   -e dotfiles_install_packages=true --ask-become-pass
 ```
 
+### Remote Git Checkout
+
+The default remote mode copies the controller checkout. For trusted machines
+that should own their checkout and run future `git pull` commands themselves,
+use the Git strategy:
+
+```sh
+ansible-playbook ansible/playbook.yml \
+  -e dotfiles_target=my-ssh-alias \
+  -e dotfiles_repo_strategy=git \
+  -e dotfiles_repo_url=https://github.com/biecho/dotfiles.git \
+  -e dotfiles_repo_auth=remote_gh \
+  -e dotfiles_install_packages=true
+```
+
+`dotfiles_repo_auth=remote_gh` reads `gh auth token` on the controller, uses it
+for the HTTPS clone/update, then logs the remote `gh` CLI in and runs
+`gh auth setup-git`. After that, the remote can update itself:
+
+```sh
+cd ~/.dotfiles
+git pull
+ansible-playbook ansible/playbook.yml
+```
+
+Only use `remote_gh` on machines you trust, because it stores GitHub
+credentials on the target. For one-off machines, keep the default copy mode.
+
 ## Useful Variables
 
 - `dotfiles_sync_to_remote`: copy the controller checkout to the target first.
   Defaults to true for SSH targets and false for local runs.
+- `dotfiles_repo_strategy`: prepare the checkout with `local`, `copy`, or `git`.
+  Defaults to `copy` for SSH targets and `local` for local runs.
+- `dotfiles_repo_url`: HTTPS repository URL for `dotfiles_repo_strategy=git`.
+- `dotfiles_repo_version`: Git branch, tag, or commit to check out, default
+  `main`.
+- `dotfiles_repo_auth`: repository auth mode, `none`, `local_gh_token`, or
+  `remote_gh`. `remote_gh` persists GitHub CLI auth on the target.
 - `dotfiles_target`: inventory group or host pattern to provision, default
   `local`.
 - `dotfiles_remote_dir`: remote checkout path, default `~/.dotfiles`.
+- `dotfiles_install_github_cli`: install GitHub CLI when using `remote_gh`,
+  default true for that auth mode.
 - `dotfiles_install_packages`: install platform packages, default false.
 - `dotfiles_install_vscode`: link VSCode settings and keybindings, default false.
 - `dotfiles_install_vscode_extensions`: install VSCode extensions, default false.

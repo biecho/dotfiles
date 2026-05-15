@@ -1,17 +1,67 @@
 ---
+- name: Validate repository strategy
+  ansible.builtin.assert:
+    that:
+      - dotfiles_repo_strategy in ["local", "copy", "git"]
+      - dotfiles_repo_auth in ["none", "local_gh_token", "remote_gh"]
+    fail_msg: "Use dotfiles_repo_strategy=local|copy|git and dotfiles_repo_auth=none|local_gh_token|remote_gh."
+
+- name: Require local strategy for local connections
+  ansible.builtin.assert:
+    that:
+      - dotfiles_repo_strategy == "local"
+    fail_msg: "Local runs should use dotfiles_repo_strategy=local."
+  when: (ansible_connection | default('ssh')) == "local"
+
 - name: Ensure remote dotfiles checkout directory exists
   ansible.builtin.file:
     path: "{{ dotfiles_remote_dir }}"
     state: directory
     mode: "0755"
-  when: dotfiles_sync_to_remote | bool
+  when: dotfiles_repo_strategy == "copy"
 
 - name: Copy controller checkout to remote target
   ansible.builtin.copy:
     src: "{{ dotfiles_controller_dir }}/"
     dest: "{{ dotfiles_remote_dir }}/"
     mode: preserve
-  when: dotfiles_sync_to_remote | bool
+  when: dotfiles_repo_strategy == "copy"
+
+- name: Require repository URL for Git strategy
+  ansible.builtin.assert:
+    that:
+      - dotfiles_repo_url | length > 0
+    fail_msg: "Set dotfiles_repo_url when using dotfiles_repo_strategy=git."
+  when: dotfiles_repo_strategy == "git"
+
+- name: Read local GitHub token for repository access
+  ansible.builtin.set_fact:
+    dotfiles_github_token: "{{ lookup('pipe', 'gh auth token') }}"
+  no_log: true
+  when:
+    - dotfiles_repo_strategy == "git"
+    - dotfiles_repo_auth in ["local_gh_token", "remote_gh"]
+
+- name: Build temporary GitHub auth environment
+  ansible.builtin.set_fact:
+    dotfiles_git_auth_environment:
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: "http.https://github.com/.extraheader"
+      GIT_CONFIG_VALUE_0: "AUTHORIZATION: basic {{ ('x-access-token:' + dotfiles_github_token) | b64encode }}"
+  no_log: true
+  when:
+    - dotfiles_repo_strategy == "git"
+    - dotfiles_repo_auth in ["local_gh_token", "remote_gh"]
+
+- name: Clone or update dotfiles repository from Git
+  ansible.builtin.git:
+    repo: "{{ dotfiles_repo_url }}"
+    dest: "{{ dotfiles_remote_dir }}"
+    version: "{{ dotfiles_repo_version }}"
+    update: true
+  environment: "{{ dotfiles_git_auth_environment | default({}) }}"
+  no_log: "{{ dotfiles_repo_auth in ['local_gh_token', 'remote_gh'] }}"
+  when: dotfiles_repo_strategy == "git"
 
 - name: Verify dotfiles repository is present on target
   ansible.builtin.stat:
