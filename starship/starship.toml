@@ -10,7 +10,6 @@ $username\
 $hostname\
 $directory\
 $git_branch\
-$git_status\
 $line_break\
 $character"""
 
@@ -49,6 +48,7 @@ format = "[$branch]($style) "
 style = "purple"
 
 [git_status]
+disabled = true
 format = '([$all_status$ahead_behind]($style) )'
 style = "red"
 
