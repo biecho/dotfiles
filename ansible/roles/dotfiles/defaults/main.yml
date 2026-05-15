@@ -45,6 +45,10 @@ dotfiles_common_links:
     dest: .ideavimrc
   - src: ghostty/config
     dest: .config/ghostty/config
+  - src: .claude/settings.local.json
+    dest: .claude/settings.local.json
+  - src: .claude/commands
+    dest: .claude/commands
 
 dotfiles_kitty_links:
   - src: kitty/themes
