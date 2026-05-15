@@ -46,7 +46,6 @@ code = [
 
 # Play media
 play = [
-    { run = 'mpv --force-window "$@"', orphan = true, desc = "Play with mpv" },
     { run = 'open "$@"', orphan = true, desc = "Open with default app" },
 ]
 
