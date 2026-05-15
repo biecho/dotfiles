@@ -3,9 +3,9 @@
 This is the Ansible entry point for provisioning this dotfiles repo on the
 current machine or on an SSH-accessible host.
 
-The playbook is intentionally conservative by default: it creates symlinks and
-backs up existing non-symlink files, but package installation and heavier app
-setup are opt-in.
+The playbook installs the full workstation setup by default: platform packages,
+dotfile symlinks, Neovim dependencies, VSCode config, Termusic config, and
+Claude Code. Existing non-symlink files are backed up before replacement.
 
 ## Local Install
 
@@ -13,21 +13,12 @@ setup are opt-in.
 ansible-playbook ansible/playbook.yml
 ```
 
-Install packages as well:
-
-```sh
-ansible-playbook ansible/playbook.yml -e dotfiles_install_packages=true
-```
-
-Enable optional setup:
+Disable specific setup areas when needed:
 
 ```sh
 ansible-playbook ansible/playbook.yml \
-  -e dotfiles_install_packages=true \
-  -e dotfiles_install_nvim_deps=true \
-  -e dotfiles_install_vscode=true \
-  -e dotfiles_install_vscode_extensions=true \
-  -e dotfiles_install_termusic=true
+  -e dotfiles_install_vscode=false \
+  -e dotfiles_install_claude=false
 ```
 
 ## Remote Install
@@ -69,11 +60,11 @@ Run against that host:
 ansible-playbook -i inventory.yml ansible/playbook.yml -e dotfiles_target=my-host
 ```
 
-With package installation:
+Run against that host with the default full setup:
 
 ```sh
-ansible-playbook -i inventory.yml ansible/playbook.yml -e dotfiles_target=my-host \
-  -e dotfiles_install_packages=true --ask-become-pass
+ansible-playbook -i inventory.yml ansible/playbook.yml \
+  -e dotfiles_target=my-host --ask-become-pass
 ```
 
 ### Remote Git Checkout
@@ -87,8 +78,7 @@ ansible-playbook ansible/playbook.yml \
   -e dotfiles_target=my-ssh-alias \
   -e dotfiles_repo_strategy=git \
   -e dotfiles_repo_url=https://github.com/biecho/dotfiles.git \
-  -e dotfiles_repo_auth=remote_gh \
-  -e dotfiles_install_packages=true
+  -e dotfiles_repo_auth=remote_gh
 ```
 
 `dotfiles_repo_auth=remote_gh` reads `gh auth token` on the controller, uses it
@@ -120,10 +110,10 @@ credentials on the target. For one-off machines, keep the default copy mode.
 - `dotfiles_remote_dir`: remote checkout path, default `~/.dotfiles`.
 - `dotfiles_install_github_cli`: install GitHub CLI when using `remote_gh`,
   default true for that auth mode.
-- `dotfiles_install_packages`: install platform packages, default false.
-- `dotfiles_install_vscode`: link VSCode settings and keybindings, default false.
-- `dotfiles_install_vscode_extensions`: install VSCode extensions, default false.
+- `dotfiles_install_packages`: install platform packages, default true.
+- `dotfiles_install_vscode`: link VSCode settings and keybindings, default true.
+- `dotfiles_install_vscode_extensions`: install VSCode extensions, default true.
 - `dotfiles_install_nvim_deps`: install Neovim Python/plugin dependencies,
-  default false.
-- `dotfiles_install_termusic`: install Termusic config, default false.
-- `dotfiles_install_claude`: install fnm, Node.js LTS, and Claude Code, default false.
+  default true.
+- `dotfiles_install_termusic`: install Termusic config, default true.
+- `dotfiles_install_claude`: install fnm, Node.js LTS, and Claude Code, default true.
