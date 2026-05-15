@@ -1,0 +1,92 @@
+---
+- name: Check Tailscale CLI
+  ansible.builtin.command:
+    argv:
+      - tailscale
+      - version
+  register: dotfiles_tailscale_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Tailscale on Linux
+  ansible.builtin.shell: |
+    curl -fsSL https://tailscale.com/install.sh | sh
+  args:
+    executable: /bin/sh
+  become: true
+  when:
+    - ansible_facts.system == "Linux"
+    - dotfiles_tailscale_check.rc != 0
+
+- name: Install Tailscale on macOS
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_brew | default('brew') }}"
+      - install
+      - tailscale
+  environment:
+    PATH: "/opt/homebrew/bin:/usr/local/bin:{{ ansible_facts.env.PATH }}"
+  when:
+    - ansible_facts.system == "Darwin"
+    - dotfiles_tailscale_check.rc != 0
+
+- name: Recheck Tailscale CLI
+  ansible.builtin.command:
+    argv:
+      - tailscale
+      - version
+  register: dotfiles_tailscale_recheck
+  failed_when: false
+  changed_when: false
+
+- name: Fail when Tailscale CLI is unavailable
+  ansible.builtin.fail:
+    msg: "Tailscale installation did not produce a tailscale CLI."
+  when: dotfiles_tailscale_recheck.rc != 0
+
+- name: Enable and start tailscaled on Linux
+  ansible.builtin.systemd:
+    name: tailscaled
+    enabled: true
+    state: started
+  become: true
+  when: ansible_facts.system == "Linux"
+
+- name: Read Tailscale status
+  ansible.builtin.command:
+    argv:
+      - tailscale
+      - status
+      - --json
+  register: dotfiles_tailscale_status
+  failed_when: false
+  changed_when: false
+
+- name: Record Tailscale backend state
+  ansible.builtin.set_fact:
+    dotfiles_tailscale_backend_state: >-
+      {{
+        (
+          dotfiles_tailscale_status.stdout | from_json
+        ).BackendState
+        if dotfiles_tailscale_status.rc == 0 and dotfiles_tailscale_status.stdout | length > 0
+        else "Unknown"
+      }}
+
+- name: Bring Tailscale up with auth key
+  ansible.builtin.command:
+    argv: "{{ ['tailscale', 'up', '--auth-key=' + dotfiles_tailscale_authkey] + dotfiles_tailscale_up_args }}"
+  become: true
+  no_log: true
+  when:
+    - dotfiles_tailscale_up | bool
+    - dotfiles_tailscale_backend_state != "Running"
+    - dotfiles_tailscale_authkey | length > 0
+
+- name: Explain pending Tailscale registration
+  ansible.builtin.debug:
+    msg: "Tailscale is installed but not registered. Run sudo tailscale up, or rerun with TAILSCALE_AUTHKEY set / dotfiles_tailscale_authkey supplied."
+  when:
+    - dotfiles_tailscale_up | bool
+    - dotfiles_tailscale_backend_state != "Running"
+    - dotfiles_tailscale_authkey | length == 0

@@ -1,0 +1,59 @@
+---
+- name: Find zsh executable
+  ansible.builtin.command:
+    argv:
+      - sh
+      - -lc
+      - command -v zsh
+  register: dotfiles_zsh_path
+  changed_when: false
+
+- name: Ensure zsh is listed as an allowed login shell
+  ansible.builtin.lineinfile:
+    path: /etc/shells
+    line: "{{ dotfiles_zsh_path.stdout }}"
+    create: false
+  become: true
+
+- name: Read Linux login shell
+  ansible.builtin.command:
+    argv:
+      - getent
+      - passwd
+      - "{{ ansible_user_id }}"
+  register: dotfiles_passwd_entry
+  changed_when: false
+  when: ansible_facts.system == "Linux"
+
+- name: Set Linux login shell to zsh
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    shell: "{{ dotfiles_zsh_path.stdout }}"
+  become: true
+  when:
+    - ansible_facts.system == "Linux"
+    - dotfiles_passwd_entry.stdout.split(':')[-1] != dotfiles_zsh_path.stdout
+
+- name: Read macOS login shell
+  ansible.builtin.command:
+    argv:
+      - dscl
+      - .
+      - -read
+      - "/Users/{{ ansible_user_id }}"
+      - UserShell
+  register: dotfiles_macos_shell
+  changed_when: false
+  when: ansible_facts.system == "Darwin"
+
+- name: Set macOS login shell to zsh
+  ansible.builtin.command:
+    argv:
+      - chsh
+      - -s
+      - "{{ dotfiles_zsh_path.stdout }}"
+      - "{{ ansible_user_id }}"
+  become: true
+  when:
+    - ansible_facts.system == "Darwin"
+    - dotfiles_zsh_path.stdout not in dotfiles_macos_shell.stdout
