@@ -1,6 +1,6 @@
 ---
 - name: Provision dotfiles
-  hosts: all
+  hosts: "{{ dotfiles_target | default('local') }}"
   gather_facts: true
 
   vars:
