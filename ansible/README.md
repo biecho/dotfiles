@@ -10,19 +10,19 @@ setup are opt-in.
 ## Local Install
 
 ```sh
-ansible-playbook ansible/playbook.yml
+./scripts/install.sh
 ```
 
 Install packages as well:
 
 ```sh
-ansible-playbook ansible/playbook.yml -e dotfiles_install_packages=true
+./scripts/install.sh -e dotfiles_install_packages=true
 ```
 
 Enable optional setup:
 
 ```sh
-ansible-playbook ansible/playbook.yml \
+./scripts/install.sh \
   -e dotfiles_install_packages=true \
   -e dotfiles_install_nvim_deps=true \
   -e dotfiles_install_vscode=true \
@@ -53,6 +53,12 @@ Run against an SSH config alias:
 ansible-playbook -i ansible/inventory/ssh_config.py ansible/playbook.yml -l my-ssh-alias
 ```
 
+The root installer script is only a convenience wrapper around this playbook:
+
+```sh
+./scripts/install.sh -l my-ssh-alias
+```
+
 Example one-off inventory:
 
 ```yaml
@@ -67,6 +73,12 @@ Run against that host:
 
 ```sh
 ansible-playbook -i inventory.yml ansible/playbook.yml -l my-host
+```
+
+Or through the wrapper:
+
+```sh
+./scripts/install.sh -i inventory.yml -l my-host
 ```
 
 With package installation:
@@ -87,4 +99,4 @@ ansible-playbook -i inventory.yml ansible/playbook.yml -l my-host \
 - `dotfiles_install_nvim_deps`: install Neovim Python/plugin dependencies,
   default false.
 - `dotfiles_install_termusic`: install Termusic config, default false.
-- `dotfiles_install_claude`: run the existing Claude Code installer, default false.
+- `dotfiles_install_claude`: install fnm, Node.js LTS, and Claude Code, default false.

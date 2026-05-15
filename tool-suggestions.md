@@ -113,6 +113,5 @@ echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
 ## Notes
 
 - All installed tools configured in `~/dotfiles/`
-- macOS install: `scripts/macos/install.sh`
-- Linux install: `scripts/linux/install.sh`
+- Install: `scripts/install.sh`
 - Philosophy: Terminal-first, keyboard-driven, modern Rust tools

@@ -1,8 +1,57 @@
 ---
-- name: Install Claude Code through existing installer
+- name: Check for fnm
   ansible.builtin.command:
     argv:
       - bash
-      - "{{ dotfiles_repo_dir }}/scripts/install-claude.sh"
+      - -lc
+      - command -v fnm
+  register: dotfiles_fnm_check
+  changed_when: false
+  failed_when: false
+
+- name: Install fnm
+  ansible.builtin.shell: |
+    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
   args:
-    creates: "{{ dotfiles_home }}/.local/share/fnm"
+    executable: /bin/bash
+    creates: "{{ dotfiles_home }}/.local/share/fnm/fnm"
+  when: dotfiles_fnm_check.rc != 0
+
+- name: Check for Node.js
+  ansible.builtin.command:
+    argv:
+      - bash
+      - -lc
+      - export PATH="{{ dotfiles_home }}/.local/share/fnm:$PATH"; eval "$(fnm env --shell bash)" 2>/dev/null || true; command -v node
+  register: dotfiles_node_check
+  changed_when: false
+  failed_when: false
+
+- name: Install Node.js LTS through fnm
+  ansible.builtin.shell: |
+    export PATH="{{ dotfiles_home }}/.local/share/fnm:$PATH"
+    eval "$(fnm env --shell bash)"
+    fnm install --lts
+    fnm default lts-latest
+  args:
+    executable: /bin/bash
+  when: dotfiles_node_check.rc != 0
+
+- name: Check for Claude Code
+  ansible.builtin.command:
+    argv:
+      - bash
+      - -lc
+      - export PATH="{{ dotfiles_home }}/.local/share/fnm:$PATH"; eval "$(fnm env --shell bash)" 2>/dev/null || true; command -v claude
+  register: dotfiles_claude_check
+  changed_when: false
+  failed_when: false
+
+- name: Install Claude Code
+  ansible.builtin.shell: |
+    export PATH="{{ dotfiles_home }}/.local/share/fnm:$PATH"
+    eval "$(fnm env --shell bash)" 2>/dev/null || true
+    npm install -g @anthropic-ai/claude-code
+  args:
+    executable: /bin/bash
+  when: dotfiles_claude_check.rc != 0
