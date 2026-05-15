@@ -1,0 +1,4 @@
+---
+# SSH config aliases are treated as remote workstations. For remote targets the
+# checkout is copied to ~/.dotfiles before links are created.
+dotfiles_sync_to_remote: true

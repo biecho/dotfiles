@@ -3,7 +3,7 @@
   // VSCODE SETTINGS - Configured to match nvim dotfiles
   // ==========================================================================
   // Install instructions:
-  //   Run: ~/dotfiles/vscode/install.sh
+  //   Run: ~/dotfiles/scripts/install.sh -e dotfiles_install_vscode=true
   // ==========================================================================
   // ---------------------------------------------------------------------------
   // VIM EXTENSION
