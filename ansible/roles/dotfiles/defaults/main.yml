@@ -94,12 +94,19 @@ dotfiles_linux_packages_common:
   - zsh
 
 dotfiles_linux_packages_debian:
+  - atuin
   - bat
   - btop
   - build-essential
+  - duf
+  - eza
   - fd-find
   - fzf
+  - lazygit
+  - procs
   - python3-venv
+  - starship
+  - zoxide
 
 dotfiles_linux_packages_redhat:
   - bat
@@ -112,11 +119,18 @@ dotfiles_linux_packages_redhat:
   - python3
 
 dotfiles_linux_packages_arch:
+  - atuin
   - base-devel
   - bat
   - btop
+  - duf
+  - eza
   - fd
   - fzf
+  - lazygit
+  - procs
   - python
+  - starship
+  - zoxide
 
 dotfiles_vscode_extensions_file: "{{ dotfiles_repo_dir }}/vscode/extensions.txt"
