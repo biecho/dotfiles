@@ -43,8 +43,6 @@ dotfiles_common_links:
     dest: .config/yazi/package.toml
   - src: ideavim/ideavimrc
     dest: .ideavimrc
-  - src: youtube-tui/main.yml
-    dest: .config/youtube-tui/main.yml
   - src: ghostty/config
     dest: .config/ghostty/config
 
