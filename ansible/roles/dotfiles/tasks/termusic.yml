@@ -1,0 +1,35 @@
+---
+- name: Select Termusic config directory
+  ansible.builtin.set_fact:
+    dotfiles_termusic_dir: >-
+      {{
+        dotfiles_home + "/Library/Application Support/termusic"
+        if ansible_facts.system == "Darwin"
+        else dotfiles_home + "/.config/termusic"
+      }}
+
+- name: Ensure Termusic directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ dotfiles_termusic_dir }}"
+    - "{{ dotfiles_termusic_dir }}/themes"
+
+- name: Link Termusic configs
+  ansible.builtin.file:
+    src: "{{ dotfiles_repo_dir }}/termusic/{{ item }}"
+    dest: "{{ dotfiles_termusic_dir }}/{{ item }}"
+    state: link
+    force: true
+  loop:
+    - tui.toml
+    - server.toml
+
+- name: Install Termusic theme
+  ansible.builtin.copy:
+    src: "{{ dotfiles_repo_dir }}/termusic/themes/Cyberdream.yml"
+    dest: "{{ dotfiles_termusic_dir }}/themes/Cyberdream.yml"
+    mode: "0644"
+    remote_src: true

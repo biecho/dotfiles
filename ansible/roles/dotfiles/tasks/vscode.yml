@@ -1,0 +1,70 @@
+---
+- name: Select VSCode user directories
+  ansible.builtin.set_fact:
+    dotfiles_vscode_user_dirs: >-
+      {{
+        ["Library/Application Support/Code/User"]
+        if ansible_facts.system == "Darwin"
+        else [".config/Code/User"]
+      }}
+
+- name: Ensure VSCode user directories exist
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ dotfiles_vscode_user_dirs }}"
+
+- name: Link VSCode settings
+  ansible.builtin.file:
+    src: "{{ dotfiles_repo_dir }}/vscode/settings.json"
+    dest: "{{ dotfiles_home }}/{{ item }}/settings.json"
+    state: link
+    force: true
+  loop: "{{ dotfiles_vscode_user_dirs }}"
+
+- name: Link VSCode keybindings
+  ansible.builtin.file:
+    src: "{{ dotfiles_repo_dir }}/vscode/keybindings.json"
+    dest: "{{ dotfiles_home }}/{{ item }}/keybindings.json"
+    state: link
+    force: true
+  loop: "{{ dotfiles_vscode_user_dirs }}"
+
+- name: Find VSCode-compatible CLI
+  ansible.builtin.shell: |
+    command -v code || command -v codium || command -v code-server
+  register: dotfiles_code_cli
+  changed_when: false
+  failed_when: false
+  when: dotfiles_install_vscode_extensions | bool
+
+- name: Read VSCode extension list
+  ansible.builtin.slurp:
+    src: "{{ dotfiles_vscode_extensions_file }}"
+  register: dotfiles_vscode_extensions
+  when: dotfiles_install_vscode_extensions | bool
+
+- name: Parse VSCode extension list
+  ansible.builtin.set_fact:
+    dotfiles_vscode_extension_ids: >-
+      {{
+        (dotfiles_vscode_extensions.content | b64decode).splitlines()
+        | map('regex_replace', '#.*$', '')
+        | map('trim')
+        | reject('equalto', '')
+        | list
+      }}
+  when: dotfiles_install_vscode_extensions | bool
+
+- name: Install VSCode extensions
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_code_cli.stdout_lines[0] }}"
+      - --install-extension
+      - "{{ item }}"
+      - --force
+  loop: "{{ dotfiles_vscode_extension_ids }}"
+  when:
+    - dotfiles_install_vscode_extensions | bool
+    - dotfiles_code_cli.stdout_lines | length > 0

@@ -1,0 +1,28 @@
+---
+- name: Select Linux package list
+  ansible.builtin.set_fact:
+    dotfiles_linux_packages: >-
+      {{
+        dotfiles_linux_packages_common
+        + (dotfiles_linux_packages_debian if ansible_facts.os_family == "Debian" else [])
+        + (dotfiles_linux_packages_redhat if ansible_facts.os_family == "RedHat" else [])
+        + (dotfiles_linux_packages_arch if ansible_facts.os_family == "Archlinux" else [])
+      }}
+
+- name: Install Linux packages with system package manager
+  ansible.builtin.package:
+    name: "{{ dotfiles_linux_packages }}"
+    state: present
+  become: "{{ dotfiles_linux_package_become | bool }}"
+  when: dotfiles_linux_use_system_packages | bool
+
+- name: Ensure local bin directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_local_bin }}"
+    state: directory
+    mode: "0755"
+
+- name: Warn when Linux package installation is disabled
+  ansible.builtin.debug:
+    msg: "Linux package installation is disabled; only dotfile links will be managed."
+  when: not (dotfiles_linux_use_system_packages | bool)

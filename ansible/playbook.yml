@@ -1,0 +1,10 @@
+---
+- name: Provision dotfiles
+  hosts: all
+  gather_facts: true
+
+  vars:
+    dotfiles_controller_dir: "{{ playbook_dir | dirname }}"
+
+  roles:
+    - role: dotfiles

@@ -1,0 +1,49 @@
+---
+- name: Ensure Neovim Python environment exists
+  ansible.builtin.command:
+    argv:
+      - python3
+      - -m
+      - venv
+      - "{{ dotfiles_home }}/.local/share/nvim/python"
+  args:
+    creates: "{{ dotfiles_home }}/.local/share/nvim/python/bin/python"
+
+- name: Install Neovim Python dependencies
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_home }}/.local/share/nvim/python/bin/pip"
+      - install
+      - --upgrade
+      - pip
+      - pynvim
+      - jupyter_client
+      - jupyter_core
+      - cairosvg
+      - pnglatex
+      - plotly
+      - kaleido
+      - pillow
+  register: dotfiles_nvim_pip
+  changed_when: "'Successfully installed' in (dotfiles_nvim_pip.stdout | default(''))"
+
+- name: Sync Lazy.nvim plugins
+  ansible.builtin.command:
+    argv:
+      - nvim
+      - --headless
+      - "+Lazy! sync"
+      - +qa
+  register: dotfiles_lazy_sync
+  failed_when: false
+  changed_when: "'Updated' in (dotfiles_lazy_sync.stdout | default(''))"
+
+- name: Install markdown-preview dependencies
+  ansible.builtin.command:
+    argv:
+      - ./install.sh
+  args:
+    chdir: "{{ dotfiles_home }}/.local/share/nvim/lazy/markdown-preview.nvim/app"
+    creates: "{{ dotfiles_home }}/.local/share/nvim/lazy/markdown-preview.nvim/app/bin"
+  register: dotfiles_markdown_preview
+  failed_when: false

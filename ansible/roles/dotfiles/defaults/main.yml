@@ -1,0 +1,113 @@
+---
+dotfiles_home: "{{ ansible_facts.env.HOME }}"
+dotfiles_local_bin: "{{ dotfiles_home }}/.local/bin"
+
+# For remote SSH hosts, copy this checkout to the target and symlink from there.
+dotfiles_sync_to_remote: "{{ (ansible_connection | default('ssh')) != 'local' }}"
+dotfiles_remote_dir: "{{ dotfiles_home }}/.dotfiles"
+dotfiles_repo_dir: "{{ dotfiles_remote_dir if (dotfiles_sync_to_remote | bool) else dotfiles_controller_dir }}"
+
+dotfiles_backup_existing: true
+dotfiles_backup_dir: "{{ dotfiles_home }}/.dotfiles_backup/{{ ansible_facts.date_time.iso8601_basic_short }}"
+
+dotfiles_install_packages: false
+dotfiles_install_vscode: false
+dotfiles_install_vscode_extensions: false
+dotfiles_install_termusic: false
+dotfiles_install_nvim_deps: false
+dotfiles_install_claude: false
+
+dotfiles_install_homebrew: "{{ dotfiles_install_packages }}"
+dotfiles_linux_use_system_packages: "{{ dotfiles_install_packages }}"
+dotfiles_linux_package_become: true
+dotfiles_set_default_shell: false
+
+dotfiles_common_links:
+  - src: zsh/.zshrc
+    dest: .zshrc
+  - src: starship/starship.toml
+    dest: .config/starship.toml
+  - src: nvim
+    dest: .config/nvim
+  - src: git/config
+    dest: .gitconfig
+  - src: tmux/tmux.conf
+    dest: .tmux.conf
+  - src: yazi/yazi.toml
+    dest: .config/yazi/yazi.toml
+  - src: yazi/keymap.toml
+    dest: .config/yazi/keymap.toml
+  - src: yazi/init.lua
+    dest: .config/yazi/init.lua
+  - src: yazi/package.toml
+    dest: .config/yazi/package.toml
+  - src: ideavim/ideavimrc
+    dest: .ideavimrc
+  - src: youtube-tui/main.yml
+    dest: .config/youtube-tui/main.yml
+  - src: ghostty/config
+    dest: .config/ghostty/config
+
+dotfiles_kitty_links:
+  - src: kitty/themes
+    dest: .config/kitty/themes
+  - src: kitty/kitty.conf
+    dest: .config/kitty/kitty.conf
+  - src: kitty/current-theme.conf
+    dest: .config/kitty/current-theme.conf
+  - src: kitty/ssh.conf
+    dest: .config/kitty/ssh.conf
+  - src: kitty/tab_bar.py
+    dest: .config/kitty/tab_bar.py
+  - src: kitty/choose-files.conf
+    dest: .config/kitty/choose-files.conf
+
+dotfiles_macos_links:
+  - src: karabiner/karabiner.json
+    dest: .config/karabiner/karabiner.json
+  - src: lazygit/config.yml
+    dest: Library/Application Support/lazygit/config.yml
+
+dotfiles_linux_links:
+  - src: lazygit/config.yml
+    dest: .config/lazygit/config.yml
+
+dotfiles_linux_packages_common:
+  - curl
+  - git
+  - jq
+  - neovim
+  - ripgrep
+  - rsync
+  - tar
+  - tmux
+  - unzip
+  - zsh
+
+dotfiles_linux_packages_debian:
+  - bat
+  - btop
+  - build-essential
+  - fd-find
+  - fzf
+  - python3-venv
+
+dotfiles_linux_packages_redhat:
+  - bat
+  - btop
+  - fd-find
+  - fzf
+  - gcc
+  - gcc-c++
+  - make
+  - python3
+
+dotfiles_linux_packages_arch:
+  - base-devel
+  - bat
+  - btop
+  - fd
+  - fzf
+  - python
+
+dotfiles_vscode_extensions_file: "{{ dotfiles_repo_dir }}/vscode/extensions.txt"
