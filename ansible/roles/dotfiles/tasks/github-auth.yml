@@ -1,0 +1,42 @@
+---
+- name: Read local GitHub token for remote GitHub CLI auth
+  ansible.builtin.set_fact:
+    dotfiles_github_token: "{{ dotfiles_github_token | default(lookup('pipe', 'gh auth token')) }}"
+  no_log: true
+
+- name: Check remote GitHub CLI auth
+  ansible.builtin.command:
+    argv:
+      - gh
+      - auth
+      - status
+      - --hostname
+      - github.com
+  register: dotfiles_gh_auth_status
+  failed_when: false
+  changed_when: false
+
+- name: Log remote GitHub CLI in with local token
+  ansible.builtin.command:
+    argv:
+      - gh
+      - auth
+      - login
+      - --hostname
+      - github.com
+      - --git-protocol
+      - https
+      - --with-token
+    stdin: "{{ dotfiles_github_token }}"
+  no_log: true
+  when: dotfiles_gh_auth_status.rc != 0
+
+- name: Configure Git to use GitHub CLI credentials
+  ansible.builtin.command:
+    argv:
+      - gh
+      - auth
+      - setup-git
+      - --hostname
+      - github.com
+  changed_when: false

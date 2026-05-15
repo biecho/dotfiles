@@ -29,6 +29,18 @@
     - ansible_facts.system == "Linux"
     - dotfiles_install_packages | bool
 
+- name: Ensure GitHub CLI is available
+  ansible.builtin.include_tasks: github-cli.yml
+  when:
+    - dotfiles_repo_auth == "remote_gh"
+    - dotfiles_repo_strategy == "git"
+
+- name: Configure remote GitHub credentials
+  ansible.builtin.include_tasks: github-auth.yml
+  when:
+    - dotfiles_repo_auth == "remote_gh"
+    - dotfiles_repo_strategy == "git"
+
 - name: Create dotfile symlinks
   ansible.builtin.include_tasks: symlinks.yml
 
