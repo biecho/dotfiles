@@ -14,12 +14,12 @@ dotfiles_repo_dir: "{{ dotfiles_controller_dir if dotfiles_repo_strategy == 'loc
 dotfiles_backup_existing: true
 dotfiles_backup_dir: "{{ dotfiles_home }}/.dotfiles_backup/{{ ansible_facts.date_time.iso8601_basic_short }}"
 
-dotfiles_install_packages: false
-dotfiles_install_vscode: false
-dotfiles_install_vscode_extensions: false
-dotfiles_install_termusic: false
-dotfiles_install_nvim_deps: false
-dotfiles_install_claude: false
+dotfiles_install_packages: true
+dotfiles_install_vscode: true
+dotfiles_install_vscode_extensions: true
+dotfiles_install_termusic: true
+dotfiles_install_nvim_deps: true
+dotfiles_install_claude: true
 dotfiles_install_github_cli: "{{ dotfiles_repo_auth == 'remote_gh' }}"
 
 dotfiles_install_homebrew: "{{ dotfiles_install_packages }}"
