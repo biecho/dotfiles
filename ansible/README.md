@@ -50,13 +50,13 @@ ansible-inventory -i ansible/inventory/ssh_config.py --list
 Run against an SSH config alias:
 
 ```sh
-ansible-playbook -i ansible/inventory/ssh_config.py ansible/playbook.yml -l my-ssh-alias
+ansible-playbook ansible/playbook.yml -e dotfiles_target=my-ssh-alias
 ```
 
 The root installer script is only a convenience wrapper around this playbook:
 
 ```sh
-./scripts/install.sh -l my-ssh-alias
+./scripts/install.sh -e dotfiles_target=my-ssh-alias
 ```
 
 Example one-off inventory:
@@ -72,19 +72,19 @@ all:
 Run against that host:
 
 ```sh
-ansible-playbook -i inventory.yml ansible/playbook.yml -l my-host
+ansible-playbook -i inventory.yml ansible/playbook.yml -e dotfiles_target=my-host
 ```
 
 Or through the wrapper:
 
 ```sh
-./scripts/install.sh -i inventory.yml -l my-host
+./scripts/install.sh -i inventory.yml -e dotfiles_target=my-host
 ```
 
 With package installation:
 
 ```sh
-ansible-playbook -i inventory.yml ansible/playbook.yml -l my-host \
+ansible-playbook -i inventory.yml ansible/playbook.yml -e dotfiles_target=my-host \
   -e dotfiles_install_packages=true --ask-become-pass
 ```
 
@@ -92,6 +92,8 @@ ansible-playbook -i inventory.yml ansible/playbook.yml -l my-host \
 
 - `dotfiles_sync_to_remote`: copy the controller checkout to the target first.
   Defaults to true for SSH targets and false for local runs.
+- `dotfiles_target`: inventory group or host pattern to provision, default
+  `local`.
 - `dotfiles_remote_dir`: remote checkout path, default `~/.dotfiles`.
 - `dotfiles_install_packages`: install platform packages, default false.
 - `dotfiles_install_vscode`: link VSCode settings and keybindings, default false.
