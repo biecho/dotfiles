@@ -36,6 +36,23 @@ Add a host under `workstations` in `ansible/inventory/hosts.yml`, or pass a
 separate inventory file. For SSH targets, the role copies this checkout to
 `~/.dotfiles` on the target and symlinks from there.
 
+Ansible also includes `ansible/inventory/ssh_config.py`, a dynamic inventory
+that reads concrete `Host` aliases from your local `~/.ssh/config`. OpenSSH
+still handles `HostName`, `User`, `Port`, `IdentityFile`, `ProxyJump`, and the
+rest of your SSH settings.
+
+List SSH config aliases visible to Ansible:
+
+```sh
+ansible-inventory -i ansible/inventory/ssh_config.py --list
+```
+
+Run against an SSH config alias:
+
+```sh
+ansible-playbook -i ansible/inventory/ssh_config.py ansible/playbook.yml -l my-ssh-alias
+```
+
 Example one-off inventory:
 
 ```yaml
