@@ -1,0 +1,24 @@
+---
+- name: Ensure remote dotfiles checkout directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_remote_dir }}"
+    state: directory
+    mode: "0755"
+  when: dotfiles_sync_to_remote | bool
+
+- name: Copy controller checkout to remote target
+  ansible.builtin.copy:
+    src: "{{ dotfiles_controller_dir }}/"
+    dest: "{{ dotfiles_remote_dir }}/"
+    mode: preserve
+  when: dotfiles_sync_to_remote | bool
+
+- name: Verify dotfiles repository is present on target
+  ansible.builtin.stat:
+    path: "{{ dotfiles_repo_dir }}/nvim/init.lua"
+  register: dotfiles_repo_check
+
+- name: Fail when repository preparation did not produce a usable checkout
+  ansible.builtin.fail:
+    msg: "Expected dotfiles checkout at {{ dotfiles_repo_dir }}."
+  when: not dotfiles_repo_check.stat.exists

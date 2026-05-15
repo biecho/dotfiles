@@ -1,0 +1,8 @@
+---
+- name: Install Claude Code through existing installer
+  ansible.builtin.command:
+    argv:
+      - bash
+      - "{{ dotfiles_repo_dir }}/scripts/install-claude.sh"
+  args:
+    creates: "{{ dotfiles_home }}/.local/share/fnm"

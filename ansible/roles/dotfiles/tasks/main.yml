@@ -1,0 +1,56 @@
+---
+- name: Validate supported platform
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.system in ["Darwin", "Linux"]
+    fail_msg: "This dotfiles role supports macOS and Linux targets."
+
+- name: Build platform link list
+  ansible.builtin.set_fact:
+    dotfiles_links: >-
+      {{
+        dotfiles_common_links
+        + dotfiles_kitty_links
+        + (dotfiles_macos_links if ansible_facts.system == "Darwin" else dotfiles_linux_links)
+      }}
+
+- name: Prepare repository on target
+  ansible.builtin.include_tasks: repository.yml
+
+- name: Install macOS packages
+  ansible.builtin.include_tasks: packages-macos.yml
+  when:
+    - ansible_facts.system == "Darwin"
+    - dotfiles_install_packages | bool
+
+- name: Install Linux packages
+  ansible.builtin.include_tasks: packages-linux.yml
+  when:
+    - ansible_facts.system == "Linux"
+    - dotfiles_install_packages | bool
+
+- name: Create dotfile symlinks
+  ansible.builtin.include_tasks: symlinks.yml
+
+- name: Configure Neovim plugin dependencies
+  ansible.builtin.include_tasks: nvim.yml
+  when: dotfiles_install_nvim_deps | bool
+
+- name: Configure VSCode
+  ansible.builtin.include_tasks: vscode.yml
+  when: dotfiles_install_vscode | bool
+
+- name: Configure Termusic
+  ansible.builtin.include_tasks: termusic.yml
+  when: dotfiles_install_termusic | bool
+
+- name: Install Claude Code
+  ansible.builtin.include_tasks: claude.yml
+  when: dotfiles_install_claude | bool
+
+- name: Print Linux shell change hint
+  ansible.builtin.debug:
+    msg: "To switch your login shell, run: chsh -s $(command -v zsh)"
+  when:
+    - ansible_facts.system == "Linux"
+    - dotfiles_set_default_shell | bool

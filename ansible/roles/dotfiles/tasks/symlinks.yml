@@ -1,0 +1,100 @@
+---
+- name: Inspect dotfile sources
+  ansible.builtin.stat:
+    path: "{{ dotfiles_repo_dir }}/{{ item.src }}"
+  loop: "{{ dotfiles_links }}"
+  register: dotfiles_source_stats
+  loop_control:
+    label: "{{ item.src }}"
+
+- name: Keep only links whose source exists
+  ansible.builtin.set_fact:
+    dotfiles_existing_links: >-
+      {{
+        dotfiles_source_stats.results
+        | selectattr('stat.exists')
+        | map(attribute='item')
+        | list
+      }}
+
+- name: Inspect existing link targets
+  ansible.builtin.stat:
+    path: "{{ dotfiles_home }}/{{ item.dest }}"
+    follow: false
+  loop: "{{ dotfiles_existing_links }}"
+  register: dotfiles_target_stats
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: Ensure backup directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_backup_dir }}"
+    state: directory
+    mode: "0755"
+  when: dotfiles_backup_existing | bool
+
+- name: Back up non-symlink targets before replacing them
+  ansible.builtin.command:
+    argv:
+      - mv
+      - "{{ item.stat.path }}"
+      - "{{ dotfiles_backup_dir }}/{{ item.item.dest | replace('/', '__') }}"
+  loop: "{{ dotfiles_target_stats.results }}"
+  loop_control:
+    label: "{{ item.item.dest }}"
+  when:
+    - dotfiles_backup_existing | bool
+    - item.stat.exists
+    - not item.stat.islnk
+  changed_when: true
+
+- name: Ensure parent directories exist
+  ansible.builtin.file:
+    path: "{{ (dotfiles_home + '/' + item.dest) | dirname }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ dotfiles_existing_links }}"
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: Link dotfiles
+  ansible.builtin.file:
+    src: "{{ dotfiles_repo_dir }}/{{ item.src }}"
+    dest: "{{ dotfiles_home }}/{{ item.dest }}"
+    state: link
+    force: true
+  loop: "{{ dotfiles_existing_links }}"
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: Ensure git hooks directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/git/hooks"
+    state: directory
+    mode: "0755"
+
+- name: Discover git hooks
+  ansible.builtin.find:
+    paths: "{{ dotfiles_repo_dir }}/git/hooks"
+    file_type: file
+  register: dotfiles_git_hooks
+
+- name: Link git hooks
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ dotfiles_home }}/.config/git/hooks/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ dotfiles_git_hooks.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+
+- name: Install yazi packages when ya is available
+  ansible.builtin.command:
+    argv:
+      - ya
+      - pkg
+      - install
+  register: dotfiles_yazi_pkg
+  failed_when: false
+  changed_when: "'Installed' in (dotfiles_yazi_pkg.stdout | default(''))"

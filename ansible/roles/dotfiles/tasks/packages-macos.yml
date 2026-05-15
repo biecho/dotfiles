@@ -1,0 +1,58 @@
+---
+- name: Check Homebrew locations
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /opt/homebrew/bin/brew
+    - /usr/local/bin/brew
+  register: dotfiles_brew_locations
+
+- name: Select Homebrew executable
+  ansible.builtin.set_fact:
+    dotfiles_brew: >-
+      {{
+        (dotfiles_brew_locations.results | selectattr('stat.exists') | map(attribute='item') | first)
+        | default('/opt/homebrew/bin/brew')
+      }}
+
+- name: Install Homebrew when missing
+  ansible.builtin.shell: |
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  args:
+    creates: "{{ dotfiles_brew }}"
+  when: dotfiles_install_homebrew | bool
+
+- name: Install Homebrew bundle
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_brew }}"
+      - bundle
+      - "--file={{ dotfiles_repo_dir }}/Brewfile"
+  environment:
+    PATH: "/opt/homebrew/bin:/usr/local/bin:{{ ansible_facts.env.PATH }}"
+
+- name: Install fzf shell integrations
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_brew | dirname }}/../opt/fzf/install"
+      - --key-bindings
+      - --completion
+      - --no-update-rc
+      - --no-bash
+      - --no-fish
+  register: dotfiles_fzf_install
+  failed_when: false
+  changed_when: "'Already' not in (dotfiles_fzf_install.stdout | default(''))"
+
+- name: Install pipx CLI tools
+  ansible.builtin.command:
+    argv:
+      - pipx
+      - install
+      - "{{ item }}"
+  loop:
+    - huggingface_hub
+    - nvitop
+  register: dotfiles_pipx_install
+  failed_when: false
+  changed_when: "'already seems to be installed' not in (dotfiles_pipx_install.stderr | default(''))"
