@@ -43,8 +43,6 @@ dotfiles_common_links:
     dest: .config/yazi/package.toml
   - src: ideavim/ideavimrc
     dest: .ideavimrc
-  - src: ghostty/config
-    dest: .config/ghostty/config
   - src: .claude/settings.local.json
     dest: .claude/settings.local.json
   - src: .claude/commands
