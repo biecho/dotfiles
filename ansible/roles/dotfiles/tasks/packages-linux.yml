@@ -9,6 +9,15 @@
         + (dotfiles_linux_packages_arch if ansible_facts.os_family == "Archlinux" else [])
       }}
 
+- name: Refresh apt metadata on Debian-family systems
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: "{{ dotfiles_linux_package_become | bool }}"
+  when:
+    - dotfiles_linux_use_system_packages | bool
+    - ansible_facts.os_family == "Debian"
+
 - name: Install Linux packages with system package manager
   ansible.builtin.package:
     name: "{{ dotfiles_linux_packages }}"
