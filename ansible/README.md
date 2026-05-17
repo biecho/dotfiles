@@ -10,6 +10,12 @@ up before replacement.
 
 ## Local Install
 
+Install required Ansible collections once on a fresh controller:
+
+```sh
+ansible-galaxy collection install -r ansible/requirements.yml
+```
+
 ```sh
 ansible-playbook ansible/playbook.yml
 ```

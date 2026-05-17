@@ -20,11 +20,24 @@
     mode: "0755"
   when: dotfiles_repo_strategy == "copy"
 
+- name: Ensure rsync is available for remote copy on Linux
+  ansible.builtin.package:
+    name: rsync
+    state: present
+  become: "{{ dotfiles_linux_package_become | bool }}"
+  when:
+    - dotfiles_repo_strategy == "copy"
+    - ansible_facts.system == "Linux"
+
 - name: Copy controller checkout to remote target
-  ansible.builtin.copy:
+  ansible.posix.synchronize:
     src: "{{ dotfiles_controller_dir }}/"
     dest: "{{ dotfiles_remote_dir }}/"
-    mode: preserve
+    archive: true
+    delete: true
+    rsync_opts:
+      - "--exclude=.git/"
+      - "--exclude=.DS_Store"
   when: dotfiles_repo_strategy == "copy"
 
 - name: Require repository URL for Git strategy
