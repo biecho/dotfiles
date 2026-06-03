@@ -1599,7 +1599,7 @@
   // ---------------------------------------------------------------------------
   // WORKBENCH
   // ---------------------------------------------------------------------------
-  "workbench.colorTheme": "Gruvbox Material Light",
+  "workbench.colorTheme": "Catppuccin Frappé",
   "workbench.startupEditor": "none",
   "workbench.editor.enablePreview": false,
   "workbench.sideBar.location": "left",
