@@ -106,6 +106,7 @@
       - tailscale
       - set
       - "--hostname={{ dotfiles_tailscale_hostname }}"
+  become: "{{ ansible_facts.system == 'Linux' }}"
   when:
     - dotfiles_tailscale_up | bool
     - dotfiles_tailscale_backend_state == "Running"
