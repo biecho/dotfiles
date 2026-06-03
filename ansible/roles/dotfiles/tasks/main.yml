@@ -33,6 +33,12 @@
   ansible.builtin.include_tasks: shell.yml
   when: dotfiles_set_default_shell | bool
 
+- name: Configure keyd key remapping
+  ansible.builtin.include_tasks: keyd.yml
+  when:
+    - ansible_facts.system == "Linux"
+    - dotfiles_install_keyd | bool
+
 - name: Configure Tailscale
   ansible.builtin.include_tasks: tailscale.yml
   when: dotfiles_install_tailscale | bool

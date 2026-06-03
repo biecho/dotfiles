@@ -131,6 +131,8 @@ credentials on the target. For one-off machines, keep the default copy mode.
 - `dotfiles_install_github_cli`: install GitHub CLI when using `remote_gh`,
   default true for that auth mode.
 - `dotfiles_install_packages`: install platform packages, default true.
+- `dotfiles_install_keyd`: on Linux, build keyd and install the Caps
+  Lock-as-Control/Escape remap from `keyd/default.conf`, default true.
 - `dotfiles_set_default_shell`: change the login shell to zsh, default true.
 - `dotfiles_install_tailscale`: install Tailscale, default true.
 - `dotfiles_tailscale_up`: run `tailscale up` when an auth key is available,
