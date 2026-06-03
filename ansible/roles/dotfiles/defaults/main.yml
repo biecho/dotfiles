@@ -1,6 +1,7 @@
 ---
 dotfiles_home: "{{ ansible_facts.env.HOME }}"
 dotfiles_local_bin: "{{ dotfiles_home }}/.local/bin"
+dotfiles_fonts_dir: "{{ dotfiles_home }}/.local/share/fonts"
 
 # For remote SSH hosts, copy this checkout to the target and symlink from there.
 dotfiles_sync_to_remote: "{{ (ansible_connection | default('ssh')) != 'local' }}"
@@ -15,6 +16,7 @@ dotfiles_backup_existing: true
 dotfiles_backup_dir: "{{ dotfiles_home }}/.dotfiles_backup/{{ ansible_facts.date_time.iso8601_basic_short }}"
 
 dotfiles_install_packages: true
+dotfiles_install_kitty: true
 dotfiles_install_vscode: true
 dotfiles_install_vscode_extensions: true
 dotfiles_install_termusic: true
@@ -64,8 +66,6 @@ dotfiles_kitty_links:
     dest: .config/kitty/themes
   - src: kitty/kitty.conf
     dest: .config/kitty/kitty.conf
-  - src: kitty/current-theme.conf
-    dest: .config/kitty/current-theme.conf
   - src: kitty/ssh.conf
     dest: .config/kitty/ssh.conf
   - src: kitty/tab_bar.py
@@ -85,6 +85,7 @@ dotfiles_linux_links:
 
 dotfiles_linux_packages_common:
   - curl
+  - fontconfig
   - gh
   - git
   - jq
@@ -108,6 +109,8 @@ dotfiles_linux_packages_debian:
   - eza
   - fd-find
   - python3-venv
+  - zathura
+  - zathura-pdf-poppler
   - zoxide
 
 dotfiles_linux_packages_redhat:
@@ -117,9 +120,12 @@ dotfiles_linux_packages_redhat:
   - fzf
   - gcc
   - gcc-c++
+  - kitty
   - make
   - neovim
   - python3
+  - zathura
+  - zathura-pdf-poppler
 
 dotfiles_linux_packages_arch:
   - atuin
@@ -130,11 +136,14 @@ dotfiles_linux_packages_arch:
   - eza
   - fd
   - fzf
+  - kitty
   - lazygit
   - neovim
   - procs
   - python
   - starship
+  - zathura
+  - zathura-pdf-poppler
   - zoxide
 
 dotfiles_vscode_extensions_file: "{{ dotfiles_repo_dir }}/vscode/extensions.txt"

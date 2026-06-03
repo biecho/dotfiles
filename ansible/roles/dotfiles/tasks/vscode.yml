@@ -1,4 +1,35 @@
 ---
+# On Debian/Ubuntu, install VSCode from Microsoft's official apt repo so the
+# `code` CLI exists for the extension install below. macOS gets it via Brewfile;
+# Arch/RedHat users install it through their own channels.
+- name: Install Visual Studio Code on Debian
+  when: ansible_facts.os_family == "Debian"
+  become: true
+  block:
+    - name: Ensure apt keyring directory exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Add Microsoft apt signing key
+      ansible.builtin.get_url:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        dest: /etc/apt/keyrings/microsoft.asc
+        mode: "0644"
+
+    - name: Add VSCode apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/microsoft.asc] https://packages.microsoft.com/repos/code stable main"
+        filename: vscode
+        state: present
+        update_cache: true
+
+    - name: Install VSCode
+      ansible.builtin.apt:
+        name: code
+        state: present
+
 - name: Select VSCode user directories
   ansible.builtin.set_fact:
     dotfiles_vscode_user_dirs: >-
