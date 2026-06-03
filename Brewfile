@@ -1,5 +1,4 @@
 tap "felixkratz/formulae"
-tap "homebrew/cask-fonts"
 tap "homebrew/services"
 tap "mike-engel/jwt-cli"
 tap "ngrok/ngrok"
