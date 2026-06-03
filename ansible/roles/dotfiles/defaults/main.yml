@@ -88,7 +88,6 @@ dotfiles_linux_packages_common:
   - gh
   - git
   - jq
-  - neovim
   - ripgrep
   - rsync
   - tar
@@ -96,9 +95,11 @@ dotfiles_linux_packages_common:
   - unzip
   - zsh
 
-# atuin, lazygit, procs, and starship are not in Debian/Ubuntu apt repos, and
-# the apt fzf is too old for the `fzf --zsh` shell integration; all are
-# installed from upstream release binaries in tools-linux.yml.
+# atuin, lazygit, procs, and starship are not in Debian/Ubuntu apt repos; the
+# apt fzf is too old for the `fzf --zsh` shell integration; and the apt neovim
+# (0.9.x) is too old for the LazyVim config (needs >= 0.11.2). All are installed
+# from upstream releases in tools-linux.yml. Arch (rolling) and RedHat get
+# neovim from their own package managers below.
 dotfiles_linux_packages_debian:
   - bat
   - btop
@@ -117,6 +118,7 @@ dotfiles_linux_packages_redhat:
   - gcc
   - gcc-c++
   - make
+  - neovim
   - python3
 
 dotfiles_linux_packages_arch:
@@ -129,6 +131,7 @@ dotfiles_linux_packages_arch:
   - fd
   - fzf
   - lazygit
+  - neovim
   - procs
   - python
   - starship

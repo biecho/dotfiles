@@ -27,9 +27,13 @@
   register: dotfiles_nvim_pip
   changed_when: "'Successfully installed' in (dotfiles_nvim_pip.stdout | default(''))"
 
+# Wrapped in `timeout` so a stuck headless run (e.g. a config that prompts and
+# blocks on input) can never hang the play indefinitely. rc 124 means timeout.
 - name: Sync Lazy.nvim plugins
   ansible.builtin.command:
     argv:
+      - timeout
+      - "600"
       - nvim
       - --headless
       - "+Lazy! sync"
