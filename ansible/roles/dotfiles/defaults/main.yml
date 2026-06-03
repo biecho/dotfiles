@@ -95,8 +95,9 @@ dotfiles_linux_packages_common:
   - unzip
   - zsh
 
-# atuin, lazygit, procs, and starship are not in Debian/Ubuntu apt repos;
-# they are installed from upstream release binaries in tools-linux.yml.
+# atuin, lazygit, procs, and starship are not in Debian/Ubuntu apt repos, and
+# the apt fzf is too old for the `fzf --zsh` shell integration; all are
+# installed from upstream release binaries in tools-linux.yml.
 dotfiles_linux_packages_debian:
   - bat
   - btop
@@ -104,7 +105,6 @@ dotfiles_linux_packages_debian:
   - duf
   - eza
   - fd-find
-  - fzf
   - python3-venv
   - zoxide
 
