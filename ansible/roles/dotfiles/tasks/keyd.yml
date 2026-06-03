@@ -1,0 +1,51 @@
+---
+# keyd remaps keys at the evdev layer, so it works across Wayland, X11, and the
+# console. It is not packaged in apt, so build the latest release from source.
+
+- name: Check for keyd binary
+  ansible.builtin.stat:
+    path: /usr/local/bin/keyd
+  register: dotfiles_keyd_bin
+
+- name: Build and install keyd from source
+  ansible.builtin.shell: |
+    set -euo pipefail
+    tmp=$(mktemp -d)
+    git clone https://github.com/rvaiya/keyd "$tmp/keyd"
+    git -C "$tmp/keyd" checkout "$(git -C "$tmp/keyd" tag -l 'v*' | sort -V | tail -1)"
+    make -C "$tmp/keyd"
+    make -C "$tmp/keyd" install
+    rm -rf "$tmp"
+  args:
+    executable: /bin/bash
+  become: true
+  when: not dotfiles_keyd_bin.stat.exists
+
+- name: Ensure keyd config directory exists
+  ansible.builtin.file:
+    path: /etc/keyd
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Install keyd config
+  ansible.builtin.copy:
+    src: "{{ dotfiles_repo_dir }}/keyd/default.conf"
+    dest: /etc/keyd/default.conf
+    mode: "0644"
+    remote_src: true
+  become: true
+  register: dotfiles_keyd_config
+
+- name: Enable and start keyd
+  ansible.builtin.systemd_service:
+    name: keyd
+    enabled: true
+    state: started
+  become: true
+
+- name: Reload keyd configuration
+  ansible.builtin.command: keyd reload
+  become: true
+  changed_when: false
+  when: dotfiles_keyd_config is changed
