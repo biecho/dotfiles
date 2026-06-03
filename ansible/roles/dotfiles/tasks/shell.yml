@@ -8,12 +8,24 @@
   register: dotfiles_zsh_path
   changed_when: false
 
+- name: Check if zsh is already in /etc/shells
+  ansible.builtin.command:
+    argv:
+      - grep
+      - -qF
+      - "{{ dotfiles_zsh_path.stdout }}"
+      - /etc/shells
+  register: dotfiles_zsh_in_shells
+  changed_when: false
+  failed_when: false
+
 - name: Ensure zsh is listed as an allowed login shell
   ansible.builtin.lineinfile:
     path: /etc/shells
     line: "{{ dotfiles_zsh_path.stdout }}"
     create: false
   become: true
+  when: dotfiles_zsh_in_shells.rc != 0
 
 - name: Read Linux login shell
   ansible.builtin.command:

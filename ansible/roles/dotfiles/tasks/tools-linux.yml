@@ -1,0 +1,60 @@
+---
+# Install CLI tools that are not packaged in Debian/Ubuntu apt repos.
+# Each tool is fetched from its upstream release as a user-local binary in
+# ~/.local/bin, so no root privileges are required here.
+
+- name: Ensure local bin directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_local_bin }}"
+    state: directory
+    mode: "0755"
+
+- name: Install Starship prompt
+  ansible.builtin.shell: |
+    curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b "{{ dotfiles_local_bin }}"
+  args:
+    executable: /bin/bash
+    creates: "{{ dotfiles_local_bin }}/starship"
+
+- name: Install Atuin shell history
+  ansible.builtin.shell: |
+    set -euo pipefail
+    tag=$(curl -fsSL https://api.github.com/repos/atuinsh/atuin/releases/latest \
+      | grep -oP '"tag_name": "\K[^"]+')
+    tmp=$(mktemp -d)
+    curl -fsSL "https://github.com/atuinsh/atuin/releases/download/${tag}/atuin-x86_64-unknown-linux-gnu.tar.gz" \
+      | tar xz -C "$tmp"
+    install -m 0755 "$tmp"/atuin-*/atuin "{{ dotfiles_local_bin }}/atuin"
+    rm -rf "$tmp"
+  args:
+    executable: /bin/bash
+    creates: "{{ dotfiles_local_bin }}/atuin"
+
+- name: Install lazygit
+  ansible.builtin.shell: |
+    set -euo pipefail
+    ver=$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest \
+      | grep -oP '"tag_name": "v\K[^"]+')
+    tmp=$(mktemp -d)
+    curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v${ver}/lazygit_${ver}_Linux_x86_64.tar.gz" \
+      | tar xz -C "$tmp" lazygit
+    install -m 0755 "$tmp/lazygit" "{{ dotfiles_local_bin }}/lazygit"
+    rm -rf "$tmp"
+  args:
+    executable: /bin/bash
+    creates: "{{ dotfiles_local_bin }}/lazygit"
+
+- name: Install procs
+  ansible.builtin.shell: |
+    set -euo pipefail
+    ver=$(curl -fsSL https://api.github.com/repos/dalance/procs/releases/latest \
+      | grep -oP '"tag_name": "v\K[^"]+')
+    tmp=$(mktemp -d)
+    curl -fsSL "https://github.com/dalance/procs/releases/download/v${ver}/procs-v${ver}-x86_64-linux.zip" \
+      -o "$tmp/procs.zip"
+    unzip -o "$tmp/procs.zip" procs -d "$tmp" >/dev/null
+    install -m 0755 "$tmp/procs" "{{ dotfiles_local_bin }}/procs"
+    rm -rf "$tmp"
+  args:
+    executable: /bin/bash
+    creates: "{{ dotfiles_local_bin }}/procs"

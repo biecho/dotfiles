@@ -12,7 +12,6 @@
 - name: Refresh apt metadata on Debian-family systems
   ansible.builtin.apt:
     update_cache: true
-    cache_valid_time: 3600
   become: "{{ dotfiles_linux_package_become | bool }}"
   when:
     - dotfiles_linux_use_system_packages | bool
@@ -60,6 +59,12 @@
   when:
     - ansible_facts.os_family == "Debian"
     - dotfiles_batcat.stat.exists
+
+- name: Install Debian tools not available in apt
+  ansible.builtin.include_tasks: tools-linux.yml
+  when:
+    - dotfiles_linux_use_system_packages | bool
+    - ansible_facts.os_family == "Debian"
 
 - name: Warn when Linux package installation is disabled
   ansible.builtin.debug:

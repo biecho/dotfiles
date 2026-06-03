@@ -84,6 +84,7 @@ dotfiles_linux_links:
 
 dotfiles_linux_packages_common:
   - curl
+  - gh
   - git
   - jq
   - neovim
@@ -94,8 +95,9 @@ dotfiles_linux_packages_common:
   - unzip
   - zsh
 
+# atuin, lazygit, procs, and starship are not in Debian/Ubuntu apt repos;
+# they are installed from upstream release binaries in tools-linux.yml.
 dotfiles_linux_packages_debian:
-  - atuin
   - bat
   - btop
   - build-essential
@@ -103,10 +105,7 @@ dotfiles_linux_packages_debian:
   - eza
   - fd-find
   - fzf
-  - lazygit
-  - procs
   - python3-venv
-  - starship
   - zoxide
 
 dotfiles_linux_packages_redhat:
