@@ -55,6 +55,12 @@
     - dotfiles_repo_auth == "remote_gh"
     - dotfiles_repo_strategy == "git"
 
+- name: Install kitty terminal and Nerd Font
+  ansible.builtin.include_tasks: kitty.yml
+  when:
+    - ansible_facts.system == "Linux"
+    - dotfiles_install_kitty | bool
+
 - name: Create dotfile symlinks
   ansible.builtin.include_tasks: symlinks.yml
 

@@ -1,0 +1,81 @@
+---
+# Install the kitty terminal and the Nerd Font it renders with on Linux.
+# macOS gets kitty and the font from the Brewfile, so this file is Linux-only.
+#
+# On Debian/Ubuntu the apt kitty lags upstream and ships without the matching
+# terminfo, so kitty is installed from the official user-local installer into
+# ~/.local/kitty.app (like Neovim in tools-linux.yml). That bundle also carries
+# the xterm-kitty terminfo entry, which is what makes true colour, undercurl,
+# and styled underlines render correctly. Arch and RedHat install kitty through
+# their own package managers (see dotfiles_linux_packages_* in defaults).
+
+- name: Ensure local bin directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_local_bin }}"
+    state: directory
+    mode: "0755"
+
+- name: Install kitty terminal on Debian
+  when: ansible_facts.os_family == "Debian"
+  block:
+    - name: Install kitty from the upstream installer
+      ansible.builtin.shell: |
+        set -euo pipefail
+        curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh \
+          | sh /dev/stdin dest="{{ dotfiles_home }}/.local" launch=n
+      args:
+        executable: /bin/bash
+        creates: "{{ dotfiles_home }}/.local/kitty.app/bin/kitty"
+
+    - name: Link kitty and kitten into local bin
+      ansible.builtin.file:
+        src: "{{ dotfiles_home }}/.local/kitty.app/bin/{{ item }}"
+        dest: "{{ dotfiles_local_bin }}/{{ item }}"
+        state: link
+        force: true
+      loop:
+        - kitty
+        - kitten
+
+    - name: Ensure desktop applications directory exists
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.local/share/applications"
+        state: directory
+        mode: "0755"
+
+    - name: Install kitty desktop launcher entries
+      ansible.builtin.shell: |
+        set -euo pipefail
+        app="{{ dotfiles_home }}/.local/kitty.app"
+        apps="{{ dotfiles_home }}/.local/share/applications"
+        cp "$app/share/applications/kitty.desktop" "$apps/"
+        cp "$app/share/applications/kitty-open.desktop" "$apps/"
+        sed -i "s|Icon=kitty|Icon=$app/share/icons/hicolor/256x256/apps/kitty.png|g" "$apps"/kitty*.desktop
+        sed -i "s|Exec=kitty|Exec={{ dotfiles_local_bin }}/kitty|g" "$apps"/kitty*.desktop
+        sed -i "s|Exec=kitten|Exec={{ dotfiles_local_bin }}/kitten|g" "$apps"/kitty*.desktop
+      args:
+        executable: /bin/bash
+        creates: "{{ dotfiles_home }}/.local/share/applications/kitty.desktop"
+
+# The font configured in kitty.conf (and used for Starship/tmux/Neovim glyphs)
+# is not packaged on most distros, so fetch it user-local and refresh the cache.
+- name: Ensure user font directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_fonts_dir }}/JetBrainsMonoNerdFont"
+    state: directory
+    mode: "0755"
+
+- name: Install JetBrainsMono Nerd Font
+  ansible.builtin.shell: |
+    set -euo pipefail
+    ver=$(curl -fsSL https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest \
+      | grep -oP '"tag_name": "v\K[^"]+')
+    tmp=$(mktemp -d)
+    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/v${ver}/JetBrainsMono.zip" \
+      -o "$tmp/JetBrainsMono.zip"
+    unzip -o "$tmp/JetBrainsMono.zip" -d "{{ dotfiles_fonts_dir }}/JetBrainsMonoNerdFont" >/dev/null
+    fc-cache -f "{{ dotfiles_fonts_dir }}" >/dev/null
+    rm -rf "$tmp"
+  args:
+    executable: /bin/bash
+    creates: "{{ dotfiles_fonts_dir }}/JetBrainsMonoNerdFont/JetBrainsMonoNerdFont-Regular.ttf"

@@ -4,9 +4,9 @@ This is the Ansible entry point for provisioning this dotfiles repo on the
 current machine or on an SSH-accessible host.
 
 The playbook installs the full workstation setup by default: platform packages,
-zsh as the login shell, Tailscale, dotfile symlinks, Neovim dependencies, VSCode
-config, Termusic config, and Claude Code. Existing non-symlink files are backed
-up before replacement.
+zsh as the login shell, Tailscale, dotfile symlinks, the kitty terminal and its
+Nerd Font, Neovim dependencies, VSCode config, Termusic config, and Claude Code.
+Existing non-symlink files are backed up before replacement.
 
 ## Local Install
 
@@ -131,6 +131,10 @@ credentials on the target. For one-off machines, keep the default copy mode.
 - `dotfiles_install_github_cli`: install GitHub CLI when using `remote_gh`,
   default true for that auth mode.
 - `dotfiles_install_packages`: install platform packages, default true.
+- `dotfiles_install_kitty`: on Linux, install the kitty terminal (from the
+  upstream installer on Debian, distro packages on Arch/RedHat) plus the
+  JetBrainsMono Nerd Font and a desktop launcher entry. macOS gets both from
+  the Brewfile. Default true.
 - `dotfiles_install_keyd`: on Linux, build keyd and install the Caps
   Lock-as-Control/Escape remap from `keyd/default.conf`, default true.
 - `dotfiles_set_default_shell`: change the login shell to zsh, default true.
@@ -143,7 +147,8 @@ credentials on the target. For one-off machines, keep the default copy mode.
   `<machine-hostname>-ts`.
 - `dotfiles_tailscale_up_args`: extra arguments appended to `tailscale up`,
   default empty.
-- `dotfiles_install_vscode`: link VSCode settings and keybindings, default true.
+- `dotfiles_install_vscode`: link VSCode settings and keybindings (and on
+  Debian, install VSCode from Microsoft's apt repo), default true.
 - `dotfiles_install_vscode_extensions`: install VSCode extensions, default true.
 - `dotfiles_install_nvim_deps`: install Neovim Python/plugin dependencies,
   default true.
