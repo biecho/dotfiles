@@ -50,4 +50,8 @@
 
     // Super+Space -> open the COSMIC Launcher (macOS-style Cmd+Space / Spotlight)
     (modifiers: [Super], key: "space"): System(Launcher),
+
+    // Bare Super tap -> nothing (was System(Launcher); stop the Launcher bar
+    // popping up on every Super release. Launcher is still on Super+Space / Super+/)
+    (modifiers: [Super]): Disable,
 }
