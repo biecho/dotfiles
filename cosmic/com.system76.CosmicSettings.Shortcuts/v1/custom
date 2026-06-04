@@ -1,0 +1,53 @@
+{
+    // ------------------------------------------------------------------
+    // Release COSMIC global shortcuts that collide with kitty's cmd+ (=Super)
+    // bindings, so the keypress falls through to the focused app (kitty).
+    // Each line disables a COSMIC default; the kitty action it frees is noted.
+    // NOTE: disabling is global, so these keys no longer trigger their COSMIC
+    // action from ANY app, not just kitty.
+    // ------------------------------------------------------------------
+
+    // Super+L -> kitty clear_terminal (was Focus(Right); use Super+Right)
+    (modifiers: [Super], key: "l"): Disable,
+
+    // Super+1..9 -> kitty goto_tab 1..9 (was Workspace switch 1..9)
+    (modifiers: [Super], key: "1"): Disable,
+    (modifiers: [Super], key: "2"): Disable,
+    (modifiers: [Super], key: "3"): Disable,
+    (modifiers: [Super], key: "4"): Disable,
+    (modifiers: [Super], key: "5"): Disable,
+    (modifiers: [Super], key: "6"): Disable,
+    (modifiers: [Super], key: "7"): Disable,
+    (modifiers: [Super], key: "8"): Disable,
+    (modifiers: [Super], key: "9"): Disable,
+
+    // Super+T -> kitty new tab (was System(Terminal) launcher)
+    (modifiers: [Super], key: "t"): Disable,
+
+    // Super+W -> kitty close_window (was System(WorkspaceOverview))
+    (modifiers: [Super], key: "w"): Disable,
+
+    // Super+S -> kitty save / send Ctrl+S to nvim (was ToggleStacking)
+    (modifiers: [Super], key: "s"): Disable,
+
+    // Super+O -> kitty choose-files picker (was ToggleOrientation)
+    (modifiers: [Super], key: "o"): Disable,
+
+    // Super+R -> kitty start_resizing_window (was Resizing(Outwards))
+    (modifiers: [Super], key: "r"): Disable,
+
+    // Super+Minus -> kitty horizontal split (was ZoomOut)
+    (modifiers: [Super], key: "minus"): Disable,
+
+    // Super+Shift+H -> kitty scrollback in nvim (was Move(Left))
+    (modifiers: [Super, Shift], key: "h"): Disable,
+
+    // Super+C -> kitty copy_to_clipboard (macOS-style Cmd+C; unbound in COSMIC)
+    (modifiers: [Super], key: "c"): Disable,
+
+    // Super+V -> kitty paste_from_clipboard (macOS-style Cmd+V; unbound in COSMIC)
+    (modifiers: [Super], key: "v"): Disable,
+
+    // Super+Space -> open the COSMIC Launcher (macOS-style Cmd+Space / Spotlight)
+    (modifiers: [Super], key: "space"): System(Launcher),
+}

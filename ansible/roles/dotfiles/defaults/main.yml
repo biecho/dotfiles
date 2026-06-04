@@ -82,6 +82,11 @@ dotfiles_macos_links:
 dotfiles_linux_links:
   - src: lazygit/config.yml
     dest: .config/lazygit/config.yml
+  # COSMIC custom keyboard shortcuts (macOS-style Super=Cmd bindings, e.g.
+  # Super+Space -> Launcher). COSMIC reads only this overrides file; defaults
+  # live in the compositor, so tracking just `custom` is sufficient.
+  - src: cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom
+    dest: .config/cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom
 
 dotfiles_linux_packages_common:
   - curl
