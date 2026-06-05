@@ -76,6 +76,12 @@
   ansible.builtin.include_tasks: termusic.yml
   when: dotfiles_install_termusic | bool
 
+- name: Install Anki
+  ansible.builtin.include_tasks: anki.yml
+  when:
+    - ansible_facts.system == "Linux"
+    - dotfiles_install_anki | bool
+
 - name: Install Claude Code
   ansible.builtin.include_tasks: claude.yml
   when: dotfiles_install_claude | bool

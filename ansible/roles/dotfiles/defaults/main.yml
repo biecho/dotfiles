@@ -20,6 +20,7 @@ dotfiles_install_kitty: true
 dotfiles_install_vscode: true
 dotfiles_install_vscode_extensions: true
 dotfiles_install_termusic: true
+dotfiles_install_anki: true
 dotfiles_install_nvim_deps: true
 dotfiles_install_claude: true
 dotfiles_install_keyd: true
@@ -29,6 +30,10 @@ dotfiles_tailscale_authkey: "{{ lookup('env', 'TAILSCALE_AUTHKEY') }}"
 dotfiles_tailscale_hostname: "{{ ansible_facts.hostname }}-ts"
 dotfiles_tailscale_up_args: []
 dotfiles_install_github_cli: "{{ dotfiles_repo_auth == 'remote_gh' }}"
+
+# Anki ships a small launcher tarball that fetches and self-updates the real
+# Anki on first run, so this only pins the launcher, not the app itself.
+dotfiles_anki_launcher_version: "25.09"
 
 dotfiles_install_homebrew: "{{ dotfiles_install_packages }}"
 dotfiles_linux_use_system_packages: "{{ dotfiles_install_packages }}"
@@ -99,7 +104,9 @@ dotfiles_linux_packages_common:
   - tar
   - tmux
   - unzip
+  - xdg-utils
   - zsh
+  - zstd
 
 # atuin, lazygit, procs, and starship are not in Debian/Ubuntu apt repos; the
 # apt fzf is too old for the `fzf --zsh` shell integration; and the apt neovim
