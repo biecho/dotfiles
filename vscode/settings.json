@@ -1522,7 +1522,7 @@
   // ---------------------------------------------------------------------------
   // EDITOR
   // ---------------------------------------------------------------------------
-  "editor.lineNumbers": "relative",
+  "editor.lineNumbers": "on",
   "editor.cursorSurroundingLines": 8,
   "editor.minimap.enabled": false,
   "editor.renderWhitespace": "trailing",
