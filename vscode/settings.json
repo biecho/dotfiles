@@ -1534,6 +1534,13 @@
   "editor.fontSize": 13,
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
+  // Pin Black as the Python formatter so format-on-save / Alt+Shift+F always
+  // use ms-python.black-formatter (no "select a formatter" prompt, and it
+  // won't silently switch if another Python formatter gets installed).
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true
+  },
   "editor.wordWrap": "off",
   "editor.scrollBeyondLastLine": false,
   "editor.stickyScroll.enabled": true,
@@ -1599,9 +1606,14 @@
   // ---------------------------------------------------------------------------
   // WORKBENCH
   // ---------------------------------------------------------------------------
-  "workbench.colorTheme": "Catppuccin Frappé",
+  "workbench.colorTheme": "Rosé Pine Dawn (no italics)",
   "workbench.startupEditor": "none",
-  "workbench.editor.enablePreview": false,
+  // Reuse a single "preview" tab when opening files (italic title) instead of
+  // piling up a permanent tab per file. A file becomes permanent once edited or
+  // double-clicked. Also preview from Quick Open (Ctrl+P) and go-to-definition.
+  "workbench.editor.enablePreview": true,
+  "workbench.editor.enablePreviewFromQuickOpen": true,
+  "workbench.editor.enablePreviewFromCodeNavigation": true,
   "workbench.sideBar.location": "left",
   "workbench.activityBar.location": "default",
   "workbench.editor.showTabs": "multiple",
@@ -1657,20 +1669,23 @@
   "workbench.editor.tabActionLocation": "right",
   "claudeCode.preferredLocation": "panel",
   // --- claude-code-router toggle -------------------------------------------
-  // ACTIVE  → routes Claude Code (VSCode) through ccr to Gemini 3.1 Pro.
-  // INACTIVE (comment the 4 lines below) → uses your Claude subscription.
-  // After flipping: fully quit VSCode (Cmd+Q) and reopen — reload won't do it.
-  // Also ensure `ccr start` is running (config: ~/.claude-code-router/config.json).
-  "claudeCode.environmentVariables": [
-    {
-      "name": "ANTHROPIC_BASE_URL",
-      "value": "http://127.0.0.1:3456"
-    },
-    {
-      "name": "ANTHROPIC_AUTH_TOKEN",
-      "value": "ccr-dummy-token"
-    }
-  ],
+  // INACTIVE → uses your Claude subscription directly (current state).
+  // ACTIVE   → uncomment the block below to route Claude Code (VSCode) through
+  //            ccr to Gemini 3.1 Pro. Requires claude-code-router installed and
+  //            `ccr start` running (config: ~/.claude-code-router/config.json),
+  //            otherwise requests to 127.0.0.1:3456 fail with ConnectionRefused.
+  // After flipping either way: fully quit VSCode (Cmd+Q) and reopen — a window
+  // reload won't pick up the env change.
+  // "claudeCode.environmentVariables": [
+  //   {
+  //     "name": "ANTHROPIC_BASE_URL",
+  //     "value": "http://127.0.0.1:3456"
+  //   },
+  //   {
+  //     "name": "ANTHROPIC_AUTH_TOKEN",
+  //     "value": "ccr-dummy-token"
+  //   }
+  // ],
   // -------------------------------------------------------------------------
   "cSpell.userWords": [
     "adversarials",
