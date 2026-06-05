@@ -214,7 +214,7 @@ Run the dotfiles installer locally and on each SSH host where you want the same 
 - **Surround**: `cs`, `ds`, `ys` commands
 - **Highlighted Yank**: Visual feedback when yanking
 - **System Clipboard**: Yank goes to system clipboard
-- **Relative Line Numbers**: Just like nvim
+- **Absolute Line Numbers**: Just like nvim
 - **Manual Completion**: Press `Ctrl+Space` to trigger
 
 ## Colorschemes Available
