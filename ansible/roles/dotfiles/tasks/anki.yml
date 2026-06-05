@@ -1,0 +1,31 @@
+---
+# Install Anki spaced-repetition flashcards on Linux.
+#
+# Upstream no longer ships per-distro packages worth tracking. Instead it
+# distributes a small "launcher" tarball that fetches and self-updates the real
+# Anki on first run (via uv), so the version pinned here is just the launcher.
+# We install it user-local into ~/.local with the bundled install.sh and a
+# custom PREFIX (like kitty and Neovim in tools-linux.yml), so no root is
+# required. The installer also drops a desktop entry, icon, and MIME handlers
+# under ~/.local/share. macOS gets Anki from the Brewfile cask instead.
+
+- name: Ensure local bin directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_local_bin }}"
+    state: directory
+    mode: "0755"
+
+- name: Install Anki launcher from upstream
+  ansible.builtin.shell: |
+    set -euo pipefail
+    ver="{{ dotfiles_anki_launcher_version }}"
+    tmp=$(mktemp -d)
+    curl -fsSL "https://github.com/ankitects/anki/releases/download/${ver}/anki-launcher-${ver}-linux.tar.zst" \
+      -o "$tmp/anki-launcher.tar.zst"
+    tar --zstd -xf "$tmp/anki-launcher.tar.zst" -C "$tmp"
+    cd "$tmp"/anki-launcher-*-linux
+    PREFIX="{{ dotfiles_home }}/.local" ./install.sh
+    rm -rf "$tmp"
+  args:
+    executable: /bin/bash
+    creates: "{{ dotfiles_local_bin }}/anki"

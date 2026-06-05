@@ -5,8 +5,8 @@ current machine or on an SSH-accessible host.
 
 The playbook installs the full workstation setup by default: platform packages,
 zsh as the login shell, Tailscale, dotfile symlinks, the kitty terminal and its
-Nerd Font, Neovim dependencies, VSCode config, Termusic config, and Claude Code.
-Existing non-symlink files are backed up before replacement.
+Nerd Font, Neovim dependencies, VSCode config, Termusic config, Anki, and
+Claude Code. Existing non-symlink files are backed up before replacement.
 
 ## Local Install
 
@@ -153,4 +153,7 @@ credentials on the target. For one-off machines, keep the default copy mode.
 - `dotfiles_install_nvim_deps`: install Neovim Python/plugin dependencies,
   default true.
 - `dotfiles_install_termusic`: install Termusic config, default true.
+- `dotfiles_install_anki`: on Linux, install Anki user-local from upstream's
+  self-updating launcher (no root). macOS gets it from the Brewfile cask.
+  Default true.
 - `dotfiles_install_claude`: install fnm, Node.js LTS, and Claude Code, default true.
