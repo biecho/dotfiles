@@ -68,7 +68,7 @@ extract = [
 [open]
 rules = [
     # Folders
-    { name = "*/", use = [ "edit", "code" ] },
+    { url = "*/", use = [ "edit", "code" ] },
 
     # Text/code files - edit with nvim
     { mime = "text/*", use = [ "edit", "code" ] },
@@ -98,7 +98,7 @@ rules = [
     { mime = "application/pdf", use = [ "pdf" ] },
 
     # Fallback
-    { name = "*", use = [ "edit", "code" ] },
+    { url = "*", use = [ "edit", "code" ] },
 ]
 
 [tasks]
@@ -110,11 +110,11 @@ bizarre_retry = 5
 [plugin]
 # Prepend plugins for fetching file info
 prepend_fetchers = [
-    { id = "git", name = "*", run = "git" },
-    { id = "git", name = "*/", run = "git" },
+    { id = "git", url = "*", run = "git", group = "git" },
+    { id = "git", url = "*/", run = "git", group = "git" },
 ]
 
 # Prepend previewers
 prepend_previewers = [
-    { name = "*.md", run = "glow", sync = true },
+    { url = "*.md", run = "glow", sync = true },
 ]
