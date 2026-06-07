@@ -9,6 +9,9 @@ require("git"):setup()
 -- Full border: adds nice borders around panes
 require("full-border"):setup()
 
+-- Lines: async line-count annotation in the file listing (local plugin)
+require("lines"):setup()
+
 -- Starship prompt integration (if you have starship installed)
 -- Uncomment if you want starship prompt in yazi header
 -- require("starship"):setup()
