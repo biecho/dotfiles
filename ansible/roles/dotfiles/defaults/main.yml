@@ -59,6 +59,8 @@ dotfiles_common_links:
     dest: .config/yazi/init.lua
   - src: yazi/package.toml
     dest: .config/yazi/package.toml
+  - src: yazi/plugins/lines.yazi
+    dest: .config/yazi/plugins/lines.yazi
   - src: ideavim/ideavimrc
     dest: .ideavimrc
   - src: .claude/settings.local.json

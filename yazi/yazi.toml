@@ -112,9 +112,6 @@ bizarre_retry = 5
 prepend_fetchers = [
     { id = "git", url = "*", run = "git", group = "git" },
     { id = "git", url = "*/", run = "git", group = "git" },
-]
-
-# Prepend previewers
-prepend_previewers = [
-    { url = "*.md", run = "glow", sync = true },
+    # Local plugin: async line count shown in the linemode (see plugins/lines.yazi)
+    { id = "lines", url = "*", run = "lines", group = "lines" },
 ]
