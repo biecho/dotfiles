@@ -56,6 +56,35 @@ end, { desc = "Organize imports" })
 
 -- Call hierarchy now handled by lspsaga (see plugins/lspsaga.lua)
 
+-- JSONL unroll/collapse via jq, on the whole buffer.
+-- `jq .` over a stream of records pretty-prints each one (unrolls the file);
+-- `jq -c .` compacts each record back to a single line (valid JSONL again).
+-- Exposed as :JsonlUnroll / :JsonlCollapse (no keymap, by preference).
+local function jq_buffer(compact)
+  local view = vim.fn.winsaveview()
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local cmd = compact and { "jq", "-c", "." } or { "jq", "." }
+  local out = vim.fn.systemlist(cmd, table.concat(lines, "\n"))
+  if vim.v.shell_error ~= 0 then
+    vim.notify("jq: " .. table.concat(out, " "), vim.log.levels.ERROR)
+    return
+  end
+  vim.api.nvim_buf_set_lines(0, 0, -1, false, out)
+  vim.fn.winrestview(view)
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "json", "jsonl" },
+  callback = function(ev)
+    vim.api.nvim_buf_create_user_command(ev.buf, "JsonlUnroll", function()
+      jq_buffer(false)
+    end, { desc = "Expand every JSON record (pretty-print)" })
+    vim.api.nvim_buf_create_user_command(ev.buf, "JsonlCollapse", function()
+      jq_buffer(true)
+    end, { desc = "Compact every JSON record to one line" })
+  end,
+})
+
 -- Remap macro recording to Q to prevent accidental triggers
 vim.keymap.set("n", "q", "<Nop>")
 vim.keymap.set("n", "Q", "q", { desc = "Record macro" })

@@ -3,6 +3,11 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
+    -- Neovim detects *.jsonl as its own `jsonl` filetype, for which no parser
+    -- exists. Map it to the `json` grammar so JSON Lines files get highlighting.
+    init = function()
+      vim.treesitter.language.register("json", "jsonl")
+    end,
     opts = {
       ensure_installed = {
         "python",
