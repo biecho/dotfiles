@@ -12,6 +12,7 @@ brew "autoconf"
 brew "automake"
 brew "libssh2"
 brew "bat"
+brew "black"
 brew "berkeley-db", link: true
 brew "btop"
 brew "glib"
