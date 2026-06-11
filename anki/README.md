@@ -28,6 +28,11 @@ Install the **AnkiConnect** add-on: Anki → `Tools > Add-ons > Get Add-ons…` 
 code **`2055492159`** → restart Anki. (On a fresh machine, also install Anki —
 see the repo root; the launcher fetches the real Anki on first run.)
 
+AnkiConnect defaults to `127.0.0.1:8765`. On this machine that port is taken by
+`tracegraph serve`, so AnkiConnect is configured to **8766** (its add-on config
+→ `webBindPort`) and `zsh/.zshrc` exports `ANKI_CONNECT_URL=http://127.0.0.1:8766`,
+which `ankipush.py` honors. To use a different port, change both.
+
 ## Push the decks
 
 With Anki running:

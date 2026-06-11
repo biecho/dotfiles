@@ -11,6 +11,11 @@ export PATH="$HOME/.atuin/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 
 # -----------------------------------------------------------------------------
+# Anki (AnkiConnect) — moved off the default 8765 because tracegraph serve owns it
+# -----------------------------------------------------------------------------
+export ANKI_CONNECT_URL="http://127.0.0.1:8766"
+
+# -----------------------------------------------------------------------------
 # fnm (Fast Node Manager) - user-local Node.js
 # -----------------------------------------------------------------------------
 if [[ -d "$HOME/.local/share/fnm" ]]; then

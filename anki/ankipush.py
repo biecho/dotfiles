@@ -10,13 +10,16 @@ Prerequisites: AnkiConnect add-on (code 2055492159) installed and Anki running
 """
 
 import json
+import os
 import re
 import sys
 import urllib.error
 import urllib.request
 from collections import defaultdict
 
-ANKI_URL = "http://127.0.0.1:8765"
+# AnkiConnect's documented default is port 8765. Override with ANKI_CONNECT_URL
+# (e.g. when another local service already owns 8765).
+ANKI_URL = os.environ.get("ANKI_CONNECT_URL", "http://127.0.0.1:8765")
 
 # ---------------------------------------------------------------------------
 # AnkiConnect transport
