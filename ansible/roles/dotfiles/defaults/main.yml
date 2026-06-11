@@ -96,6 +96,7 @@ dotfiles_linux_links:
     dest: .config/cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom
 
 dotfiles_linux_packages_common:
+  - cloc
   - curl
   - fontconfig
   - gh
