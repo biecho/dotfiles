@@ -110,6 +110,12 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.keymap.set("n", "q", "<Nop>")
 vim.keymap.set("n", "Q", "q", { desc = "Record macro" })
 
+-- Reload nvim config
+vim.keymap.set("n", "<leader>uR", function()
+  vim.cmd("source $MYVIMRC")
+  vim.notify("Config reloaded")
+end, { desc = "Reload config" })
+
 -- Trim trailing whitespace in visual selection
 vim.keymap.set("v", "<leader>tw", [[:s/\s\+$//g<CR>]], { desc = "Trim trailing whitespace" })
 

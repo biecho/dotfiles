@@ -90,6 +90,7 @@ CARDS = [
     ("Git", "Search issues", "<leader>gis", "Normal", "Octo issue search", "config"),
 
     # ---- Editing / Misc (keymaps.lua) ----
+    ("Editing / Misc", "Reload nvim config", "<leader>uR", "Normal", "source $MYVIMRC", "config"),
     ("Editing / Misc", "Record a macro (q is remapped to Q)", "Q", "Normal", "q is disabled to avoid accidental macro recording", "config"),
     ("Editing / Misc", "Trim trailing whitespace in selection", "<leader>tw", "Visual", "", "config"),
     ("Editing / Misc", "Toggle Markdown preview", "<leader>mp", "Normal", "MarkdownPreviewToggle, markdown files", "config"),
