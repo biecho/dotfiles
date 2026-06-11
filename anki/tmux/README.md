@@ -7,8 +7,8 @@ server, so you sync from the desktop app after importing).
 
 - `cards.py` — the card data: `(category, action, key, mode, notes, source)`.
   The **action** is the prompt; the **key** is the answer, so you practice
-  productive recall ("I want to do X — which keys?"). The prefix is **Ctrl+a**,
-  and answers render the full chord (e.g. `Ctrl+a  h`).
+  productive recall ("I want to do X — which keys?"). The prefix is the
+  **backtick** (`` ` ``), and answers render the full chord (e.g. `` ` h``).
 - `push.py` — thin entry point that calls the shared `../ankipush.py`, which
   creates the `tmux` deck (one subdeck per category), a styled `tmux-keybind`
   note type, and adds the cards. Stdlib only, idempotent. See `../README.md`.
@@ -39,7 +39,7 @@ to study; the desktop app syncs everything up to AnkiWeb on its next sync.
 - Cards tagged `src-config` come from this repo's `tmux/tmux.conf`; cards tagged
   `src-builtin` are stock tmux defaults this config leaves in place (detach,
   copy mode, next/previous window, break-pane, the command prompt, …).
-- The `mode` badge is the context: **Prefix** (press Ctrl+a first), **Copy mode**
+- The `mode` badge is the context: **Prefix** (press `` ` `` first), **Copy mode**
   (pressed inside copy mode), or **Core** (the prefix key itself).
 - Re-running never duplicates: Anki dedupes on the action field within the
   collection. Edit `cards.py` and re-run `push.py` to add or restyle cards.
