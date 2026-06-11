@@ -123,6 +123,7 @@ dotfiles_linux_packages_debian:
   - duf
   - eza
   - fd-find
+  - git-delta
   - python3-venv
   - zathura
   - zathura-pdf-poppler
@@ -135,6 +136,7 @@ dotfiles_linux_packages_redhat:
   - fzf
   - gcc
   - gcc-c++
+  - git-delta
   - kitty
   - make
   - neovim
@@ -151,6 +153,7 @@ dotfiles_linux_packages_arch:
   - eza
   - fd
   - fzf
+  - git-delta
   - kitty
   - lazygit
   - neovim
