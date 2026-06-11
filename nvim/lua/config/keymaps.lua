@@ -56,6 +56,27 @@ end, { desc = "Organize imports" })
 
 -- Call hierarchy now handled by lspsaga (see plugins/lspsaga.lua)
 
+-- Copy the current buffer's path to the system clipboard (+ register)
+local function yank_path(modifier, label)
+  local path = vim.fn.expand("%" .. modifier)
+  if path == "" then
+    vim.notify("No file path for this buffer", vim.log.levels.WARN)
+    return
+  end
+  vim.fn.setreg("+", path)
+  vim.notify("Copied " .. label .. ": " .. path)
+end
+
+vim.keymap.set("n", "<leader>cp", function()
+  yank_path(":.", "relative path")
+end, { desc = "Copy relative file path" })
+vim.keymap.set("n", "<leader>cP", function()
+  yank_path(":p", "absolute path")
+end, { desc = "Copy absolute file path" })
+vim.keymap.set("n", "<leader>cn", function()
+  yank_path(":t", "filename")
+end, { desc = "Copy filename" })
+
 -- JSONL unroll/collapse via jq, on the whole buffer.
 -- `jq .` over a stream of records pretty-prints each one (unrolls the file);
 -- `jq -c .` compacts each record back to a single line (valid JSONL again).

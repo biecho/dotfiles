@@ -71,6 +71,9 @@ CARDS = [
     ("Files / Explorer", "Open Yazi at current file", "<leader>.", "Normal", "", "config"),
     ("Files / Explorer", "Open Yazi at current working dir", "<leader>cw", "Normal", "", "config"),
     ("Files / Explorer", "Resume last Yazi session", "<C-Up>", "Normal", "Yazi toggle", "config"),
+    ("Files / Explorer", "Copy current file's RELATIVE path to clipboard", "<leader>cp", "Normal", "expand('%:.') into the + register", "config"),
+    ("Files / Explorer", "Copy current file's ABSOLUTE path to clipboard", "<leader>cP", "Normal", "expand('%:p') into the + register", "config"),
+    ("Files / Explorer", "Copy current file's NAME (no dir) to clipboard", "<leader>cn", "Normal", "expand('%:t') into the + register", "config"),
 
     # ---- Git (nvim/lua/plugins/git.lua) ----
     ("Git", "Open Diffview (all changes)", "<leader>gv", "Normal", "DiffviewOpen", "config"),
