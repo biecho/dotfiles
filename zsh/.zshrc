@@ -3,6 +3,17 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
+# Locale
+# -----------------------------------------------------------------------------
+# Tailscale SSH skips PAM and client env forwarding, so LANG arrives empty and
+# LC_CTYPE falls back to POSIX — tmux then treats the terminal as non-UTF-8
+# and mangles multibyte characters (ä, ö, ü). Guard only; never override a
+# locale that was forwarded properly.
+if [[ -z "$LANG" ]]; then
+    export LANG=en_US.UTF-8
+fi
+
+# -----------------------------------------------------------------------------
 # PATH (set early so tools are available)
 # -----------------------------------------------------------------------------
 export PATH="$HOME/.local/bin:$PATH"
