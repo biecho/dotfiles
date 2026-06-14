@@ -14,4 +14,5 @@ from ankipush import push_cards  # noqa: E402
 from cards import CARDS  # noqa: E402
 
 if __name__ == "__main__":
-    push_cards(root_deck="nvim", model="nvim-keybind", cards=CARDS)
+    # Flat layout: one "nvim" deck. Category survives as a tag and on-card badge.
+    push_cards(root_deck="nvim", model="nvim-keybind", cards=CARDS, subdecks=False)
