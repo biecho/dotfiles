@@ -569,6 +569,39 @@ ytls() {
     cat -n "$queue"
 }
 
+# -----------------------------------------------------------------------------
+# YouTube site blocking (self-control speed bump)
+# -----------------------------------------------------------------------------
+# Toggles the pre-staged "Block YouTube" lines in /etc/hosts and locks the file
+# with the system-immutable flag (schg) so it can't be edited on impulse —
+# unblocking becomes a deliberate, multi-step act. All steps need sudo (root
+# owns /etc/hosts); macOS will prompt for your login password.
+if [[ "$OSTYPE" == "darwin"* ]]; then
+
+    # Enable the block: unlock, uncomment the youtube lines, flush DNS, re-lock.
+    block-youtube() {
+        sudo chflags noschg /etc/hosts || return 1
+        sudo sed -i '' -E '/^#0\.0\.0\.0.*youtube/ s/^#//' /etc/hosts
+
+        sudo dscacheutil -flushcache
+        sudo killall -HUP mDNSResponder
+
+        sudo chflags schg /etc/hosts
+        echo "YouTube blocked + /etc/hosts locked (schg)."
+    }
+
+    # Disable the block: unlock, re-comment the youtube lines, flush DNS.
+    unblock-youtube() {
+        sudo chflags noschg /etc/hosts || return 1
+        sudo sed -i '' -E '/^0\.0\.0\.0.*youtube/ s/^/#/' /etc/hosts
+
+        sudo dscacheutil -flushcache
+        sudo killall -HUP mDNSResponder
+
+        echo "YouTube unblocked. /etc/hosts left unlocked."
+    }
+fi
+
 [[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
 
 # Kitty shell integration
