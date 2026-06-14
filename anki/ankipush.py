@@ -161,10 +161,11 @@ kbd {
 """
 
 
-def ensure_deck_tree(root_deck, categories):
+def ensure_deck_tree(root_deck, categories, subdecks=True):
     invoke("createDeck", deck=root_deck)
-    for cat in categories:
-        invoke("createDeck", deck=f"{root_deck}::{cat}")
+    if subdecks:
+        for cat in categories:
+            invoke("createDeck", deck=f"{root_deck}::{cat}")
 
 
 def ensure_model(model):
@@ -195,37 +196,51 @@ def _tag(category):
     return category.lower().replace(" / ", "-").replace(" & ", "-").replace(" ", "-")
 
 
-def _place_cards_in_subdecks(root_deck, model):
-    """Move every card of `model` into root_deck::<Category>.
+def _place_cards(root_deck, model, subdecks=True):
+    """Authoritatively place every card of `model` into its target deck.
 
     AnkiConnect's addNotes ignores per-note deckName on some Anki builds (cards
-    land in the GUI's selected deck), so we place them authoritatively by id.
-    Reading the target from each note's Category field is idempotent on re-runs.
+    land in the GUI's selected deck), so we place them by id. With subdecks the
+    target is root_deck::<Category> (read from the note's field); flat mode puts
+    everything in root_deck. Either way it is idempotent on re-runs.
     """
     note_ids = invoke("findNotes", query=f"note:{model}")
     if not note_ids:
         return 0
     by_deck = defaultdict(list)
     for info in invoke("notesInfo", notes=note_ids):
-        category = info["fields"]["Category"]["value"]
-        by_deck[f"{root_deck}::{category}"].extend(info["cards"])
+        if subdecks:
+            category = info["fields"]["Category"]["value"]
+            target = f"{root_deck}::{category}"
+        else:
+            target = root_deck
+        by_deck[target].extend(info["cards"])
     for deck, cards in by_deck.items():
         invoke("changeDeck", cards=cards, deck=deck)
     return sum(len(c) for c in by_deck.values())
 
 
-def push_cards(root_deck, model, cards):
+def _delete_empty_subdecks(root_deck):
+    """Remove leftover root_deck::* subdecks that hold no cards (flat mode)."""
+    subdecks = [d for d in invoke("deckNames") if d.startswith(f"{root_deck}::")]
+    empty = [d for d in subdecks if not invoke("findCards", query=f'deck:"{d}"')]
+    if empty:
+        invoke("deleteDecks", decks=empty, cardsToo=True)
+    return empty
+
+
+def push_cards(root_deck, model, cards, subdecks=True):
     print(f"AnkiConnect v{invoke('version')} reachable ✓")
 
     categories = sorted({c[0] for c in cards})
-    ensure_deck_tree(root_deck, categories)
+    ensure_deck_tree(root_deck, categories, subdecks=subdecks)
     ensure_model(model)
 
     notes = []
     for category, action, key, mode, notes_txt, source in cards:
         notes.append(
             {
-                "deckName": f"{root_deck}::{category}",
+                "deckName": f"{root_deck}::{category}" if subdecks else root_deck,
                 "modelName": model,
                 "fields": {
                     "Action": action,
@@ -247,12 +262,17 @@ def push_cards(root_deck, model, cards):
     if new_notes:
         invoke("addNotes", notes=new_notes)
 
-    moved = _place_cards_in_subdecks(root_deck, model)
+    moved = _place_cards(root_deck, model, subdecks=subdecks)
+    removed = [] if subdecks else _delete_empty_subdecks(root_deck)
 
     print(
         f"Total cards: {len(notes)}  |  added: {len(new_notes)}  |  already present: {len(notes) - len(new_notes)}"
     )
-    print(
-        f"Deck: '{root_deck}' (subdecks: {', '.join(categories)})  |  cards placed: {moved}"
-    )
+    if subdecks:
+        layout = f"subdecks: {', '.join(categories)}"
+    else:
+        layout = "flat (one deck; category kept as tag/badge)"
+    print(f"Deck: '{root_deck}' ({layout})  |  cards placed: {moved}")
+    if removed:
+        print(f"Removed {len(removed)} empty subdeck(s): {', '.join(removed)}")
     print("Tip: sync from the Anki desktop app to push these up to AnkiWeb.")

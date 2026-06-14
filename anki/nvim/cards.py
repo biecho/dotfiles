@@ -42,6 +42,10 @@ CARDS = [
     ("Search / Find", "Grep across the project root", "<leader>sg", "Normal", "Same as <leader>/", "lazyvim"),
     ("Search / Find", "Grep in the current working dir", "<leader>sG", "Normal", "cwd instead of git root", "lazyvim"),
     ("Search / Find", "Grep word/selection under cursor", "<leader>sw", "Normal/Visual", "Searches the word or visual selection", "lazyvim"),
+    ("Search / Find", "Search & replace across the project (grug-far)", "<leader>sr", "Normal/Visual", "Opens grug-far for project-wide find/replace, ripgrep-backed", "lazyvim"),
+    ("Search / Find", "Resume the last picker/search", "<leader>sR", "Normal", "Reopens the previous search with its results", "lazyvim"),
+    ("Search / Find", "Toggle hidden files inside a picker", "h", "Picker", "Snacks picker action; dotfiles are skipped by default", "lazyvim"),
+    ("Search / Find", "Toggle .gitignored files inside a picker", "i", "Picker", "Snacks picker action; ignored files are skipped by default", "lazyvim"),
     ("Search / Find", "Fuzzy-find lines in current buffer", "<leader>sb", "Normal", "Search within the open file", "lazyvim"),
     ("Search / Find", "Find files in project root", "<leader>ff", "Normal", "Honors .gitignore", "lazyvim"),
     ("Search / Find", "Find files in current working dir", "<leader>fF", "Normal", "", "lazyvim"),
@@ -50,7 +54,7 @@ CARDS = [
     ("Search / Find", "Switch buffer (quick)", "<leader>,", "Normal", "", "lazyvim"),
     ("Search / Find", "Go to document symbol", "<leader>ss", "Normal", "", "lazyvim"),
     ("Search / Find", "Go to workspace symbol", "<leader>sS", "Normal", "", "lazyvim"),
-    ("Search / Find", "Send picker results to quickfix list", "<C-q>", "Normal", "Inside a Telescope/Snacks picker", "lazyvim"),
+    ("Search / Find", "Send picker results to quickfix list", "<C-q>", "Normal", "Inside a Snacks picker", "lazyvim"),
 
     # ---- Splits / Windows (nvim/lua/plugins/smart-splits.lua) ----
     ("Splits / Windows", "Move to split on the left", "<C-h>", "Normal", "smart-splits, integrates with tmux/kitty", "config"),
