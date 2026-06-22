@@ -4,6 +4,6 @@
 # Symlinked to ~/.config/lazygit/config.yml by install script
 
 git:
-  pagers:
-    - colorArg: always
-      pager: delta --paging=never
+  paging:
+    colorArg: always
+    pager: delta --paging=never
