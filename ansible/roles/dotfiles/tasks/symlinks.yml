@@ -69,10 +69,16 @@
 
 # kitty's current-theme.conf is mutated at runtime by the theme picker, so it is
 # seeded as a real copy (not a symlink) to keep theme switches out of the repo.
+# current-theme.conf is gitignored; fall back to the tokyonight-storm default.
 # force:false means an existing file — i.e. a theme you already picked — is kept.
 - name: Seed kitty current-theme.conf from the repo default
   ansible.builtin.copy:
-    src: "{{ dotfiles_repo_dir }}/kitty/current-theme.conf"
+    src: >-
+      {{
+        (dotfiles_repo_dir + '/kitty/current-theme.conf')
+        if (dotfiles_repo_dir + '/kitty/current-theme.conf') is file
+        else (dotfiles_repo_dir + '/kitty/themes/tokyonight-storm.conf')
+      }}
     dest: "{{ dotfiles_home }}/.config/kitty/current-theme.conf"
     remote_src: true
     force: false

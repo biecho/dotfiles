@@ -20,6 +20,8 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.fzf/bin:$PATH"
 export PATH="$HOME/.atuin/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
+# depot_tools for V8/Chromium (gclient, gn, ninja, fetch)
+[[ -d "$HOME/depot_tools" ]] && export PATH="$HOME/depot_tools:$PATH"
 
 # -----------------------------------------------------------------------------
 # Anki (AnkiConnect) — moved off the default 8765 because tracegraph serve owns it
