@@ -21,8 +21,13 @@ require("lazy").setup({
     -- LazyVim extras
     { import = "lazyvim.plugins.extras.lang.python" },
     { import = "lazyvim.plugins.extras.lang.markdown" },
+    { import = "lazyvim.plugins.extras.lang.go" },
     { import = "lazyvim.plugins.extras.editor.telescope" },
     { import = "lazyvim.plugins.extras.coding.yanky" },
+    -- dap.core and test.core activate the debugger (delve) and test runner
+    -- (neotest-golang) that the Go extra wires up but marks as optional.
+    { import = "lazyvim.plugins.extras.dap.core" },
+    { import = "lazyvim.plugins.extras.test.core" },
     -- import/override with your plugins
     { import = "plugins" },
   },
