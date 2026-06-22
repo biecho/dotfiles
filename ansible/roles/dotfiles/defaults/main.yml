@@ -113,7 +113,8 @@ dotfiles_linux_packages_common:
 
 # atuin, lazygit, procs, and starship are not in Debian/Ubuntu apt repos; the
 # apt fzf is too old for the `fzf --zsh` shell integration; the apt neovim
-# (0.9.x) is too old for the LazyVim config (needs >= 0.11.2); and the
+# (0.9.x) is too old for the LazyVim config (needs >= 0.11.2); the apt golang
+# lags upstream, which Mason needs current to `go install` gopls et al.; and the
 # apt rclone (1.60.x) is years behind upstream's Google Drive backend. All are
 # installed from upstream releases in tools-linux.yml. Arch (rolling) and RedHat
 # get these from their own package managers below.
@@ -138,6 +139,7 @@ dotfiles_linux_packages_redhat:
   - gcc
   - gcc-c++
   - git-delta
+  - golang
   - kitty
   - make
   - neovim
@@ -156,6 +158,7 @@ dotfiles_linux_packages_arch:
   - fd
   - fzf
   - git-delta
+  - go
   - kitty
   - lazygit
   - neovim

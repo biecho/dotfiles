@@ -89,6 +89,21 @@
     executable: /bin/bash
     creates: "{{ dotfiles_local_bin }}/procs"
 
+- name: Install Go toolchain
+  ansible.builtin.shell: |
+    set -euo pipefail
+    ver=$(curl -fsSL "https://go.dev/VERSION?m=text" | head -1)
+    tmp=$(mktemp -d)
+    curl -fsSL "https://go.dev/dl/${ver}.linux-amd64.tar.gz" | tar xz -C "$tmp"
+    rm -rf "{{ dotfiles_home }}/.local/go"
+    mv "$tmp/go" "{{ dotfiles_home }}/.local/go"
+    ln -sf "{{ dotfiles_home }}/.local/go/bin/go" "{{ dotfiles_local_bin }}/go"
+    ln -sf "{{ dotfiles_home }}/.local/go/bin/gofmt" "{{ dotfiles_local_bin }}/gofmt"
+    rm -rf "$tmp"
+  args:
+    executable: /bin/bash
+    creates: "{{ dotfiles_local_bin }}/go"
+
 - name: Install rclone
   ansible.builtin.shell: |
     set -euo pipefail
