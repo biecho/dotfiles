@@ -6,3 +6,9 @@ __pycache__/
 *.pyc
 kitty/current-theme.conf
 nvim/lazy-lock.json
+
+# Secrets — never commit. rclone/Google Drive OAuth tokens (refresh token is
+# a long-lived credential). Keep per-machine, out of this public repo.
+.gdrive_token
+rclone.conf
+*.rclone.conf
