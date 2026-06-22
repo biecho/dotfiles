@@ -112,10 +112,11 @@ dotfiles_linux_packages_common:
   - zstd
 
 # atuin, lazygit, procs, and starship are not in Debian/Ubuntu apt repos; the
-# apt fzf is too old for the `fzf --zsh` shell integration; and the apt neovim
-# (0.9.x) is too old for the LazyVim config (needs >= 0.11.2). All are installed
-# from upstream releases in tools-linux.yml. Arch (rolling) and RedHat get
-# neovim from their own package managers below.
+# apt fzf is too old for the `fzf --zsh` shell integration; the apt neovim
+# (0.9.x) is too old for the LazyVim config (needs >= 0.11.2); and the
+# apt rclone (1.60.x) is years behind upstream's Google Drive backend. All are
+# installed from upstream releases in tools-linux.yml. Arch (rolling) and RedHat
+# get these from their own package managers below.
 dotfiles_linux_packages_debian:
   - bat
   - btop
@@ -141,6 +142,7 @@ dotfiles_linux_packages_redhat:
   - make
   - neovim
   - python3
+  - rclone
   - zathura
   - zathura-pdf-poppler
 
@@ -159,6 +161,7 @@ dotfiles_linux_packages_arch:
   - neovim
   - procs
   - python
+  - rclone
   - starship
   - zathura
   - zathura-pdf-poppler
