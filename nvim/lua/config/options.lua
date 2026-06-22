@@ -5,6 +5,10 @@
 -- Use absolute line numbers; LazyVim enables relativenumber by default.
 vim.opt.relativenumber = false
 
+-- Use basedpyright instead of pyright (Pylance features: auto-import code
+-- actions, inlay hints, semantic highlighting). Must be set before plugins load.
+vim.g.lazyvim_python_lsp = "basedpyright"
+
 -- OSC 52 clipboard support for SSH sessions (copy to local Mac clipboard)
 if vim.env.SSH_CONNECTION then
   local osc52 = require("vim.ui.clipboard.osc52")

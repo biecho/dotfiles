@@ -20,6 +20,8 @@ return {
         "toml",
         "markdown",
         "markdown_inline",
+        "c",
+        "cpp",
       },
       auto_install = false, -- Don't auto-install, use ensure_installed list
     },
