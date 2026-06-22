@@ -89,6 +89,22 @@
     executable: /bin/bash
     creates: "{{ dotfiles_local_bin }}/procs"
 
+- name: Install rclone
+  ansible.builtin.shell: |
+    set -euo pipefail
+    ver=$(curl -fsSL https://api.github.com/repos/rclone/rclone/releases/latest \
+      | grep -oP '"tag_name": "v\K[^"]+')
+    tmp=$(mktemp -d)
+    dir="rclone-v${ver}-linux-amd64"
+    curl -fsSL "https://github.com/rclone/rclone/releases/download/v${ver}/${dir}.zip" \
+      -o "$tmp/rclone.zip"
+    unzip -o "$tmp/rclone.zip" "$dir/rclone" -d "$tmp" >/dev/null
+    install -m 0755 "$tmp/$dir/rclone" "{{ dotfiles_local_bin }}/rclone"
+    rm -rf "$tmp"
+  args:
+    executable: /bin/bash
+    creates: "{{ dotfiles_local_bin }}/rclone"
+
 - name: Install yazi
   ansible.builtin.shell: |
     set -euo pipefail
