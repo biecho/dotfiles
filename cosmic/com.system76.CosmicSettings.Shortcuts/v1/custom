@@ -54,4 +54,10 @@
     // Bare Super tap -> nothing (was System(Launcher); stop the Launcher bar
     // popping up on every Super release. Launcher is still on Super+Space / Super+/)
     (modifiers: [Super]): Disable,
+
+    // Super+Shift+4 -> interactive region screenshot (macOS-style Shift+Cmd+4).
+    // Opens the COSMIC capture toolbar (drag a region / pick window / whole screen);
+    // saves to ~/Pictures/Screenshots and notifies the path. (Super+4 alone is the
+    // kitty goto_tab 4 binding above, so the Shift variant is used here.)
+    (modifiers: [Super, Shift], key: "4"): Spawn("cosmic-screenshot"),
 }
