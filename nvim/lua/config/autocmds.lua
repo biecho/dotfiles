@@ -51,10 +51,28 @@ checktime_timer:start(
   end)
 )
 
--- Notify when a buffer was reloaded because the file changed externally.
+-- When a buffer is reloaded from disk, the partial didChange that the reload
+-- emits can leave the language server's document copy out of sync, so it keeps
+-- reporting stale diagnostics until a manual `:e`. Force a full resync by
+-- detaching (sends didClose) and reattaching (sends didOpen) every LSP client
+-- on the buffer -- the same effect as `:e`, without restarting the server.
+local function resync_lsp(bufnr)
+  for _, client in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+    vim.lsp.buf_detach_client(bufnr, client.id)
+    vim.schedule(function()
+      if vim.api.nvim_buf_is_loaded(bufnr) then
+        vim.lsp.buf_attach_client(bufnr, client.id)
+      end
+    end)
+  end
+end
+
+-- Resync LSP and notify when a buffer was reloaded because the file changed
+-- externally.
 vim.api.nvim_create_autocmd("FileChangedShellPost", {
   group = vim.api.nvim_create_augroup("checktime_notify", { clear = true }),
   callback = function(event)
+    resync_lsp(event.buf)
     vim.notify(
       "File reloaded from disk: " .. vim.fn.fnamemodify(event.file, ":t"),
       vim.log.levels.INFO,
