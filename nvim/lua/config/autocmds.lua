@@ -80,3 +80,52 @@ vim.api.nvim_create_autocmd("FileChangedShellPost", {
     )
   end,
 })
+
+-- basedpyright cold-start race: on a fresh open the server analyzes the
+-- document under its noisy default `typeCheckingMode` before honoring the
+-- "standard" setting Neovim sends, so a flood of recommended-mode diagnostics
+-- (reportAny, reportUnusedCallResult, ...) shows until a manual `:e`. The
+-- client's settings are already correct -- basedpyright just won't re-analyze
+-- the already-open buffer. Forcing a full resync (didClose + didOpen) makes it
+-- re-analyze under "standard", the same effect as `:e`.
+--
+-- Timing matters: the resync only works once basedpyright is warm (has resolved
+-- its config); doing it too early just re-races. basedpyright emitting its first
+-- diagnostics is a reliable "now warm" signal, so wait for that rather than
+-- guessing a delay. A per-buffer flag makes it fire exactly once and keeps the
+-- resync's own reattach from looping back through here.
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("basedpyright_resync_on_attach", { clear = true }),
+  callback = function(event)
+    local client = vim.lsp.get_client_by_id(event.data.client_id)
+    if not client or client.name ~= "basedpyright" then
+      return
+    end
+    local bufnr = event.buf
+    if vim.b[bufnr].basedpyright_resynced then
+      return
+    end
+    -- Resync on basedpyright's first diagnostics, then self-delete (return true).
+    vim.api.nvim_create_autocmd("DiagnosticChanged", {
+      buffer = bufnr,
+      callback = function()
+        if vim.b[bufnr].basedpyright_resynced then
+          return true
+        end
+        local warm = false
+        for _, d in ipairs(vim.diagnostic.get(bufnr)) do
+          if d.source == "basedpyright" then
+            warm = true
+            break
+          end
+        end
+        if not warm then
+          return
+        end
+        vim.b[bufnr].basedpyright_resynced = true
+        resync_lsp(bufnr)
+        return true
+      end,
+    })
+  end,
+})
