@@ -22,20 +22,10 @@ return {
     -- port forwarding required (the old approach broke whenever the kitty
     -- control socket wasn't forwarded, e.g. nested SSH / compute nodes).
     if vim.env.SSH_CONNECTION or vim.env.SSH_TTY then
-      -- Detect hostname to determine port range (different hosts use different ranges)
-      -- p12: 9700-9709, s16: 9710-9719, p13: 9720-9729, others: 9730-9799
-      local hostname = vim.fn.hostname()
-      local base_port, range_size
-      if hostname == "p12" then
-        base_port, range_size = 9700, 10
-      elseif hostname == "s16" then
-        base_port, range_size = 9710, 10
-      elseif hostname == "p13" then
-        base_port, range_size = 9720, 10
-      else
-        base_port, range_size = 9730, 70
-      end
-      local port = base_port + (vim.fn.getpid() % range_size)
+      -- The Tailscale IP already disambiguates hosts, so a single shared port
+      -- range is enough -- only multiple nvim instances on the *same* host can
+      -- collide, and the pid keeps those apart.
+      local port = 9700 + (vim.fn.getpid() % 100)
       vim.g.mkdp_port = tostring(port)
 
       -- Bind the preview server to 0.0.0.0 so it's reachable over the network...
