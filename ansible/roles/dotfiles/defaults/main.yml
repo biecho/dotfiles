@@ -67,6 +67,8 @@ dotfiles_common_links:
     dest: .claude/settings.local.json
   - src: .claude/commands
     dest: .claude/commands
+  - src: .claude/CLAUDE.md
+    dest: .claude/CLAUDE.md
 
 dotfiles_kitty_links:
   - src: kitty/themes
