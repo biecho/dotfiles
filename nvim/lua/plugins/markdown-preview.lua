@@ -40,14 +40,29 @@ return {
         end
       end
 
-      -- Instead of auto-opening a browser on the remote host, surface the
-      -- Tailscale URL so it can be opened on the local machine. Best-effort
-      -- kitty remote control when the socket is available; harmless when not.
+      -- Instead of auto-opening a browser on the remote host, open the
+      -- Tailscale URL in the *local* browser via kitty remote control, and
+      -- always surface the URL as a clickable fallback.
       vim.g.mkdp_browserfunc = "OpenMarkdownPreviewBrowser"
       vim.cmd([[
         function! OpenMarkdownPreviewBrowser(url) abort
-          if executable('kitty')
-            call jobstart(['kitty', '@', 'action', 'open_url', a:url])
+          let l:kitty = executable('kitten') ? 'kitten' : (executable('kitty') ? 'kitty' : '')
+          if !empty(l:kitty)
+            " Inside tmux $KITTY_LISTEN_ON is stale (a new ssh connection
+            " forwards a new socket), so ask the tmux server for the current
+            " client's value (tracked via update-environment in tmux.conf).
+            let l:listen = $KITTY_LISTEN_ON
+            if !empty($TMUX)
+              let l:out = trim(system('tmux show-environment KITTY_LISTEN_ON 2>/dev/null'))
+              if v:shell_error == 0 && l:out =~# '^KITTY_LISTEN_ON='
+                let l:listen = l:out[16:]
+              endif
+            endif
+            let l:cmd = [l:kitty, '@']
+            if !empty(l:listen)
+              let l:cmd += ['--to', l:listen]
+            endif
+            call jobstart(l:cmd + ['action', 'open_url', a:url])
           endif
           call luaeval('vim.notify("Markdown Preview: " .. _A, vim.log.levels.INFO)', a:url)
         endfunction
