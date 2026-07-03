@@ -119,6 +119,11 @@ end, { desc = "Reload config" })
 -- Trim trailing whitespace in visual selection
 vim.keymap.set("v", "<leader>tw", [[:s/\s\+$//g<CR>]], { desc = "Trim trailing whitespace" })
 
+-- Grep in the directory of the current file (sibling to sg=Root Dir, sG=cwd)
+vim.keymap.set("n", "<leader>sf", function()
+  require("telescope.builtin").live_grep({ cwd = vim.fn.expand("%:p:h") })
+end, { desc = "Grep (current file's dir)" })
+
 -- Toggle explorer with reveal current file (PyCharm-style)
 -- Reveal handles cwd adjustment automatically for files outside the project root.
 -- Hidden files are enabled so dotdirs (e.g. .ssh/) are visible.
