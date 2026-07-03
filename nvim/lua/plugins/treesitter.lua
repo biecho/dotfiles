@@ -55,6 +55,14 @@ return {
     end,
   },
 
+  -- Pin the enclosing function/class header at the top of the viewport
+  -- while scrolling (PyCharm's sticky lines)
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = "LazyFile",
+    opts = { max_lines = 4 },
+  },
+
   -- Prevent Mason from installing tree-sitter-cli (we use npm version)
   {
     "mason-org/mason.nvim",

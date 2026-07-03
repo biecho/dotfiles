@@ -57,12 +57,17 @@ end, { desc = "Organize imports" })
 -- Call hierarchy now handled by lspsaga (see plugins/lspsaga.lua)
 
 -- Copy the current buffer's path to the system clipboard (+ register)
-local function yank_path(modifier, label)
+local function yank_path(modifier, label, with_line)
   local path = vim.fn.expand("%" .. modifier)
   if path == "" then
     vim.notify("No file path for this buffer", vim.log.levels.WARN)
     return
   end
+
+  if with_line then
+    path = path .. ":" .. vim.fn.line(".")
+  end
+
   vim.fn.setreg("+", path)
   vim.notify("Copied " .. label .. ": " .. path)
 end
@@ -76,6 +81,10 @@ end, { desc = "Copy absolute file path" })
 vim.keymap.set("n", "<leader>cn", function()
   yank_path(":t", "filename")
 end, { desc = "Copy filename" })
+-- PyCharm's Copy Reference (Cmd+Shift+C): "path/to/file.py:42"
+vim.keymap.set("n", "<leader>cy", function()
+  yank_path(":.", "reference", true)
+end, { desc = "Copy reference (path:line)" })
 
 -- JSONL unroll/collapse via jq, on the whole buffer.
 -- `jq .` over a stream of records pretty-prints each one (unrolls the file);
