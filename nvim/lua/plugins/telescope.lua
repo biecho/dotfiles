@@ -1,5 +1,18 @@
 return {
   "nvim-telescope/telescope.nvim",
+  -- Browsable undo history with diffs in the preview, like PyCharm's
+  -- Local History (persists across sessions via LazyVim's undofile default).
+  dependencies = { "debugloop/telescope-undo.nvim" },
+  keys = {
+    {
+      "<leader>su",
+      function()
+        require("telescope").load_extension("undo")
+        require("telescope").extensions.undo.undo()
+      end,
+      desc = "Undo History",
+    },
+  },
   -- Centered popup with code preview for ALL pickers, like PyCharm's
   -- Search Everywhere / Recent Locations. Applied via defaults so every
   -- LazyVim binding (<leader>sj, <leader>sg, <leader>ff, ...) inherits it.
