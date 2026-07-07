@@ -69,6 +69,8 @@ dotfiles_common_links:
     dest: .claude/commands
   - src: .claude/CLAUDE.md
     dest: .claude/CLAUDE.md
+  - src: .claude/skills
+    dest: .claude/skills
 
 dotfiles_kitty_links:
   - src: kitty/themes
