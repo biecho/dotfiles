@@ -104,6 +104,14 @@
     executable: /bin/bash
     creates: "{{ dotfiles_local_bin }}/go"
 
+- name: Install Rust toolchain
+  ansible.builtin.shell: |
+    curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path \
+      -c rust-analyzer -c rust-src
+  args:
+    executable: /bin/bash
+    creates: "{{ dotfiles_home }}/.cargo/bin/cargo"
+
 - name: Install rclone
   ansible.builtin.shell: |
     set -euo pipefail
