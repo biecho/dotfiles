@@ -495,6 +495,19 @@ function plog() {
     fi
 }
 
+# Share a file/dir over the tailnet (browse + download via tailscale serve)
+# Usage: tshare [path]  — defaults to cwd, prints the tailnet URL
+#        tshare off     — stop sharing (leaves other serve config alone)
+# ponytail: plain HTTP on a fixed port — traffic is already WireGuard-encrypted;
+# for HTTPS enable certs once (https://login.tailscale.com/f/serve) and drop --http.
+tshare() {
+    if [[ "$1" == "off" ]]; then
+        sudo tailscale serve --http=8081 off
+    else
+        sudo tailscale serve --http=8081 --bg "${1:-$PWD}"
+    fi
+}
+
 # Serve files via HTTP
 function serve_files() {
     local port=${1:-8000}
