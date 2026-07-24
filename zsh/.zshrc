@@ -229,6 +229,9 @@ fi
 # Claude Code (skip permission prompts)
 alias claude='claude --dangerously-skip-permissions'
 
+# Codex (skip approval prompts and sandbox restrictions)
+alias codex='codex --yolo'
+
 # Ports
 alias listenports="lsof -iTCP -sTCP:LISTEN -n"
 
