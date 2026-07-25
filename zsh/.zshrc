@@ -169,6 +169,9 @@ alias lg='lazygit'
 alias icat='kitten icat'
 alias kssh='kitten ssh'
 
+# Gemini CLI always starting in YOLO mode
+alias gemini='gemini --approval-mode=yolo'
+
 # Clipboard (kitten clipboard works locally and over kitten ssh)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     alias c='pbcopy'
