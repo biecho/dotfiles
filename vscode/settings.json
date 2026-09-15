@@ -1564,7 +1564,10 @@
   // ---------------------------------------------------------------------------
   // PYTHON
   // ---------------------------------------------------------------------------
-  "python.defaultInterpreterPath": "/opt/miniconda3/envs/deeplearn_course/bin/python",
+  // No "python.defaultInterpreterPath" here on purpose: it is machine-scoped
+  // and gets inherited into Remote-SSH windows, where a macOS conda path is
+  // meaningless. Set it per host in the remote settings instead:
+  //   ~/.vscode-server/data/Machine/settings.json
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
   "python.analysis.inlayHints.functionReturnTypes": false,
@@ -1600,13 +1603,10 @@
   // TERMINAL
   // ---------------------------------------------------------------------------
   "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.fontSize": 13,
   "terminal.integrated.scrollback": 10000,
   "terminal.integrated.inheritEnv": false,
-  // ---------------------------------------------------------------------------
-  // WORKBENCH
-  // ---------------------------------------------------------------------------
-  "workbench.colorTheme": "Rosé Pine Dawn (no italics)",
   "workbench.startupEditor": "none",
   // Reuse a single "preview" tab when opening files (italic title) instead of
   // piling up a permanent tab per file. A file becomes permanent once edited or
@@ -1659,9 +1659,46 @@
     "PERF",
     "WARN",
   ],
+  // Todo-Tree 0.0.226 is unmaintained and probes for VS Code's bundled ripgrep
+  // under node_modules/@vscode/ripgrep, which VS Code renamed to
+  // @vscode/ripgrep-universal -> "Failed to find vscode-ripgrep". It only
+  // existsSync()s this value, so no PATH lookup and no ${userHome} expansion:
+  // it has to be one absolute path valid on every machine. Ansible symlinks
+  // the system rg there on macOS and Linux alike (see tasks/vscode.yml).
+  "todo-tree.ripgrep.ripgrep": "/usr/local/bin/rg",
   "todo-tree.highlights.defaultHighlight": {
     "gutterIcon": true,
   },
+  // ---------------------------------------------------------------------------
+  // REMOTE (SSH)
+  // ---------------------------------------------------------------------------
+  // Window-scoped settings and keybindings.json already come from this local
+  // machine when editing over Remote-SSH, but extensions do not: workspace
+  // extensions must live in ~/.vscode-server/extensions on the host. VS Code
+  // installs the list below on every SSH host on first connect, so no dotfiles
+  // run on the remote is needed. UI extensions (vim, themes, jupyter-keymap)
+  // stay local and are deliberately absent; `vscode/check-extensions.py` keeps
+  // this list in sync with extensions.txt.
+  "remote.SSH.defaultExtensions": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "ms-toolsai.jupyter",
+    "ms-toolsai.jupyter-renderers",
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "patbenatar.advanced-new-file",
+    "esbenp.prettier-vscode",
+    "ms-python.black-formatter",
+    "gruntfuggly.todo-tree",
+    "james-yu.latex-workshop",
+    "yzhang.markdown-all-in-one",
+    "bierner.markdown-mermaid",
+    "bierner.markdown-preview-github-styles",
+    "streetsidesoftware.code-spell-checker",
+    "editorconfig.editorconfig",
+    "usernamehw.errorlens",
+  ],
   // ---------------------------------------------------------------------------
   // TELEMETRY
   // ---------------------------------------------------------------------------

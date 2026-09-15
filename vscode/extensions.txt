@@ -1,5 +1,12 @@
+# Extensions installed by the Ansible role (`code --install-extension`).
+#
+# `# ui` marks a UI extension: it runs on the machine VS Code's window lives on,
+# so it is not needed on a Remote-SSH host. Everything else is a workspace
+# extension and must also appear in "remote.SSH.defaultExtensions" in
+# settings.json — `check-extensions.py` enforces that.
+
 # Core
-vscodevim.vim
+vscodevim.vim  # ui
 
 # Python
 ms-python.python
@@ -8,7 +15,7 @@ ms-python.debugpy
 
 # Jupyter
 ms-toolsai.jupyter
-ms-toolsai.jupyter-keymap
+ms-toolsai.jupyter-keymap  # ui
 ms-toolsai.jupyter-renderers
 
 # Git
@@ -25,13 +32,16 @@ ms-python.black-formatter
 # Todo comments
 gruntfuggly.todo-tree
 
+# LaTeX
+james-yu.latex-workshop
+
 # Colorschemes
-enkia.tokyo-night
-sainnhe.gruvbox-material
-catppuccin.catppuccin-vsc
-mvllow.rose-pine
-sainnhe.everforest
-github.github-vscode-theme
+enkia.tokyo-night  # ui
+sainnhe.gruvbox-material  # ui
+catppuccin.catppuccin-vsc  # ui
+mvllow.rose-pine  # ui
+sainnhe.everforest  # ui
+github.github-vscode-theme  # ui
 
 # Markdown
 yzhang.markdown-all-in-one

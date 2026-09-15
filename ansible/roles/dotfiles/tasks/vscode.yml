@@ -99,3 +99,22 @@
   when:
     - dotfiles_install_vscode_extensions | bool
     - dotfiles_code_cli.stdout_lines | length > 0
+
+# Todo-Tree probes for VS Code's bundled ripgrep at a path VS Code renamed, and
+# its "todo-tree.ripgrep.ripgrep" escape hatch is existsSync'd, so it needs one
+# absolute path that resolves on every machine sharing settings.json. Homebrew
+# puts rg in /opt/homebrew/bin, apt in /usr/bin -- link both to a common name.
+- name: Locate ripgrep
+  ansible.builtin.command: command -v rg
+  register: dotfiles_ripgrep
+  changed_when: false
+  failed_when: false
+
+- name: Link ripgrep to a platform-independent path for Todo-Tree
+  ansible.builtin.file:
+    src: "{{ dotfiles_ripgrep.stdout_lines[0] }}"
+    dest: /usr/local/bin/rg
+    state: link
+    force: true
+  become: true
+  when: dotfiles_ripgrep.stdout_lines | length > 0

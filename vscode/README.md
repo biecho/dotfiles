@@ -13,7 +13,29 @@ ansible-playbook ansible/playbook.yml -e dotfiles_install_vscode=true -e dotfile
 
 Extension IDs live in `extensions.txt`. The Ansible playbook reads that file and installs each non-empty, non-comment line when a `code`, `codium`, or `code-server` CLI is available.
 
-Run the dotfiles installer locally and on each SSH host where you want the same extension set. VS Code keeps local/UI extensions and remote/SSH extensions separately.
+Run the dotfiles installer locally. Do **not** run it on a Remote-SSH host to get
+extensions there: `code --install-extension` writes to `~/.vscode/extensions`
+(desktop VS Code), while Remote-SSH reads `~/.vscode-server/extensions`. Remote
+extensions come from `"remote.SSH.defaultExtensions"` in `settings.json`, which
+VS Code installs on every SSH host on first connect.
+
+Entries marked `# ui` in `extensions.txt` are UI extensions (vim, themes) that run
+on the local machine and are not needed on the host. `./check-extensions.py` fails
+if the two lists drift apart.
+
+## Remote-SSH
+
+Editing on a remote host reuses this config almost entirely: `keybindings.json` and
+all window-scoped settings (editor, vim, workbench, files, git, …) are read from the
+local machine. Only machine-scoped settings are not — set those per host in
+`~/.vscode-server/data/Machine/settings.json`, e.g.:
+
+```jsonc
+{
+  "python.defaultInterpreterPath": "$HOME/miniconda3/envs/<env>/bin/python",
+  "terminal.integrated.inheritEnv": false
+}
+```
 
 ## Feature Mapping: nvim → VSCode
 
