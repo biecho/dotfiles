@@ -1724,6 +1724,13 @@
   //   }
   // ],
   // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // SPELL CHECKER (Code Spell Checker extension)
+  // ---------------------------------------------------------------------------
+  // Off everywhere: the squiggles were noise in code and in prose alike.
+  // userWords below is kept so flipping this back to true restores the
+  // accepted-word list instead of relearning it.
+  "cSpell.enabled": false,
   "cSpell.userWords": [
     "adversarials",
     "AUROC",
