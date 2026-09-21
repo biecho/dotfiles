@@ -1,0 +1,52 @@
+#!/bin/bash
+# Refuse to commit a credential, or a path that names the machine this was
+# written on.
+#
+# Only ADDED lines are examined. Touching a file that already carries such a
+# path has to stay possible, or the hook becomes something people route
+# around -- and a guard that is routinely bypassed is not a guard.
+set -u
+
+lib="$(dirname "$0")/lib-privacy-guard.sh"
+if [ ! -r "$lib" ]; then
+    echo "ERROR: hook library missing: $lib" >&2
+    echo "Refusing the commit rather than checking nothing." >&2
+    exit 1
+fi
+. "$lib"
+
+fail=0
+file=""
+
+while IFS= read -r line; do
+    case "$line" in
+        '+++ b/'*) file="${line#+++ b/}"; continue ;;
+        '+'*) ;;
+        *) continue ;;
+    esac
+
+    hits=$(privacy_guard_hits "${line#+}")
+    if [ -n "$hits" ]; then
+        if [ "$fail" -eq 0 ]; then
+            echo "ERROR: staged changes carry a credential or machine-identifying path:"
+            echo ""
+            fail=1
+        fi
+        printf '  %s\n' "$file"
+        printf '%s\n' "$hits" | sed 's/^/      /'
+    fi
+# The prefixes are pinned: diff.mnemonicPrefix, which this user has set,
+# renames them to c/ and i/ for a cached diff, and the header parsing above
+# would silently stop finding file names.
+done < <(git diff --cached -U0 --no-color --diff-filter=ACM \
+    --src-prefix=a/ --dst-prefix=b/)
+
+if [ "$fail" -ne 0 ]; then
+    echo ""
+    echo "Write a placeholder instead -- the docs here use /Users/you -- or \$HOME,"
+    echo "or keep the file out of the repo entirely (see .gitignore)."
+    echo "If it genuinely belongs in the commit: git commit --no-verify"
+    exit 1
+fi
+
+exit 0
