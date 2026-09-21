@@ -1,3 +1,13 @@
+# Starting point for termusic's server config.
+#
+# The live file next to this one (server.toml) is NOT tracked: termusic
+# rewrites it while it runs, recording an absolute music directory and a
+# per-user socket path. Both are machine state, and this repo is public.
+#
+# Ansible copies this file to server.toml when none exists yet; an existing
+# one is never overwritten. Then link it as termusic/README.md describes and
+# set music_dirs to your own path.
+
 version = "2"
 
 [com]

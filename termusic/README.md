@@ -42,6 +42,14 @@ cargo install termusic termusic-server --locked
 
 ## Setup
 
+`server.toml` is not tracked: termusic rewrites it while it runs, recording an
+absolute music directory and a per-user socket path. Create it from the
+template first (the Ansible role does this for you), then link it:
+
+```bash
+cp -n ~/dotfiles/termusic/server.toml.example ~/dotfiles/termusic/server.toml
+```
+
 Link the configuration files:
 
 ```bash

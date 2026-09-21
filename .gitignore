@@ -5,6 +5,8 @@
 __pycache__/
 *.pyc
 kitty/current-theme.conf
+# termusic rewrites this while it runs: absolute music dirs, per-user socket.
+termusic/server.toml
 nvim/lazy-lock.json
 
 # Secrets — never commit. rclone/Google Drive OAuth tokens (refresh token is

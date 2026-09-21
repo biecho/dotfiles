@@ -84,6 +84,20 @@
     force: false
     mode: "0644"
 
+# termusic rewrites server.toml while it runs, recording an absolute music
+# directory and a per-user socket path, so the live file is gitignored and
+# seeded from the example instead of being tracked. It is seeded in the repo
+# itself because that is what termusic/README.md links to.
+# force:false means a config you already have is kept.
+- name: Seed termusic server.toml from the repo example
+  ansible.builtin.copy:
+    src: "{{ dotfiles_repo_dir }}/termusic/server.toml.example"
+    dest: "{{ dotfiles_repo_dir }}/termusic/server.toml"
+    remote_src: true
+    force: false
+    mode: "0644"
+  when: dotfiles_install_termusic | bool
+
 - name: Install yazi packages when ya is available
   ansible.builtin.command:
     argv:
