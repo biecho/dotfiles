@@ -1,7 +1,36 @@
 #!/bin/bash
-# Reject commit messages that contain Claude/AI references.
-if grep -qiE "(claude|anthropic|generated with claude)" "$1"; then
-    echo "ERROR: Commit message contains Claude/AI references."
+# Reject a commit that carries a trace of AI assistance -- in its message, or
+# in the identity git is about to record.
+#
+# The identity check closes the gap the message check leaves open: --author
+# and the GIT_AUTHOR_*/GIT_COMMITTER_* environment decide who the commit
+# claims to come from without putting a single word in the message.
+set -u
+
+lib="$(dirname "$0")/lib-ai-guard.sh"
+if [ ! -r "$lib" ]; then
+    echo "ERROR: hook library missing: $lib" >&2
+    echo "Refusing the commit rather than checking nothing." >&2
+    exit 1
+fi
+. "$lib"
+
+offending=$(ai_guard_message_hits "$(cat "$1")")
+if [ -n "$offending" ]; then
+    echo "ERROR: Commit message contains AI references:"
+    printf '%s\n' "$offending" | sed 's/^/  /'
+    echo ""
     echo "Please remove any traces of AI assistance from your commit message."
     exit 1
 fi
+
+offending=$(ai_guard_idents | grep -iE "$AI_PATTERN")
+if [ -n "$offending" ]; then
+    echo "ERROR: Commit identity names an AI assistant:"
+    printf '%s\n' "$offending" | sed 's/^/  /'
+    echo ""
+    echo "Drop --author, or unset GIT_AUTHOR_NAME/GIT_AUTHOR_EMAIL, and commit again."
+    exit 1
+fi
+
+exit 0

@@ -84,28 +84,6 @@
     force: false
     mode: "0644"
 
-- name: Ensure git hooks directory exists
-  ansible.builtin.file:
-    path: "{{ dotfiles_home }}/.config/git/hooks"
-    state: directory
-    mode: "0755"
-
-- name: Discover git hooks
-  ansible.builtin.find:
-    paths: "{{ dotfiles_repo_dir }}/git/hooks"
-    file_type: file
-  register: dotfiles_git_hooks
-
-- name: Link git hooks
-  ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ dotfiles_home }}/.config/git/hooks/{{ item.path | basename }}"
-    state: link
-    force: true
-  loop: "{{ dotfiles_git_hooks.files }}"
-  loop_control:
-    label: "{{ item.path | basename }}"
-
 - name: Install yazi packages when ya is available
   ansible.builtin.command:
     argv:

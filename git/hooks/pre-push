@@ -1,28 +1,76 @@
 #!/bin/bash
-# Safety net: reject pushes containing Co-Authored-By or AI references.
-# Catches commits made with --no-verify that bypassed commit-msg hooks.
+# Safety net: reject a push that would carry AI-assistant traces to a remote.
+# Catches commits made with --no-verify, which never reached commit-msg.
+#
+# Only commits that have not left this machine are examined. For a brand new
+# branch that means everything not already on some remote -- not the whole
+# history, which would re-judge old commits forever and block on a message
+# that merely names CLAUDE.md.
+set -u
 
-remote="$1"
-url="$2"
+lib="$(dirname "$0")/lib-ai-guard.sh"
+if [ ! -r "$lib" ]; then
+    echo "ERROR: hook library missing: $lib" >&2
+    echo "Refusing the push rather than checking nothing." >&2
+    exit 1
+fi
+. "$lib"
 
-while read local_ref local_oid remote_ref remote_oid; do
-    if [ "$local_oid" = "0000000000000000000000000000000000000000" ]; then
+ZERO=0000000000000000000000000000000000000000
+
+reject() {
+    echo "ERROR: Push rejected -- $1:"
+    echo ""
+    printf '%s\n' "$2" | sed 's/^/  /'
+    echo ""
+    echo "Fix with: git rebase -i, then reword or re-author the offending commits."
+    exit 1
+}
+
+# Commits whose message names an AI assistant, judged one at a time so the
+# allowed names can be removed before matching.
+offending_messages() {
+    local sha hits found=""
+
+    for sha in $(git log --format=%H "$@" -i -E --grep="$AI_PATTERN"); do
+        hits=$(ai_guard_message_hits "$(git log -1 --format=%B "$sha")")
+        if [ -n "$hits" ]; then
+            found="$found$(git log -1 --format='%h %s' "$sha")"$'\n'
+        fi
+    done
+
+    printf '%s' "$found"
+}
+
+check_range() {
+    local found
+
+    found=$(git log --format="%h %s" "$@" --grep="Co-Authored-By" -i)
+    if [ -n "$found" ]; then
+        reject "commits contain Co-Authored-By lines" "$found"
+    fi
+
+    found=$(offending_messages "$@")
+    if [ -n "$found" ]; then
+        reject "commit messages reference an AI assistant" "$found"
+    fi
+
+    found=$(git log --format="%h  author: %an <%ae>  committer: %cn <%ce>" "$@" \
+        | grep -iE "$AI_PATTERN")
+    if [ -n "$found" ]; then
+        reject "commits are authored or committed by an AI assistant" "$found"
+    fi
+}
+
+while read -r local_ref local_oid remote_ref remote_oid; do
+    if [ "$local_oid" = "$ZERO" ]; then
         continue
     fi
 
-    if [ "$remote_oid" = "0000000000000000000000000000000000000000" ]; then
-        range="$local_oid"
+    if [ "$remote_oid" = "$ZERO" ]; then
+        check_range "$local_oid" --not --remotes
     else
-        range="$remote_oid..$local_oid"
-    fi
-
-    offending=$(git log --format="%h %s" "$range" --grep="Co-Authored-By" -i 2>/dev/null)
-    if [ -n "$offending" ]; then
-        echo "ERROR: Push rejected — commits contain Co-Authored-By lines:"
-        echo "$offending"
-        echo ""
-        echo "Fix with: git rebase -i and reword the offending commits."
-        exit 1
+        check_range "$remote_oid..$local_oid"
     fi
 done
 

@@ -49,6 +49,11 @@ dotfiles_common_links:
     dest: .config/nvim
   - src: git/config
     dest: .gitconfig
+  # The whole hooks directory, not file by file: .config/git/hooks IS this
+  # directory, so linking its contents individually would point each hook at
+  # itself and destroy it.
+  - src: git/hooks
+    dest: .config/git/hooks
   - src: tmux/tmux.conf
     dest: .tmux.conf
   - src: yazi/yazi.toml
