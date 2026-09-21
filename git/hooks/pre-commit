@@ -7,6 +7,17 @@
 # around -- and a guard that is routinely bypassed is not a guard.
 set -u
 
+# A repo can opt out deliberately. A private repo of raw experiment captures
+# legitimately contains machine paths, and the alternative -- reaching for
+# --no-verify on every commit there -- teaches the habit of bypassing every
+# hook, including the ones that matter:
+#
+#   git config privacyguard.enabled false
+#
+if [ "$(git config --get privacyguard.enabled)" = "false" ]; then
+    exit 0
+fi
+
 lib="$(dirname "$0")/lib-privacy-guard.sh"
 if [ ! -r "$lib" ]; then
     echo "ERROR: hook library missing: $lib" >&2
@@ -46,6 +57,8 @@ if [ "$fail" -ne 0 ]; then
     echo "Write a placeholder instead -- the docs here use /Users/you -- or \$HOME,"
     echo "or keep the file out of the repo entirely (see .gitignore)."
     echo "If it genuinely belongs in the commit: git commit --no-verify"
+    echo "If this whole repo legitimately carries such paths, say so once:"
+    echo "    git config privacyguard.enabled false"
     exit 1
 fi
 
