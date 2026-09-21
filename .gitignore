@@ -14,3 +14,4 @@ nvim/lazy-lock.json
 .gdrive_token
 rclone.conf
 *.rclone.conf
+.env
